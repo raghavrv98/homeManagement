@@ -1,0 +1,72 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import "./Header.css";
+import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
+
+const DateDisplay = () => {
+  const today = new Date();
+  const formattedDate = today.toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+  const formattedTime = today.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+  return (
+    <div>
+      {formattedDate} - {formattedTime}
+    </div>
+  );
+};
+
+const Header = ({ backLink, isShowBack = true, isShowLogout }) => {
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    if (backLink) {
+      navigate(backLink);
+    } else {
+      navigate(-1); // default behavior
+    }
+  };
+
+  const logoutHandler = () => {
+    localStorage.clear();
+    navigate("/");
+  };
+
+  return (
+    <header className="header">
+      <div className="headerBackline">
+        {isShowBack && (
+          <button className="back-button" onClick={handleBack}>
+            <div className="arrowIcon">
+              <KeyboardBackspaceIcon />
+            </div>
+            Back
+          </button>
+        )}
+        <div className="time">
+          <div>Date : </div>
+          <DateDisplay />
+        </div>
+        {isShowLogout && (
+          <button className="back-button" onClick={logoutHandler}>
+            {/* <div className="arrowIcon">
+              < />
+            </div> */}
+            Logout
+          </button>
+        )}
+      </div>
+      <div className="title">
+        <h1>Home Management</h1>
+      </div>
+    </header>
+  );
+};
+
+export default Header;

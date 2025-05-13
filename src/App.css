@@ -1,0 +1,17 @@
+* {
+  box-sizing: border-box;
+}
+
+.container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.outerbox{
+    padding: 100px;
+    border: 1px solid black;
+    border-radius: 10px;
+    width: 50%;
+    height: 50%;
+}
