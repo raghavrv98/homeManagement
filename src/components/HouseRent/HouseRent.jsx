@@ -21,7 +21,7 @@ const HouseRent = () => {
     if (validate()) {
       try {
         const response = await fetch(
-          "http://localhost:3002/user/raghav/houseRent",
+          "https://humlog.onrender.com/user/raghav/houseRent",
           {
             method: "POST",
             headers: {

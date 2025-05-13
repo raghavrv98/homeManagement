@@ -27,7 +27,7 @@ const DataTables = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:3002/users/raghav");
+        const response = await fetch("https://humlog.onrender.com/users/raghav");
         const result = await response.json();
 
         if (response.ok) {

@@ -60,7 +60,7 @@ const FastFood = () => {
     if (validate()) {
       try {
         const response = await fetch(
-          "http://localhost:3002/user/raghav/fastFood",
+          "https://humlog.onrender.com/user/raghav/fastFood",
           {
             method: "POST",
             headers: {

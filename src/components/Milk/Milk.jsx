@@ -43,7 +43,7 @@ const Milk = () => {
 
     if (validate()) {
       try {
-        const response = await fetch("http://localhost:3002/user/raghav/milk", {
+        const response = await fetch("https://humlog.onrender.com/user/raghav/milk", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

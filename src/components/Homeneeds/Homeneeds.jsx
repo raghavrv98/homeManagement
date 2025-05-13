@@ -52,7 +52,7 @@ const Homeneeds = () => {
     if (validate()) {
       try {
         const response = await fetch(
-          "http://localhost:3002/user/raghav/homeNeeds",
+          "https://humlog.onrender.com/user/raghav/homeNeeds",
           {
             method: "POST",
             headers: {
