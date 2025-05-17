@@ -4,18 +4,18 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import HomePage from "./components/Homepage/Homepage";
 import Money from "./components/Money/Money";
-import VegetablesAndFruits from "./components/VegetableAndFruits/VegetableAndFruits";
-import Milk from "./components/Milk/Milk";
-import KiranaStore from "./components/KiranaStore/KiranaStore";
-import FastFood from "./components/FastFood/FastFood";
-import Homeneeds from "./components/Homeneeds/Homeneeds";
-import Petrol from "./components/Petrol/Petrol";
+import Milk from "./components/Forms/Milk/Milk";
+import KiranaStore from "./components/Forms/KiranaStore/KiranaStore";
+import FastFood from "./components/Forms/FastFood/FastFood";
+import Homeneeds from "./components/Forms/Homeneeds/Homeneeds";
+import Petrol from "./components/Forms/Petrol/Petrol";
 import Dashboard from "./components/Dashboard/Dashboard";
 import DataTables from "./components/DataTables/DataTables";
-import HouseRent from "./components/HouseRent/HouseRent";
-import WifiBill from "./components/WifiBill/WifiBill";
+import HouseRent from "./components/Forms/HouseRent/HouseRent";
+import WifiBill from "./components/Forms/WifiBill/WifiBill";
 import Graphs from "./components/Graphs/Graphs";
-import Outing from "./components/Outing/Outing";
+import Outing from "./components/Forms/Outing/Outing";
+import VegetablesAndFruits from "./components/Forms/VegetableAndFruits/VegetableAndFruits";
 
 const App = () => {
   return (

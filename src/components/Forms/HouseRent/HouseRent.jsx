@@ -1,8 +1,8 @@
 import { Button, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
-import Header from "../Header/Header";
+import Header from "../../Header/Header";
 
-const WifiBill = () => {
+const HouseRent = () => {
   const [amount, setAmount] = useState("");
   const [error, setError] = useState("");
 
@@ -19,14 +19,20 @@ const WifiBill = () => {
     e.preventDefault();
 
     if (validate()) {
+      const timestamp = localStorage?.getItem("selectedDate")
+        ? localStorage?.getItem("selectedDate")
+        : new Date().getTime();
       try {
-        const response = await fetch("https://humlog.onrender.com/user/raghav/wifi", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ amount }),
-        });
+        const response = await fetch(
+          "http://localhost:3002/user/raghav/houseRent",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ amount, timestamp }),
+          }
+        );
 
         const result = await response.json();
 
@@ -52,7 +58,7 @@ const WifiBill = () => {
       <div className="container">
         <form className="form" onSubmit={handleSubmit}>
           <Typography variant="h5" align="center" gutterBottom>
-            Wifi Bill Entry
+            House Rent Entry
           </Typography>
 
           <TextField
@@ -76,4 +82,4 @@ const WifiBill = () => {
   );
 };
 
-export default WifiBill;
+export default HouseRent;

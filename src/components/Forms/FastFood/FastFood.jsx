@@ -1,30 +1,36 @@
 import { Button, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
-import Header from "../Header/Header";
+import Header from "../../Header/Header";
 
-const Outing = () => {
+const FastFood = () => {
   const [formData, setFormData] = useState({
-    place: "",
+    name: "",
     cost: "",
-    numberOfDays: "",
+    piecePlate: "",
+    place: "",
+    timestamp: localStorage?.getItem("selectedDate")
+      ? localStorage?.getItem("selectedDate")
+      : new Date().getTime(),
   });
 
   const [errors, setErrors] = useState({
-    place: "",
+    name: "",
     cost: "",
-    numberOfDays: "",
+    piecePlate: "",
+    place: "",
   });
 
   const validate = () => {
     const newErrors = {
-      place: "",
+      name: "",
       cost: "",
-      numberOfDays: "",
+      piecePlate: "",
+      place: "",
     };
     let valid = true;
 
-    if (!formData.place.trim()) {
-      newErrors.place = "Place is required";
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
       valid = false;
     }
 
@@ -33,8 +39,13 @@ const Outing = () => {
       valid = false;
     }
 
-    if (!formData.numberOfDays.trim() || isNaN(Number(formData.numberOfDays))) {
-      newErrors.numberOfDays = "Valid number of days is required";
+    if (!formData.piecePlate.trim()) {
+      newErrors.piecePlate = "Piece/Plate info is required";
+      valid = false;
+    }
+
+    if (!formData.place.trim()) {
+      newErrors.place = "Place is required";
       valid = false;
     }
 
@@ -52,7 +63,7 @@ const Outing = () => {
     if (validate()) {
       try {
         const response = await fetch(
-          "https://humlog.onrender.com/user/raghav/outing",
+          "http://localhost:3002/user/raghav/fastFood",
           {
             method: "POST",
             headers: {
@@ -66,15 +77,17 @@ const Outing = () => {
 
         if (response.ok) {
           setFormData({
-            place: "",
+            name: "",
             cost: "",
-            numberOfDays: "",
+            piecePlate: "",
+            place: "",
           });
-          alert("Outing saved successfully");
-          console.log("Saved:", result);
+          alert("Data saved successfully");
+          console.log("Data saved successfully:", result);
+          // Optionally navigate or show a success message
         } else {
           alert("Error from server");
-          console.error("Server error:", result.msg);
+          console.error("Error from server:", result.msg);
         }
       } catch (error) {
         alert("Network error");
@@ -89,17 +102,17 @@ const Outing = () => {
       <div className="container">
         <form className="form" onSubmit={handleSubmit}>
           <Typography variant="h5" align="center" gutterBottom>
-            Outing Entry
+            Fast Food Entry
           </Typography>
 
           <TextField
-            label="Place"
-            name="place"
-            value={formData.place}
+            label="Name"
+            name="name"
+            value={formData.name}
             onChange={handleChange}
             variant="outlined"
-            error={Boolean(errors.place)}
-            helperText={errors.place}
+            error={Boolean(errors.name)}
+            helperText={errors.name}
             fullWidth
             margin="normal"
           />
@@ -117,13 +130,25 @@ const Outing = () => {
           />
 
           <TextField
-            label="Number of Days"
-            name="numberOfDays"
-            value={formData.numberOfDays}
+            label="Piece/Plate"
+            name="piecePlate"
+            value={formData.piecePlate}
             onChange={handleChange}
             variant="outlined"
-            error={Boolean(errors.numberOfDays)}
-            helperText={errors.numberOfDays}
+            error={Boolean(errors.piecePlate)}
+            helperText={errors.piecePlate}
+            fullWidth
+            margin="normal"
+          />
+
+          <TextField
+            label="Place"
+            name="place"
+            value={formData.place}
+            onChange={handleChange}
+            variant="outlined"
+            error={Boolean(errors.place)}
+            helperText={errors.place}
             fullWidth
             margin="normal"
           />
@@ -137,4 +162,4 @@ const Outing = () => {
   );
 };
 
-export default Outing;
+export default FastFood;

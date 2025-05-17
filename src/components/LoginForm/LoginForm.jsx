@@ -1,9 +1,5 @@
 import React, { useState } from "react";
-import {
-  TextField,
-  Button,
-  Typography,
-} from "@mui/material";
+import { TextField, Button, Typography } from "@mui/material";
 import "./LoginForm.css";
 import { useNavigate } from "react-router-dom";
 
@@ -69,6 +65,13 @@ const LoginForm = () => {
         <Button type="submit" variant="contained" fullWidth>
           Sign In
         </Button>
+        <Typography
+          variant="body2"
+          align="center"
+          style={{ marginTop: "10px" }}
+        >
+          Don't have an account? <a href="#">Sign Up</a>
+        </Typography>
       </form>
     </div>
   );

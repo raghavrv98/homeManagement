@@ -27,7 +27,7 @@ const DataTables = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("https://humlog.onrender.com/users/raghav");
+        const response = await fetch("http://localhost:3002/users/raghav");
         const result = await response.json();
 
         if (response.ok) {
@@ -65,9 +65,8 @@ const DataTables = () => {
 
   const columns = useMemo(() => {
     if (data.length === 0) return [];
-    const keys = Object.keys(data[0]);
+    const keys = Object.keys(data[0]).filter((key) => key !== "_id");
 
-    // Function to format timestamp
     const formatTimestamp = (iso) => {
       const date = new Date(iso);
       const day = date.getDate();

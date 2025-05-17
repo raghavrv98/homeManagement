@@ -1,32 +1,43 @@
 import { Button, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
-import Header from "../Header/Header";
+import Header from "../../Header/Header";
 
-const Milk = () => {
+const Outing = () => {
   const [formData, setFormData] = useState({
+    place: "",
     cost: "",
-    packet: "",
+    numberOfDays: "",
+    timestamp: localStorage?.getItem("selectedDate")
+      ? localStorage?.getItem("selectedDate")
+      : new Date().getTime(),
   });
 
   const [errors, setErrors] = useState({
+    place: "",
     cost: "",
-    packet: "",
+    numberOfDays: "",
   });
 
   const validate = () => {
     const newErrors = {
+      place: "",
       cost: "",
-      packet: "",
+      numberOfDays: "",
     };
     let valid = true;
+
+    if (!formData.place.trim()) {
+      newErrors.place = "Place is required";
+      valid = false;
+    }
 
     if (!formData.cost.trim() || isNaN(Number(formData.cost))) {
       newErrors.cost = "Valid cost is required";
       valid = false;
     }
 
-    if (!formData.packet.trim()) {
-      newErrors.packet = "Packet info is required";
+    if (!formData.numberOfDays.trim() || isNaN(Number(formData.numberOfDays))) {
+      newErrors.numberOfDays = "Valid number of days is required";
       valid = false;
     }
 
@@ -43,27 +54,30 @@ const Milk = () => {
 
     if (validate()) {
       try {
-        const response = await fetch("https://humlog.onrender.com/user/raghav/milk", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        });
+        const response = await fetch(
+          "http://localhost:3002/user/raghav/outing",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          }
+        );
 
         const result = await response.json();
 
         if (response.ok) {
           setFormData({
+            place: "",
             cost: "",
-            packet: "",
+            numberOfDays: "",
           });
-          alert("Data saved successfully");
-          console.log("Data saved successfully:", result);
-          // Optionally navigate or show a success message
+          alert("Outing saved successfully");
+          console.log("Saved:", result);
         } else {
           alert("Error from server");
-          console.error("Error from server:", result.msg);
+          console.error("Server error:", result.msg);
         }
       } catch (error) {
         alert("Network error");
@@ -78,17 +92,17 @@ const Milk = () => {
       <div className="container">
         <form className="form" onSubmit={handleSubmit}>
           <Typography variant="h5" align="center" gutterBottom>
-            Milk Entry
+            Outing Entry
           </Typography>
 
           <TextField
-            label="Packet"
-            name="packet"
-            value={formData.packet}
+            label="Place"
+            name="place"
+            value={formData.place}
             onChange={handleChange}
             variant="outlined"
-            error={Boolean(errors.packet)}
-            helperText={errors.packet}
+            error={Boolean(errors.place)}
+            helperText={errors.place}
             fullWidth
             margin="normal"
           />
@@ -105,6 +119,18 @@ const Milk = () => {
             margin="normal"
           />
 
+          <TextField
+            label="Number of Days"
+            name="numberOfDays"
+            value={formData.numberOfDays}
+            onChange={handleChange}
+            variant="outlined"
+            error={Boolean(errors.numberOfDays)}
+            helperText={errors.numberOfDays}
+            fullWidth
+            margin="normal"
+          />
+
           <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
             Add
           </Button>
@@ -114,4 +140,4 @@ const Milk = () => {
   );
 };
 
-export default Milk;
+export default Outing;

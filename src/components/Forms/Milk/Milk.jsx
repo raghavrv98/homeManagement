@@ -1,48 +1,51 @@
 import { Button, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
-import Header from "../Header/Header";
+import Header from "../../Header/Header";
 
-const KiranaStore = () => {
+const Milk = () => {
   const [formData, setFormData] = useState({
-    name: "",
-    grams: "",
-    cost: "",
     brand: "",
+    costWePaid: "",
+    litre: "",
+    mrp: "",
+    timestamp: localStorage?.getItem("selectedDate")
+      ? localStorage?.getItem("selectedDate")
+      : new Date().getTime(),
   });
 
   const [errors, setErrors] = useState({
-    name: "",
-    grams: "",
-    cost: "",
     brand: "",
+    costWePaid: "",
+    litre: "",
+    mrp: "",
   });
 
   const validate = () => {
     const newErrors = {
-      name: "",
-      grams: "",
-      cost: "",
       brand: "",
+      costWePaid: "",
+      litre: "",
+      mrp: "",
     };
     let valid = true;
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required";
-      valid = false;
-    }
-
-    if (!formData.grams.trim() || isNaN(Number(formData.grams))) {
-      newErrors.grams = "Valid grams is required";
-      valid = false;
-    }
-
-    if (!formData.cost.trim() || isNaN(Number(formData.cost))) {
-      newErrors.cost = "Valid cost is required";
-      valid = false;
-    }
-
     if (!formData.brand.trim()) {
       newErrors.brand = "Brand is required";
+      valid = false;
+    }
+
+    if (!formData.costWePaid.trim() || isNaN(Number(formData.costWePaid))) {
+      newErrors.costWePaid = "Valid cost is required";
+      valid = false;
+    }
+
+    if (!formData.litre.trim() || isNaN(Number(formData.litre))) {
+      newErrors.litre = "Valid litre value is required";
+      valid = false;
+    }
+
+    if (!formData.mrp.trim() || isNaN(Number(formData.mrp))) {
+      newErrors.mrp = "Valid MRP is required";
       valid = false;
     }
 
@@ -59,29 +62,25 @@ const KiranaStore = () => {
 
     if (validate()) {
       try {
-        const response = await fetch(
-          "https://humlog.onrender.com/user/raghav/kiranaStore",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-          }
-        );
+        const response = await fetch("http://localhost:3002/user/raghav/milk", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
 
         const result = await response.json();
 
         if (response.ok) {
           setFormData({
-            name: "",
-            grams: "",
-            cost: "",
             brand: "",
+            costWePaid: "",
+            litre: "",
+            mrp: "",
           });
           alert("Data saved successfully");
           console.log("Data saved successfully:", result);
-          // Optionally navigate or show a success message
         } else {
           alert("Error from server");
           console.error("Error from server:", result.msg);
@@ -99,44 +98,8 @@ const KiranaStore = () => {
       <div className="container">
         <form className="form" onSubmit={handleSubmit}>
           <Typography variant="h5" align="center" gutterBottom>
-            Kirana Store Entry
+            Milk Entry
           </Typography>
-
-          <TextField
-            label="Name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            variant="outlined"
-            error={Boolean(errors.name)}
-            helperText={errors.name}
-            fullWidth
-            margin="normal"
-          />
-
-          <TextField
-            label="Grams"
-            name="grams"
-            value={formData.grams}
-            onChange={handleChange}
-            variant="outlined"
-            error={Boolean(errors.grams)}
-            helperText={errors.grams}
-            fullWidth
-            margin="normal"
-          />
-
-          <TextField
-            label="Cost"
-            name="cost"
-            value={formData.cost}
-            onChange={handleChange}
-            variant="outlined"
-            error={Boolean(errors.cost)}
-            helperText={errors.cost}
-            fullWidth
-            margin="normal"
-          />
 
           <TextField
             label="Brand"
@@ -150,6 +113,42 @@ const KiranaStore = () => {
             margin="normal"
           />
 
+          <TextField
+            label="Cost We Paid"
+            name="costWePaid"
+            value={formData.costWePaid}
+            onChange={handleChange}
+            variant="outlined"
+            error={Boolean(errors.costWePaid)}
+            helperText={errors.costWePaid}
+            fullWidth
+            margin="normal"
+          />
+
+          <TextField
+            label="Litre"
+            name="litre"
+            value={formData.litre}
+            onChange={handleChange}
+            variant="outlined"
+            error={Boolean(errors.litre)}
+            helperText={errors.litre}
+            fullWidth
+            margin="normal"
+          />
+
+          <TextField
+            label="MRP"
+            name="mrp"
+            value={formData.mrp}
+            onChange={handleChange}
+            variant="outlined"
+            error={Boolean(errors.mrp)}
+            helperText={errors.mrp}
+            fullWidth
+            margin="normal"
+          />
+
           <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
             Add
           </Button>
@@ -159,4 +158,4 @@ const KiranaStore = () => {
   );
 };
 
-export default KiranaStore;
+export default Milk;

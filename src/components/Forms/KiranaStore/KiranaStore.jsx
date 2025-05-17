@@ -1,27 +1,32 @@
 import { Button, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
-import Header from "../Header/Header";
+import Header from "../../Header/Header";
 
-const VegetablesAndFruits = () => {
+const KiranaStore = () => {
   const [formData, setFormData] = useState({
     name: "",
-    costPerKg: "",
     grams: "",
+    cost: "",
+    brand: "",
+    timestamp: localStorage?.getItem("selectedDate")
+      ? localStorage?.getItem("selectedDate")
+      : new Date().getTime(),
   });
 
   const [errors, setErrors] = useState({
     name: "",
-    costPerKg: "",
     grams: "",
+    cost: "",
+    brand: "",
   });
 
   const validate = () => {
     const newErrors = {
       name: "",
-      costPerKg: "",
       grams: "",
+      cost: "",
+      brand: "",
     };
-
     let valid = true;
 
     if (!formData.name.trim()) {
@@ -29,13 +34,18 @@ const VegetablesAndFruits = () => {
       valid = false;
     }
 
-    if (!formData.costPerKg.trim() || isNaN(Number(formData.costPerKg))) {
-      newErrors.costPerKg = "Valid cost per kg is required";
+    if (!formData.grams.trim() || isNaN(Number(formData.grams))) {
+      newErrors.grams = "Valid grams is required";
       valid = false;
     }
 
-    if (!formData.grams.trim() || isNaN(Number(formData.grams))) {
-      newErrors.grams = "Valid grams value is required";
+    if (!formData.cost.trim() || isNaN(Number(formData.cost))) {
+      newErrors.cost = "Valid cost is required";
+      valid = false;
+    }
+
+    if (!formData.brand.trim()) {
+      newErrors.brand = "Brand is required";
       valid = false;
     }
 
@@ -53,7 +63,7 @@ const VegetablesAndFruits = () => {
     if (validate()) {
       try {
         const response = await fetch(
-          "https://humlog.onrender.com/user/raghav/vegetablesFruits",
+          "http://localhost:3002/user/raghav/kiranaStore",
           {
             method: "POST",
             headers: {
@@ -68,8 +78,9 @@ const VegetablesAndFruits = () => {
         if (response.ok) {
           setFormData({
             name: "",
-            costPerKg: "",
             grams: "",
+            cost: "",
+            brand: "",
           });
           alert("Data saved successfully");
           console.log("Data saved successfully:", result);
@@ -91,7 +102,7 @@ const VegetablesAndFruits = () => {
       <div className="container">
         <form className="form" onSubmit={handleSubmit}>
           <Typography variant="h5" align="center" gutterBottom>
-            Vegetable / Fruit Entry
+            Kirana Store Entry
           </Typography>
 
           <TextField
@@ -119,13 +130,25 @@ const VegetablesAndFruits = () => {
           />
 
           <TextField
-            label="Cost per Kg"
-            name="costPerKg"
-            value={formData.costPerKg}
+            label="Cost"
+            name="cost"
+            value={formData.cost}
             onChange={handleChange}
             variant="outlined"
-            error={Boolean(errors.costPerKg)}
-            helperText={errors.costPerKg}
+            error={Boolean(errors.cost)}
+            helperText={errors.cost}
+            fullWidth
+            margin="normal"
+          />
+
+          <TextField
+            label="Brand"
+            name="brand"
+            value={formData.brand}
+            onChange={handleChange}
+            variant="outlined"
+            error={Boolean(errors.brand)}
+            helperText={errors.brand}
             fullWidth
             margin="normal"
           />
@@ -139,4 +162,4 @@ const VegetablesAndFruits = () => {
   );
 };
 
-export default VegetablesAndFruits;
+export default KiranaStore;

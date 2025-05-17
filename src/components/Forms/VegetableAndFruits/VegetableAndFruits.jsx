@@ -1,48 +1,52 @@
 import { Button, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
-import Header from "../Header/Header";
+import Header from "../../Header/Header";
 
-const Petrol = () => {
+const VegetablesAndFruits = () => {
   const [formData, setFormData] = useState({
-    litre: "",
-    kmDriven: "",
-    cost: "",
-    costPerLitre: "",
+    name: "",
+    costPerKg: "",
+    costWePaid: "",
+    grams: "",
+    timestamp: localStorage?.getItem("selectedDate")
+      ? localStorage?.getItem("selectedDate")
+      : new Date().getTime(),
   });
 
   const [errors, setErrors] = useState({
-    litre: "",
-    kmDriven: "",
-    cost: "",
-    costPerLitre: "",
+    name: "",
+    costPerKg: "",
+    costWePaid: "",
+    grams: "",
   });
 
   const validate = () => {
     const newErrors = {
-      litre: "",
-      kmDriven: "",
-      cost: "",
-      costPerLitre: "",
+      name: "",
+      costPerKg: "",
+      costWePaid: "",
+      grams: "",
     };
+
     let valid = true;
 
-    if (!formData.litre.trim() || isNaN(Number(formData.litre))) {
-      newErrors.litre = "Valid litre value is required";
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
       valid = false;
     }
 
-    if (!formData.kmDriven.trim() || isNaN(Number(formData.kmDriven))) {
-      newErrors.kmDriven = "Valid km driven is required";
+    if (!formData.costPerKg.trim() || isNaN(Number(formData.costPerKg))) {
+      newErrors.costPerKg = "Valid cost per kg is required";
       valid = false;
     }
 
-    if (!formData.cost.trim() || isNaN(Number(formData.cost))) {
-      newErrors.cost = "Valid cost is required";
+    if (!formData.costWePaid.trim() || isNaN(Number(formData.costWePaid))) {
+      newErrors.costWePaid = "Valid cost paid is required";
       valid = false;
     }
 
-    if (!formData.costPerLitre.trim() || isNaN(Number(formData.costPerLitre))) {
-      newErrors.costPerLitre = "Valid cost per litre is required";
+    if (!formData.grams.trim() || isNaN(Number(formData.grams))) {
+      newErrors.grams = "Valid grams value is required";
       valid = false;
     }
 
@@ -55,12 +59,13 @@ const Petrol = () => {
   };
 
   const handleSubmit = async (e) => {
+    console.log("formData: ", formData);
     e.preventDefault();
 
     if (validate()) {
       try {
         const response = await fetch(
-          "https://humlog.onrender.com/user/raghav/petrol",
+          "http://localhost:3002/user/raghav/vegetablesFruits",
           {
             method: "POST",
             headers: {
@@ -74,10 +79,10 @@ const Petrol = () => {
 
         if (response.ok) {
           setFormData({
-            litre: "",
-            kmDriven: "",
-            cost: "",
-            costPerLitre: "",
+            name: "",
+            costPerKg: "",
+            costWePaid: "",
+            grams: "",
           });
           alert("Data saved successfully");
           console.log("Data saved successfully:", result);
@@ -99,53 +104,53 @@ const Petrol = () => {
       <div className="container">
         <form className="form" onSubmit={handleSubmit}>
           <Typography variant="h5" align="center" gutterBottom>
-            Petrol Entry
+            Vegetable / Fruit Entry
           </Typography>
 
           <TextField
-            label="Litre"
-            name="litre"
-            value={formData.litre}
+            label="Name"
+            name="name"
+            value={formData.name}
             onChange={handleChange}
             variant="outlined"
-            error={Boolean(errors.litre)}
-            helperText={errors.litre}
+            error={Boolean(errors.name)}
+            helperText={errors.name}
             fullWidth
             margin="normal"
           />
 
           <TextField
-            label="KM Driven"
-            name="kmDriven"
-            value={formData.kmDriven}
+            label="Grams"
+            name="grams"
+            value={formData.grams}
             onChange={handleChange}
             variant="outlined"
-            error={Boolean(errors.kmDriven)}
-            helperText={errors.kmDriven}
+            error={Boolean(errors.grams)}
+            helperText={errors.grams}
             fullWidth
             margin="normal"
           />
 
           <TextField
-            label="Cost"
-            name="cost"
-            value={formData.cost}
+            label="Cost we paid"
+            name="costWePaid"
+            value={formData.costWePaid}
             onChange={handleChange}
             variant="outlined"
-            error={Boolean(errors.cost)}
-            helperText={errors.cost}
+            error={Boolean(errors.costWePaid)}
+            helperText={errors.costWePaid}
             fullWidth
             margin="normal"
           />
 
           <TextField
-            label="Cost per Litre"
-            name="costPerLitre"
-            value={formData.costPerLitre}
+            label="Cost per Kg"
+            name="costPerKg"
+            value={formData.costPerKg}
             onChange={handleChange}
             variant="outlined"
-            error={Boolean(errors.costPerLitre)}
-            helperText={errors.costPerLitre}
+            error={Boolean(errors.costPerKg)}
+            helperText={errors.costPerKg}
             fullWidth
             margin="normal"
           />
@@ -159,4 +164,4 @@ const Petrol = () => {
   );
 };
 
-export default Petrol;
+export default VegetablesAndFruits;
