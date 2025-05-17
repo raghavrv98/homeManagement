@@ -3,24 +3,24 @@ import { useNavigate } from "react-router-dom";
 import "./Header.css";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 
-const DateDisplay = () => {
-  const today = new Date();
-  const formattedDate = today.toLocaleDateString("en-US", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
-  const formattedTime = today.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
-  return (
-    <div>
-      {formattedDate} - {formattedTime}
-    </div>
-  );
-};
+// const DateDisplay = () => {
+//   const today = new Date();
+//   const formattedDate = today.toLocaleDateString("en-US", {
+//     day: "2-digit",
+//     month: "long",
+//     year: "numeric",
+//   });
+//   const formattedTime = today.toLocaleTimeString("en-US", {
+//     hour: "numeric",
+//     minute: "2-digit",
+//     hour12: true,
+//   });
+//   return (
+//     <div>
+//       {formattedDate} - {formattedTime}
+//     </div>
+//   );
+// };
 
 const Header = ({ backLink, isShowBack = true, isShowLogout }) => {
   const navigate = useNavigate();

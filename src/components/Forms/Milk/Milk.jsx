@@ -8,10 +8,10 @@ const Milk = () => {
     costWePaid: "",
     litre: "",
     mrp: "",
-    timestamp: localStorage?.getItem("selectedDate")
-      ? localStorage?.getItem("selectedDate")
-      : new Date().getTime(),
+    timestamp: "",
   });
+
+  console.log("formData: ", formData);
 
   const [errors, setErrors] = useState({
     brand: "",
@@ -54,7 +54,16 @@ const Milk = () => {
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    const timestamp = localStorage.getItem("selectedDate")
+      ? parseInt(localStorage.getItem("selectedDate"), 10)
+      : new Date().getTime();
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+      timestamp, // this will always update with current or stored timestamp
+    }));
   };
 
   const handleSubmit = async (e) => {
