@@ -70,7 +70,7 @@ const Petrol = () => {
     if (validate()) {
       try {
         const response = await fetch(
-          "http://localhost:3002/user/raghav/petrol",
+          "https://humlog.onrender.com/user/raghav/petrol",
           {
             method: "POST",
             headers: {

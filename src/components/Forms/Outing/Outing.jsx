@@ -62,7 +62,7 @@ const Outing = () => {
     if (validate()) {
       try {
         const response = await fetch(
-          "http://localhost:3002/user/raghav/outing",
+          "https://humlog.onrender.com/user/raghav/outing",
           {
             method: "POST",
             headers: {

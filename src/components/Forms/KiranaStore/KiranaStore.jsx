@@ -69,7 +69,7 @@ const KiranaStore = () => {
     if (validate()) {
       try {
         const response = await fetch(
-          "http://localhost:3002/user/raghav/kiranaStore",
+          "https://humlog.onrender.com/user/raghav/kiranaStore",
           {
             method: "POST",
             headers: {

@@ -72,7 +72,7 @@ const VegetablesAndFruits = () => {
     if (validate()) {
       try {
         const response = await fetch(
-          "http://localhost:3002/user/raghav/vegetablesFruits",
+          "https://humlog.onrender.com/user/raghav/vegetablesFruits",
           {
             method: "POST",
             headers: {

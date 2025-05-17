@@ -23,7 +23,7 @@ const WifiBill = () => {
         ? localStorage?.getItem("selectedDate")
         : new Date().getTime();
       try {
-        const response = await fetch("http://localhost:3002/user/raghav/wifi", {
+        const response = await fetch("https://humlog.onrender.com/user/raghav/wifi", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
