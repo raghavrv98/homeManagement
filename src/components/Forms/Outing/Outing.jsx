@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Header from "../../Header/Header";
 
 const Outing = () => {
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     place: "",
     cost: "",
@@ -60,6 +61,7 @@ const Outing = () => {
     e.preventDefault();
 
     if (validate()) {
+      setLoading(true);
       try {
         const response = await fetch(
           "https://humlog.onrender.com/user/raghav/outing",
@@ -81,13 +83,16 @@ const Outing = () => {
             numberOfDays: "",
           });
           alert("Outing saved successfully");
+          setLoading(false);
           console.log("Saved:", result);
         } else {
           alert("Error from server");
+          setLoading(false);
           console.error("Server error:", result.msg);
         }
       } catch (error) {
         alert("Network error");
+        setLoading(false);
         console.error("Network error:", error);
       }
     }
@@ -138,8 +143,14 @@ const Outing = () => {
             margin="normal"
           />
 
-          <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
-            Add
+          <Button
+            disabled={loading}
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{ mt: 2 }}
+          >
+            {loading ? "Loading..." : "Add"}
           </Button>
         </form>
       </div>

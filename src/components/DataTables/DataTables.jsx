@@ -13,7 +13,6 @@ const tabLabels = [
   "outing",
   "House Rent",
   "Wifi Bill",
-  "Outing",
 ];
 
 const DataTables = () => {

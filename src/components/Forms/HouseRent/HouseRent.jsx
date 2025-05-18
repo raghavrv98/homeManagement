@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Header from "../../Header/Header";
 
 const HouseRent = () => {
+  const [loading, setLoading] = useState(false);
   const [amount, setAmount] = useState("");
   const [error, setError] = useState("");
 
@@ -19,6 +20,7 @@ const HouseRent = () => {
     e.preventDefault();
 
     if (validate()) {
+      setLoading(true);
       const timestamp = localStorage?.getItem("selectedDate")
         ? localStorage?.getItem("selectedDate")
         : new Date().getTime();
@@ -39,14 +41,17 @@ const HouseRent = () => {
         if (response.ok) {
           setAmount("");
           alert("Data saved successfully");
+          setLoading(false);
           console.log("Data saved successfully:", result);
           // Optionally navigate or show a success message
         } else {
           alert("Error from server");
+          setLoading(false);
           console.error("Error from server:", result.msg);
         }
       } catch (error) {
         alert("Network error");
+        setLoading(false);
         console.error("Network error:", error);
       }
     }
@@ -73,8 +78,14 @@ const HouseRent = () => {
             margin="normal"
           />
 
-          <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
-            Add
+          <Button
+            disabled={loading}
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{ mt: 2 }}
+          >
+            {loading ? "Loading..." : "Add"}
           </Button>
         </form>
       </div>

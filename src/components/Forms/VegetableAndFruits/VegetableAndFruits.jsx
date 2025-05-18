@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Header from "../../Header/Header";
 
 const VegetablesAndFruits = () => {
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     costPerKg: "",
@@ -70,6 +71,7 @@ const VegetablesAndFruits = () => {
     e.preventDefault();
 
     if (validate()) {
+      setLoading(true);
       try {
         const response = await fetch(
           "https://humlog.onrender.com/user/raghav/vegetablesFruits",
@@ -92,14 +94,17 @@ const VegetablesAndFruits = () => {
             grams: "",
           });
           alert("Data saved successfully");
+          setLoading(false);
           console.log("Data saved successfully:", result);
           // Optionally navigate or show a success message
         } else {
           alert("Error from server");
+          setLoading(false);
           console.error("Error from server:", result.msg);
         }
       } catch (error) {
         alert("Network error");
+        setLoading(false);
         console.error("Network error:", error);
       }
     }
@@ -162,8 +167,14 @@ const VegetablesAndFruits = () => {
             margin="normal"
           />
 
-          <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
-            Add
+          <Button
+            disabled={loading}
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{ mt: 2 }}
+          >
+            {loading ? "Loading..." : "Add"}
           </Button>
         </form>
       </div>
