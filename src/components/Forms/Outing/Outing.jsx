@@ -2,13 +2,24 @@ import { Button, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
 import Header from "../../Header/Header";
 
+// Helper to get current date-time formatted for datetime-local input
+const getCurrentDateTimeLocal = () => {
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(
+    now.getDate()
+  )}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+};
+
 const Outing = () => {
+  const now = getCurrentDateTimeLocal();
+
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     place: "",
     cost: "",
     numberOfDays: "",
-    timestamp: "",
+    timestamp: now,
   });
 
   const [errors, setErrors] = useState({
@@ -46,14 +57,9 @@ const Outing = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const timestamp = localStorage.getItem("selectedDate")
-      ? parseInt(localStorage.getItem("selectedDate"), 10)
-      : new Date().getTime();
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-      timestamp, // this will always update with current or stored timestamp
     }));
   };
 
@@ -70,7 +76,10 @@ const Outing = () => {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(formData),
+            body: JSON.stringify({
+              ...formData,
+              timestamp: new Date(formData.timestamp).getTime(),
+            }),
           }
         );
 
@@ -81,6 +90,7 @@ const Outing = () => {
             place: "",
             cost: "",
             numberOfDays: "",
+            timestamp: now,
           });
           alert("Outing saved successfully");
           setLoading(false);
@@ -141,6 +151,18 @@ const Outing = () => {
             helperText={errors.numberOfDays}
             fullWidth
             margin="normal"
+          />
+
+          <TextField
+            label="Date & Time"
+            type="datetime-local"
+            name="timestamp"
+            value={formData.timestamp}
+            onChange={handleChange}
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            inputProps={{ max: now }}
           />
 
           <Button

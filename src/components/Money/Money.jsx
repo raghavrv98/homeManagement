@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 const Money = () => {
   return (
     <>
-      <Header backLink={"/home"} />
+      <Header backLink={"/dashboard"} />
       <div className="container">
         <Button className="box" component={Link} to="./vegetables-fruits">
           <div className="box-content">Vegetables & Fruits</div>

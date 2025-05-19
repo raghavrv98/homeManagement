@@ -2,13 +2,25 @@ import { Button, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
 import Header from "../../Header/Header";
 
+// Helper to get "YYYY-MM-DDTHH:MM"
+const getCurrentDateTimeLocal = () => {
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(
+    now.getDate()
+  )}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+};
+
 const Homeneeds = () => {
+  const now = getCurrentDateTimeLocal();
+
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     piece: "",
     cost: "",
-    timestamp: "",
+    timestamp: now, // Default to now
   });
 
   const [errors, setErrors] = useState({
@@ -46,14 +58,9 @@ const Homeneeds = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const timestamp = localStorage.getItem("selectedDate")
-      ? parseInt(localStorage.getItem("selectedDate"), 10)
-      : new Date().getTime();
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-      timestamp, // this will always update with current or stored timestamp
     }));
   };
 
@@ -70,7 +77,10 @@ const Homeneeds = () => {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(formData),
+            body: JSON.stringify({
+              ...formData,
+              timestamp: new Date(formData.timestamp).getTime(), // Convert to milliseconds
+            }),
           }
         );
 
@@ -81,11 +91,11 @@ const Homeneeds = () => {
             name: "",
             piece: "",
             cost: "",
+            timestamp: getCurrentDateTimeLocal(),
           });
           alert("Data saved successfully");
           setLoading(false);
           console.log("Data saved successfully:", result);
-          // Optionally navigate or show a success message
         } else {
           alert("Error from server");
           setLoading(false);
@@ -142,6 +152,20 @@ const Homeneeds = () => {
             helperText={errors.cost}
             fullWidth
             margin="normal"
+          />
+
+          <TextField
+            label="Date & Time"
+            type="datetime-local"
+            name="timestamp"
+            value={formData.timestamp}
+            onChange={handleChange}
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            inputProps={{
+              max: now, // restrict future datetime
+            }}
           />
 
           <Button

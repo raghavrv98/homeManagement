@@ -2,13 +2,26 @@ import { Button, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
 import Header from "../../Header/Header";
 
+const getCurrentDateTimeLocal = () => {
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(
+    now.getDate()
+  )}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+};
+
 const WifiBill = () => {
+  const now = getCurrentDateTimeLocal();
+
   const [loading, setLoading] = useState(false);
-  const [amount, setAmount] = useState("");
+  const [formData, setFormData] = useState({
+    amount: "",
+    timestamp: now,
+  });
   const [error, setError] = useState("");
 
   const validate = () => {
-    if (!amount.trim() || isNaN(Number(amount))) {
+    if (!formData.amount.trim() || isNaN(Number(formData.amount))) {
       setError("Valid amount is required");
       return false;
     }
@@ -16,14 +29,19 @@ const WifiBill = () => {
     return true;
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (validate()) {
       setLoading(true);
-      const timestamp = localStorage?.getItem("selectedDate")
-        ? localStorage?.getItem("selectedDate")
-        : new Date().getTime();
       try {
         const response = await fetch(
           "https://humlog.onrender.com/user/raghav/wifi",
@@ -32,18 +50,23 @@ const WifiBill = () => {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ amount, timestamp }),
+            body: JSON.stringify({
+              amount: formData.amount,
+              timestamp: new Date(formData.timestamp).getTime(),
+            }),
           }
         );
 
         const result = await response.json();
 
         if (response.ok) {
-          setAmount("");
+          setFormData({
+            amount: "",
+            timestamp: getCurrentDateTimeLocal(),
+          });
           alert("Data saved successfully");
           setLoading(false);
           console.log("Data saved successfully:", result);
-          // Optionally navigate or show a success message
         } else {
           alert("Error from server");
           setLoading(false);
@@ -69,13 +92,25 @@ const WifiBill = () => {
           <TextField
             label="Amount"
             name="amount"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            value={formData.amount}
+            onChange={handleChange}
             variant="outlined"
             error={Boolean(error)}
             helperText={error}
             fullWidth
             margin="normal"
+          />
+
+          <TextField
+            label="Date & Time"
+            type="datetime-local"
+            name="timestamp"
+            value={formData.timestamp}
+            onChange={handleChange}
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            inputProps={{ max: now }}
           />
 
           <Button

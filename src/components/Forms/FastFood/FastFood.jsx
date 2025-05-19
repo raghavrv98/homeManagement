@@ -2,14 +2,30 @@ import { Button, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
 import Header from "../../Header/Header";
 
+// Helper function to format current date-time as "YYYY-MM-DDTHH:MM"
+const getCurrentDateTimeLocal = () => {
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+
+  const year = now.getFullYear();
+  const month = pad(now.getMonth() + 1);
+  const day = pad(now.getDate());
+  const hours = pad(now.getHours());
+  const minutes = pad(now.getMinutes());
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
 const FastFood = () => {
+  const now = getCurrentDateTimeLocal();
+
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     cost: "",
     piecePlate: "",
     place: "",
-    timestamp: "",
+    timestamp: now, // Default to current datetime
   });
 
   const [errors, setErrors] = useState({
@@ -54,14 +70,9 @@ const FastFood = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const timestamp = localStorage.getItem("selectedDate")
-      ? parseInt(localStorage.getItem("selectedDate"), 10)
-      : new Date().getTime();
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-      timestamp, // this will always update with current or stored timestamp
     }));
   };
 
@@ -78,7 +89,10 @@ const FastFood = () => {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(formData),
+            body: JSON.stringify({
+              ...formData,
+              timestamp: new Date(formData.timestamp).getTime(), // milliseconds
+            }),
           }
         );
 
@@ -90,11 +104,11 @@ const FastFood = () => {
             cost: "",
             piecePlate: "",
             place: "",
+            timestamp: getCurrentDateTimeLocal(),
           });
           alert("Data saved successfully");
           setLoading(false);
           console.log("Data saved successfully:", result);
-          // Optionally navigate or show a success message
         } else {
           alert("Error from server");
           setLoading(false);
@@ -163,6 +177,20 @@ const FastFood = () => {
             helperText={errors.place}
             fullWidth
             margin="normal"
+          />
+
+          <TextField
+            label="Date & Time"
+            type="datetime-local"
+            name="timestamp"
+            value={formData.timestamp}
+            onChange={handleChange}
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            inputProps={{
+              max: now, // restrict future datetime
+            }}
           />
 
           <Button

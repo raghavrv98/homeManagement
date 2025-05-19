@@ -12,7 +12,7 @@ const Dashboard = () => {
         <Button className="box" component={Link} to="/dataTables">
           <div className="box-content">Data Tables</div>
         </Button>
-        <Button className="box" component={Link} to="/home">
+        <Button className="box" component={Link} to="/home/money">
           <div className="box-content">Forms</div>
         </Button>
         <Button className="box" component={Link} to="/graphs">

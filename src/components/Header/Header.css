@@ -33,6 +33,10 @@
   align-items: center;
 }
 
+.title h1{
+  margin: 0px;
+}
+
 .arrowIcon {
   display: flex;
 }

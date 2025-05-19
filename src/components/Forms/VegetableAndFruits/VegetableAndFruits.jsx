@@ -2,14 +2,24 @@ import { Button, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
 import Header from "../../Header/Header";
 
+const getCurrentDateTimeLocal = () => {
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(
+    now.getDate()
+  )}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+};
+
 const VegetablesAndFruits = () => {
+  const now = getCurrentDateTimeLocal();
+
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     costPerKg: "",
     costWePaid: "",
     grams: "",
-    timestamp: "",
+    timestamp: now,
   });
 
   const [errors, setErrors] = useState({
@@ -55,19 +65,14 @@ const VegetablesAndFruits = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const timestamp = localStorage.getItem("selectedDate")
-      ? parseInt(localStorage.getItem("selectedDate"), 10)
-      : new Date().getTime();
 
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-      timestamp, // this will always update with current or stored timestamp
     }));
   };
 
   const handleSubmit = async (e) => {
-    console.log("formData: ", formData);
     e.preventDefault();
 
     if (validate()) {
@@ -80,7 +85,10 @@ const VegetablesAndFruits = () => {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(formData),
+            body: JSON.stringify({
+              ...formData,
+              timestamp: new Date(formData.timestamp).getTime(),
+            }),
           }
         );
 
@@ -92,11 +100,11 @@ const VegetablesAndFruits = () => {
             costPerKg: "",
             costWePaid: "",
             grams: "",
+            timestamp: now,
           });
           alert("Data saved successfully");
           setLoading(false);
           console.log("Data saved successfully:", result);
-          // Optionally navigate or show a success message
         } else {
           alert("Error from server");
           setLoading(false);
@@ -165,6 +173,18 @@ const VegetablesAndFruits = () => {
             helperText={errors.costPerKg}
             fullWidth
             margin="normal"
+          />
+
+          <TextField
+            label="Date & Time"
+            type="datetime-local"
+            name="timestamp"
+            value={formData.timestamp}
+            onChange={handleChange}
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            inputProps={{ max: now }}
           />
 
           <Button

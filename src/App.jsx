@@ -23,7 +23,7 @@ const App = () => {
       <div>
         <Routes>
           {/* Define the routes for each page */}
-          <Route path="/" element={<LoginForm />} />
+          <Route path="/" element={<Dashboard />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dataTables" element={<DataTables />} />
           <Route path="/home" element={<HomePage />} />
