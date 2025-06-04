@@ -1,6 +1,7 @@
 import { Button, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
 import Header from "../../Header/Header";
+import { API_URL } from "../../../constant";
 
 // Helper to get "YYYY-MM-DDTHH:MM"
 const getCurrentDateTimeLocal = () => {
@@ -70,19 +71,16 @@ const Homeneeds = () => {
     if (validate()) {
       setLoading(true);
       try {
-        const response = await fetch(
-          "https://humlog.onrender.com/user/raghav/homeNeeds",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              ...formData,
-              timestamp: new Date(formData.timestamp).getTime(), // Convert to milliseconds
-            }),
-          }
-        );
+        const response = await fetch(`${API_URL}/user/raghav/homeNeeds`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...formData,
+            timestamp: new Date(formData.timestamp).getTime(), // Convert to milliseconds
+          }),
+        });
 
         const result = await response.json();
 

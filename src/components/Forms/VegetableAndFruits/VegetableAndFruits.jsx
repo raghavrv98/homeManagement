@@ -1,6 +1,7 @@
 import { Button, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
 import Header from "../../Header/Header";
+import { API_URL } from "../../../constant";
 
 const getCurrentDateTimeLocal = () => {
   const now = new Date();
@@ -79,7 +80,7 @@ const VegetablesAndFruits = () => {
       setLoading(true);
       try {
         const response = await fetch(
-          "https://humlog.onrender.com/user/raghav/vegetablesFruits",
+          `${API_URL}/user/raghav/vegetablesFruits`,
           {
             method: "POST",
             headers: {

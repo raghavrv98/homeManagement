@@ -1,7 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTable } from "react-table";
-import { Tabs, Tab, Box, Typography, Paper } from "@mui/material";
+import { Tabs, Tab, Box, Typography, Paper, TextField } from "@mui/material";
 import Header from "../Header/Header.jsx";
+import { API_URL } from "../../constant.js";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 
 const tabLabels = [
   "Vegetable and Fruits",
@@ -21,12 +30,14 @@ const DataTables = () => {
   const [apiError, setApiError] = useState("");
   const [loading, setLoading] = useState(true);
   const currentTab = tabLabels[selectedTab];
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
   // Fetch data when the component mounts
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("https://humlog.onrender.com/users/raghav");
+        const response = await fetch(`${API_URL}/users/raghav`);
         const result = await response.json();
 
         if (response.ok) {
@@ -58,9 +69,30 @@ const DataTables = () => {
     };
 
     fetchData();
-  }, [loading]); // Empty dependency array to run the effect only once
+  }, [apiError, loading]); // Empty dependency array to run the effect only once
 
-  const data = useMemo(() => apiData[currentTab] || [], [apiData, currentTab]);
+  // const data = useMemo(() => apiData[currentTab] || [], [apiData, currentTab]);
+  const data = useMemo(() => {
+    const raw = apiData[currentTab] || [];
+
+    if (!startDate && !endDate) return raw;
+
+    return raw.filter((item) => {
+      const itemDate = dayjs(item.timestamp);
+
+      if (!itemDate.isValid()) return false;
+
+      const isAfterStart = startDate
+        ? itemDate.isSameOrAfter(dayjs(startDate).startOf("day"))
+        : true;
+
+      const isBeforeEnd = endDate
+        ? itemDate.isSameOrBefore(dayjs(endDate).endOf("day"))
+        : true;
+
+      return isAfterStart && isBeforeEnd;
+    });
+  }, [apiData, currentTab, startDate, endDate]);
 
   const columns = useMemo(() => {
     if (data.length === 0) return [];
@@ -99,14 +131,24 @@ const DataTables = () => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({ columns, data });
 
+  const totals = useMemo(() => {
+    const total = {};
+    if (data.length === 0) return total;
+
+    Object.keys(data[0]).forEach((key) => {
+      total[key] = data.reduce((sum, item) => {
+        const val = item[key];
+        return typeof val === "number" ? sum + val : sum;
+      }, 0);
+    });
+
+    return total;
+  }, [data]);
+
   return (
     <>
       <Header backLink={"/dashboard"} />
       <Box p={3}>
-        <Typography variant="h4" gutterBottom>
-          Data Tables
-        </Typography>
-
         <Tabs
           value={selectedTab}
           onChange={(_, newValue) => setSelectedTab(newValue)}
@@ -121,7 +163,39 @@ const DataTables = () => {
           ))}
         </Tabs>
 
-        <Paper sx={{ overflowX: "auto" }}>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <Box display="flex" gap={2} mb={2} flexWrap="wrap">
+            <DatePicker
+              label="Start Date"
+              value={startDate}
+              onChange={(newValue) => setStartDate(newValue)}
+              format="DD/MM/YYYY"
+              maxDate={
+                endDate
+                  ? dayjs(endDate).isBefore(dayjs())
+                    ? dayjs(endDate)
+                    : dayjs()
+                  : dayjs()
+              }
+              slotProps={{
+                textField: { size: "small", sx: { minWidth: 200 } },
+              }}
+            />
+            <DatePicker
+              label="End Date"
+              value={endDate}
+              onChange={(newValue) => setEndDate(newValue)}
+              minDate={startDate || null}
+              format="DD/MM/YYYY"
+              maxDate={dayjs()}
+              slotProps={{
+                textField: { size: "small", sx: { minWidth: 200 } },
+              }}
+            />
+          </Box>
+        </LocalizationProvider>
+
+        <Paper sx={{ overflowX: "auto", height: "75vh" }}>
           <table
             {...getTableProps()}
             style={{
@@ -131,6 +205,28 @@ const DataTables = () => {
             }}
           >
             <thead>
+              <tr>
+                {columns.map((column) => (
+                  <th
+                    key={column.id}
+                    style={{
+                      border: "1px solid #ccc",
+                      padding: "8px",
+                      background: "#e8f5e9",
+                      fontWeight: "bold",
+                      position: "sticky",
+                      top: 0,
+                      zIndex: 2, // Higher than header
+                    }}
+                  >
+                    {column.id === "index"
+                      ? "Total"
+                      : typeof totals[column.id] === "number"
+                      ? totals[column.id]
+                      : ""}
+                  </th>
+                ))}
+              </tr>
               {headerGroups.map((headerGroup) => (
                 <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
                   {headerGroup.headers.map((column) => (
@@ -141,6 +237,8 @@ const DataTables = () => {
                         border: "1px solid #ccc",
                         padding: "8px",
                         background: "#f5f5f5",
+                        position: "sticky",
+                        top: 34,
                         textAlign: "left",
                       }}
                     >

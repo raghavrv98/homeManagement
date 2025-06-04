@@ -1,6 +1,7 @@
 import { Button, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
 import Header from "../../Header/Header";
+import { API_URL } from "../../../constant";
 
 // Helper function to format current date-time as "YYYY-MM-DDTHH:MM"
 const getCurrentDateTimeLocal = () => {
@@ -82,19 +83,16 @@ const FastFood = () => {
     if (validate()) {
       setLoading(true);
       try {
-        const response = await fetch(
-          "https://humlog.onrender.com/user/raghav/fastFood",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              ...formData,
-              timestamp: new Date(formData.timestamp).getTime(), // milliseconds
-            }),
-          }
-        );
+        const response = await fetch(`${API_URL}/user/raghav/fastFood`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...formData,
+            timestamp: new Date(formData.timestamp).getTime(), // milliseconds
+          }),
+        });
 
         const result = await response.json();
 

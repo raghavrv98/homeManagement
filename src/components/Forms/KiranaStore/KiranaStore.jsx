@@ -1,6 +1,7 @@
 import { Button, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
 import Header from "../../Header/Header";
+import { API_URL } from "../../../constant";
 
 // Helper to format current datetime-local
 const getCurrentDateTimeLocal = () => {
@@ -77,19 +78,16 @@ const KiranaStore = () => {
     if (validate()) {
       setLoading(true);
       try {
-        const response = await fetch(
-          "https://humlog.onrender.com/user/raghav/kiranaStore",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              ...formData,
-              timestamp: new Date(formData.timestamp).getTime(),
-            }),
-          }
-        );
+        const response = await fetch(`${API_URL}/user/raghav/kiranaStore`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...formData,
+            timestamp: new Date(formData.timestamp).getTime(),
+          }),
+        });
 
         const result = await response.json();
 

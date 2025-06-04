@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./Header.css";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
+import { Box } from "@mui/material";
 
 const DateDisplay = () => {
   const today = new Date();
@@ -22,7 +23,7 @@ const DateDisplay = () => {
   );
 };
 
-const Header = ({ backLink, isShowBack = true, isShowLogout }) => {
+const Header = ({ backLink, isShowBack = true }) => {
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -49,9 +50,17 @@ const Header = ({ backLink, isShowBack = true, isShowLogout }) => {
             Back
           </button>
         )}
-        <div className="title">
+        <Box
+          className="title"
+          sx={{
+            display: {
+              xs: "none", // hide on mobile
+              sm: "block", // show on small and up
+            },
+          }}
+        >
           <h1>Home Management</h1>
-        </div>
+        </Box>
         <div className="time">
           <div>Date : </div>
           <DateDisplay />
