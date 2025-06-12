@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSortBy, useTable } from "react-table";
 import { Tabs, Tab, Box, Paper, Button, TextField } from "@mui/material";
 import Header from "../Header/Header.jsx";
@@ -34,42 +34,44 @@ const DataTables = () => {
   const currentTab = tabLabels[selectedTab];
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const saveData = useRef({ ...editedData });
 
+  const fetchData = async () => {
+    try {
+      const response = await fetch(`${API_URL}/users/raghav`);
+      const result = await response.json();
+      if (response.ok) {
+        const newApiData = {
+          "Vegetable and Fruits": result.data[0]?.money?.vegetablesFruits,
+          "Kirana Store": result.data[0]?.money?.kiranaStore,
+          "Fast Food": result.data[0]?.money?.fastFood,
+          milk: result.data[0]?.money?.milk,
+          Homeneeds: result.data[0]?.money?.homeNeeds,
+          Petrol: result.data[0]?.money?.petrol,
+          outing: result.data[0]?.money?.outing,
+          "House Rent": result.data[0]?.money?.houseRent,
+          "Wifi Bill": result.data[0]?.money?.wifi,
+          Outing: result.data[0]?.money?.outing,
+          // Assuming your API returns an object where each key is a category (like 'Vegetable and Fruits', 'Milk', etc.)
+        };
+        setApiData(newApiData);
+        setLoading(false);
+      } else {
+        setApiError(result.msg || "Failed to fetch data");
+      }
+    } catch (error) {
+      alert(apiError || error.message);
+      console.error("Error fetching data:", error);
+      setApiError("An error occurred: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
   // Fetch data when the component mounts
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${API_URL}/users/raghav`);
-        const result = await response.json();
-        if (response.ok) {
-          const newApiData = {
-            "Vegetable and Fruits": result.data[0]?.money?.vegetablesFruits,
-            "Kirana Store": result.data[0]?.money?.kiranaStore,
-            "Fast Food": result.data[0]?.money?.fastFood,
-            milk: result.data[0]?.money?.milk,
-            Homeneeds: result.data[0]?.money?.homeNeeds,
-            Petrol: result.data[0]?.money?.petrol,
-            outing: result.data[0]?.money?.outing,
-            "House Rent": result.data[0]?.money?.houseRent,
-            "Wifi Bill": result.data[0]?.money?.wifi,
-            Outing: result.data[0]?.money?.outing,
-            // Assuming your API returns an object where each key is a category (like 'Vegetable and Fruits', 'Milk', etc.)
-          };
-          setApiData(newApiData);
-          setLoading(false);
-        } else {
-          setApiError(result.msg || "Failed to fetch data");
-        }
-      } catch (error) {
-        alert(apiError || error.message);
-        console.error("Error fetching data:", error);
-        setApiError("An error occurred: " + error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
   }, [apiError, loading]);
+
   const data = useMemo(() => {
     const raw = apiData[currentTab] || [];
 
@@ -92,9 +94,10 @@ const DataTables = () => {
     });
   }, [apiData, currentTab, startDate, endDate]);
 
-  const handleEdit = (index) => {
-    setEditingRowIndex(index);
-    setEditedData({ ...data[index] });
+  const handleEdit = (i) => {
+    const row = data[i];
+    setEditingRowIndex(i);
+    setEditedData({ ...row });
   };
 
   const handleCancel = () => {
@@ -102,20 +105,92 @@ const DataTables = () => {
     setEditedData({});
   };
 
-  const handleSave = () => {
-    console.log("Saving row:", editedData);
-    setEditingRowIndex(null);
-    setEditedData({});
-    // TODO: Add actual save logic (API call)
+  const getCategoryKeyFromLabel = (label) => {
+    const map = {
+      "Vegetable and Fruits": "vegetablesFruits",
+      milk: "milk",
+      "Kirana Store": "kiranaStore",
+      "Fast Food": "fastFood",
+      Homeneeds: "homeNeeds",
+      Petrol: "petrol",
+      outing: "outing",
+      "House Rent": "houseRent",
+      "Wifi Bill": "wifi",
+    };
+
+    return map[label] || "";
   };
 
-  const handleDelete = (index) => {
-    const confirm = window.confirm(
+  const onChangeEditHandler = (e, key) => {
+    const newValue = e.target.value;
+    const newData = { ...editedData };
+    newData[key] = newValue;
+    setEditedData(newData);
+    saveData.current = { ...newData };
+  };
+
+  const handleSave = async () => {
+    try {
+      const category = getCategoryKeyFromLabel(currentTab);
+      const response = await fetch(
+        `${API_URL}/user/raghav/${category}/${saveData?.current?._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(saveData?.current),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.msg);
+      }
+
+      alert("Entry updated successfully");
+      // Optionally refresh data here
+      fetchData();
+    } catch (error) {
+      console.error("Error updating entry:", error);
+      alert("Failed to update entry");
+    }
+
+    setEditingRowIndex(null);
+    setEditedData({});
+  };
+
+  const handleDelete = async (index) => {
+    const confirmDelete = window.confirm(
       "Are you sure you want to delete this entry?"
     );
-    if (confirm) {
-      console.log("Deleting row:", data[index]);
-      // TODO: Add actual delete logic (API call)
+    if (!confirmDelete) return;
+
+    const entryId = data[index]._id;
+
+    try {
+      const category = getCategoryKeyFromLabel(currentTab);
+
+      const response = await fetch(
+        `${API_URL}/user/raghav/${category}/${entryId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.msg);
+      }
+
+      alert("Entry deleted successfully");
+      // Optionally refresh data here
+      fetchData();
+    } catch (error) {
+      console.error("Error deleting entry:", error);
+      alert("Failed to delete entry");
     }
   };
 
@@ -130,6 +205,20 @@ const DataTables = () => {
     hours = hours % 12 || 12;
     return `${day} ${month} ${year} ${hours}:${minutes} ${ampm}`;
   };
+
+  const totals = useMemo(() => {
+    const total = {};
+    if (data.length === 0) return total;
+
+    Object.keys(data[0]).forEach((key) => {
+      total[key] = data.reduce((sum, item) => {
+        const val = item[key];
+        return typeof val === "number" ? sum + val : "";
+      }, 0);
+    });
+
+    return total;
+  }, [data]);
 
   const columns = useMemo(() => {
     if (!data.length) return [];
@@ -146,26 +235,20 @@ const DataTables = () => {
         Header: key.charAt(0).toUpperCase() + key.slice(1),
         accessor: key,
         id: key,
-        Cell: ({ row }) => {
+        Cell: ({ row, value }) => {
           const i = row.index;
           if (editingRowIndex === i) {
             return (
               <TextField
-                value={editedData[key]}
-                onChange={(e) =>
-                  setEditedData((prev) => ({
-                    ...prev,
-                    [key]: e.target.value,
-                  }))
-                }
+                defaultValue={editedData[key] ?? ""}
+                onChange={(event) => onChangeEditHandler(event, key)}
                 size="small"
+                fullWidth
               />
             );
           }
 
-          return key === "timestamp"
-            ? formatTimestamp(row.original[key])
-            : row.original[key];
+          return key === "timestamp" ? formatTimestamp(value) : value;
         },
       })),
       {
@@ -204,7 +287,7 @@ const DataTables = () => {
         },
       },
     ];
-  }, [data, editedData, editingRowIndex]);
+  }, [data, editingRowIndex]);
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable(
@@ -222,19 +305,7 @@ const DataTables = () => {
       },
       useSortBy
     );
-  const totals = useMemo(() => {
-    const total = {};
-    if (data.length === 0) return total;
 
-    Object.keys(data[0]).forEach((key) => {
-      total[key] = data.reduce((sum, item) => {
-        const val = item[key];
-        return typeof val === "number" ? sum + val : "";
-      }, 0);
-    });
-
-    return total;
-  }, [data]);
   return (
     <>
       <Header backLink={"/dashboard"} />
