@@ -117,7 +117,7 @@ const Milk = () => {
 
   return (
     <>
-      <Header backLink={"/home/money"} />
+      <Header backLink={"/home/money"} title="Milk" />
       <div className="container">
         <form className="form" onSubmit={handleSubmit}>
           <Typography variant="h5" align="center" gutterBottom>

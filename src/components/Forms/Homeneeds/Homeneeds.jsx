@@ -109,7 +109,7 @@ const Homeneeds = () => {
 
   return (
     <>
-      <Header backLink={"/home/money"} />
+      <Header backLink={"/home/money"} title="Homeneeds" />
       <div className="container">
         <form className="form" onSubmit={handleSubmit}>
           <Typography variant="h5" align="center" gutterBottom>

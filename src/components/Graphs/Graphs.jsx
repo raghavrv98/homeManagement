@@ -23,7 +23,7 @@ const Graphs = () => {
 
   return (
     <>
-      <Header backLink={"/dashboard"} />
+      <Header backLink={"/dashboard"} title="Graphs" />
       <Box p={3}>
         <Typography variant="h4" gutterBottom>
           Graphs

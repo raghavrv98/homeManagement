@@ -117,7 +117,7 @@ const KiranaStore = () => {
 
   return (
     <>
-      <Header backLink={"/home/money"} />
+      <Header backLink={"/home/money"} title="Kirana Store" />
       <div className="container">
         <form className="form" onSubmit={handleSubmit}>
           <Typography variant="h5" align="center" gutterBottom>

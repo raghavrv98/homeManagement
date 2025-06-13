@@ -9,6 +9,9 @@ const Dashboard = () => {
     <>
       <Header isShowBack={false} isShowLogout={true} backLink={"/home"} />
       <div className="dashboardContainer">
+        <Button className="box" component={Link} to="/dashboardTab">
+          <div className="box-content">Dashboard</div>
+        </Button>
         <Button className="box" component={Link} to="/dataTables">
           <div className="box-content">Data Tables</div>
         </Button>

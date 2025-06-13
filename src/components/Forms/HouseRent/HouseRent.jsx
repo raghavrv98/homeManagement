@@ -69,7 +69,7 @@ const HouseRent = () => {
 
   return (
     <>
-      <Header backLink={"/home/money"} />
+      <Header backLink={"/home/money"} title="House Rent" />
       <div className="container">
         <form className="form" onSubmit={handleSubmit}>
           <Typography variant="h5" align="center" gutterBottom>

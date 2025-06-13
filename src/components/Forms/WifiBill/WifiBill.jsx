@@ -80,7 +80,7 @@ const WifiBill = () => {
 
   return (
     <>
-      <Header backLink={"/home/money"} />
+      <Header backLink={"/home/money"} title="Wifi Bill" />
       <div className="container">
         <form className="form" onSubmit={handleSubmit}>
           <Typography variant="h5" align="center" gutterBottom>

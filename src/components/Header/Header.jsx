@@ -23,7 +23,7 @@ const DateDisplay = () => {
   );
 };
 
-const Header = ({ backLink, isShowBack = true }) => {
+const Header = ({ backLink, isShowBack = true, title = "Home Management" }) => {
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -59,7 +59,7 @@ const Header = ({ backLink, isShowBack = true }) => {
             },
           }}
         >
-          <h1>Home Management</h1>
+          <h1>{title}</h1>
         </Box>
         <div className="time">
           <div>Date : </div>

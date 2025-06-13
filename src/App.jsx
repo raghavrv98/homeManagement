@@ -16,6 +16,7 @@ import WifiBill from "./components/Forms/WifiBill/WifiBill";
 import Graphs from "./components/Graphs/Graphs";
 import Outing from "./components/Forms/Outing/Outing";
 import VegetablesAndFruits from "./components/Forms/VegetableAndFruits/VegetableAndFruits";
+import DashboardTab from "./components/DashboardTab/DashboardTab";
 
 const App = () => {
   return (
@@ -26,6 +27,7 @@ const App = () => {
           <Route path="/" element={<Dashboard />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dataTables" element={<DataTables />} />
+          <Route path="/dashboardTab" element={<DashboardTab />} />
           <Route path="/home" element={<HomePage />} />
           <Route path="/home/money" element={<Money />} />
           <Route
