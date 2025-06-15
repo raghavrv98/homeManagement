@@ -50,6 +50,11 @@ const DashboardTab = () => {
     { label: "Wifi Bill", value: 0, color: "#00ACC1" },
     { label: "Electricity Bill", value: 0, color: "#4CAF50" },
     { label: "Gas Bill", value: 0, color: "#6D4C41" },
+    { label: "Home Loan", value: 0, color: "#C62828" },
+    { label: "Income", value: 0, color: "#2E7D32" },
+    { label: "Investment", value: 0, color: "#FFD600" },
+    { label: "LIC", value: 0, color: "#1565C0" },
+    { label: "Parents", value: 0, color: "#AD1457" },
   ];
 
   const [selectedYear, setSelectedYear] = useState(currentYear);
@@ -60,7 +65,6 @@ const DashboardTab = () => {
   const handleBackToAll = () => setSelectedMonthIndex(null);
   const [apiData, setApiData] = useState([]);
   const [apiError, setApiError] = useState("");
-  const [monthlyData, setMonthlyData] = useState({});
   const [summaryData, setSummaryData] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -105,6 +109,11 @@ const DashboardTab = () => {
         "Wifi Bill": { key: "wifi", field: "amount" },
         "Electricity Bill": { key: "electricity", field: "amount" },
         "Gas Bill": { key: "gas", field: "amount" },
+        "Home Loan": { key: "homeLoan", field: "cost" },
+        Income: { key: "income", field: "cost" },
+        Investment: { key: "investment", field: "cost" },
+        LIC: { key: "lic", field: "cost" },
+        Parents: { key: "parents", field: "cost" },
       };
 
       for (const [label, { key, field }] of Object.entries(categoriesConfig)) {
@@ -129,6 +138,11 @@ const DashboardTab = () => {
               "Wifi Bill": 0,
               "Electricity Bill": 0,
               "Gas Bill": 0,
+              "Home Loan": 0,
+              Income: 0,
+              Investment: 0,
+              LIC: 0,
+              Parents: 0,
             };
           }
 
@@ -156,7 +170,7 @@ const DashboardTab = () => {
 
         const totalExpense = Object.entries(entry)
           .filter(([key]) => key !== "month")
-          .reduce((sum, [_, val]) => sum + val, 0);
+          .reduce((sum, [, val]) => sum + val, 0);
 
         return { ...entry, totalExpense };
       });
@@ -172,15 +186,20 @@ const DashboardTab = () => {
 
   // Main function to generate summary
   const getSummaryData = (data) => {
+    console.log("data: ", data);
     const totalExpense = data.reduce(
       (sum, month) => sum + (month.totalExpense || 0),
       0
     );
 
-    const totalIncome = 300000; // This can come from user input, API, etc.
-    const totalInvestment = 20000; // Set dynamically if available
+    const totalIncome = data.reduce((sum, m) => sum + (m?.Income || 0), 0);
+    const totalInvestment = data.reduce(
+      (sum, m) => sum + (m?.Investment || 0),
+      0
+    );
 
-    const totalProfit = totalIncome - (totalExpense + totalInvestment);
+    const totalProfit =
+      totalIncome - (totalExpense - totalIncome + totalInvestment);
 
     return [
       {
@@ -190,7 +209,7 @@ const DashboardTab = () => {
       },
       {
         label: "Total Expense",
-        value: totalExpense,
+        value: totalExpense - totalIncome,
         color: "#E53935",
       },
       {
@@ -216,24 +235,19 @@ const DashboardTab = () => {
   }, []);
 
   const getMonthlyValueHandler = (month, label) => {
-    console.log("month: ", month);
-    const income = month?.totalIncome || 0;
-    const expense = month?.totalExpense || 0;
-    const investment = month?.totalInvestment || 0;
+    const income = month?.Income || 0;
+    const expense = month?.totalExpense - month?.Income || 0;
+    const investment = month?.Investment || 0;
 
     switch (label) {
       case "Total Income":
         return formatINRCurrency(income);
-
       case "Total Expense":
         return formatINRCurrency(expense);
-
       case "Total Investment":
         return formatINRCurrency(investment);
-
       case "Total Profit":
         return formatINRCurrency(income - (expense + investment));
-
       default:
         return null;
     }

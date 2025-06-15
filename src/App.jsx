@@ -19,6 +19,11 @@ import VegetablesAndFruits from "./components/Forms/VegetableAndFruits/Vegetable
 import DashboardTab from "./components/DashboardTab/DashboardTab";
 import ElectricityBill from "./components/Forms/ElectricityBill/ElectricityBill";
 import GasBill from "./components/Forms/GasBill/GasBill";
+import Income from "./components/Forms/Income/Income";
+import Investment from "./components/Forms/Investment/Investment";
+import LIC from "./components/Forms/LIC/LIC";
+import HomeLoan from "./components/Forms/HomeLoan/HomeLoan";
+import Parents from "./components/Forms/Parents/parents";
 
 const App = () => {
   return (
@@ -48,7 +53,11 @@ const App = () => {
             element={<ElectricityBill />}
           />
           <Route path="/home/money/gasBill" element={<GasBill />} />
-          <Route path="/home/money/outing" element={<Outing />} />
+          <Route path="/home/money/income" element={<Income />} />
+          <Route path="/home/money/investment" element={<Investment />} />
+          <Route path="/home/money/lic" element={<LIC />} />
+          <Route path="/home/money/homeLoan" element={<HomeLoan />} />
+          <Route path="/home/money/parents" element={<Parents />} />
           <Route path="/graphs" element={<Graphs />} />
         </Routes>
       </div>

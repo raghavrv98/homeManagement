@@ -33,6 +33,11 @@ const tabLabels = [
   "Wifi Bill",
   "Electricity Bill",
   "Gas Bill",
+  "homeloan",
+  "income",
+  "investment",
+  "lic",
+  "parents",
 ];
 
 const DataTables = () => {
@@ -68,6 +73,11 @@ const DataTables = () => {
           "Wifi Bill": result.data[0]?.money?.wifi,
           "Electricity Bill": result.data[0]?.money?.electricity,
           "Gas Bill": result.data[0]?.money?.gas,
+          homeloan: result.data[0]?.money?.homeloan,
+          income: result.data[0]?.money?.income,
+          investment: result.data[0]?.money?.investment,
+          lic: result.data[0]?.money?.lic,
+          parents: result.data[0]?.money?.parents,
         };
         setApiData(newApiData);
         setLoading(false);
@@ -130,6 +140,11 @@ const DataTables = () => {
       "Wifi Bill": "wifi",
       "Electricity Bill": "electricity",
       "Gas Bill": "gas",
+      homeloan: "homeloan",
+      income: "income",
+      investment: "investment",
+      lic: "lic",
+      parents: "parents",
     };
     return map[label] || "";
   };

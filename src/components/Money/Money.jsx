@@ -39,6 +39,21 @@ const Money = () => {
         <Button className="box" component={Link} to="./gasBill">
           <div className="box-content">Gas Bill</div>
         </Button>
+        <Button className="box" component={Link} to="./income">
+          <div className="box-content">Income</div>
+        </Button>
+        <Button className="box" component={Link} to="./investment">
+          <div className="box-content">Investment</div>
+        </Button>
+        <Button className="box" component={Link} to="./lic">
+          <div className="box-content">LIC</div>
+        </Button>
+        <Button className="box" component={Link} to="./homeLoan">
+          <div className="box-content">HomeLoan</div>
+        </Button>
+        <Button className="box" component={Link} to="./parents">
+          <div className="box-content">Parents</div>
+        </Button>
         <Button className="box" component={Link} to="./outing">
           <div className="box-content">Outing</div>
         </Button>
