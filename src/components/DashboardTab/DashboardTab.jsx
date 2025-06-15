@@ -48,6 +48,8 @@ const DashboardTab = () => {
     { label: "Outing", value: 0, color: "#3949AB" },
     { label: "House Rent", value: 0, color: "#D81B60" },
     { label: "Wifi Bill", value: 0, color: "#00ACC1" },
+    { label: "Electricity Bill", value: 0, color: "#4CAF50" },
+    { label: "Gas Bill", value: 0, color: "#6D4C41" },
   ];
 
   const [selectedYear, setSelectedYear] = useState(currentYear);
@@ -101,6 +103,8 @@ const DashboardTab = () => {
         Outing: { key: "outing", field: "cost" },
         "House Rent": { key: "houseRent", field: "amount" },
         "Wifi Bill": { key: "wifi", field: "amount" },
+        "Electricity Bill": { key: "electricity", field: "amount" },
+        "Gas Bill": { key: "gas", field: "amount" },
       };
 
       for (const [label, { key, field }] of Object.entries(categoriesConfig)) {
@@ -123,6 +127,8 @@ const DashboardTab = () => {
               Outing: 0,
               "House Rent": 0,
               "Wifi Bill": 0,
+              "Electricity Bill": 0,
+              "Gas Bill": 0,
             };
           }
 
@@ -144,6 +150,8 @@ const DashboardTab = () => {
           Outing: 0,
           "House Rent": 0,
           "Wifi Bill": 0,
+          "Electricity Bill": 0,
+          "Gas Bill": 0,
         };
 
         const totalExpense = Object.entries(entry)
@@ -464,8 +472,16 @@ const DashboardTab = () => {
                         <Box
                           key={index}
                           sx={{
-                            flex: "0 0 450px",
-                            minWidth: "250px",
+                            flex: {
+                              xs: "1 1 100%", // Full width on mobile
+                              sm: "1 1 calc(50% - 16px)", // Two per row on tablets
+                              md: "1 1 calc(33.33% - 16px)", // Three per row on medium screens
+                              lg: "0 0 350px", // Fixed width on large screens
+                            },
+                            minWidth: {
+                              xs: "100%",
+                              sm: "250px",
+                            },
                             bgcolor: "#fff",
                             p: 2,
                             borderRadius: 2,
@@ -505,7 +521,8 @@ const DashboardTab = () => {
                       flex: { xs: "1 1 100%", md: "1 1 300px" },
                       display: "flex",
                       flexDirection: "column",
-                      maxWidth: "200px", // Smaller fixed width
+                      width: "100%",
+                      maxWidth: { xs: "100%", sm: "250px" },
                       gap: 2,
                     }}
                   >

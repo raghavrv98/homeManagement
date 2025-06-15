@@ -33,6 +33,12 @@ const Money = () => {
         <Button className="box" component={Link} to="./wifiBill">
           <div className="box-content">Wifi Bill</div>
         </Button>
+        <Button className="box" component={Link} to="./electricityBill">
+          <div className="box-content">Electricity Bill</div>
+        </Button>
+        <Button className="box" component={Link} to="./gasBill">
+          <div className="box-content">Gas Bill</div>
+        </Button>
         <Button className="box" component={Link} to="./outing">
           <div className="box-content">Outing</div>
         </Button>

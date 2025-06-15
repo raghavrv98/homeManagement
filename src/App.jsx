@@ -17,6 +17,8 @@ import Graphs from "./components/Graphs/Graphs";
 import Outing from "./components/Forms/Outing/Outing";
 import VegetablesAndFruits from "./components/Forms/VegetableAndFruits/VegetableAndFruits";
 import DashboardTab from "./components/DashboardTab/DashboardTab";
+import ElectricityBill from "./components/Forms/ElectricityBill/ElectricityBill";
+import GasBill from "./components/Forms/GasBill/GasBill";
 
 const App = () => {
   return (
@@ -41,6 +43,11 @@ const App = () => {
           <Route path="/home/money/petrol" element={<Petrol />} />
           <Route path="/home/money/houseRent" element={<HouseRent />} />
           <Route path="/home/money/wifiBill" element={<WifiBill />} />
+          <Route
+            path="/home/money/electricityBill"
+            element={<ElectricityBill />}
+          />
+          <Route path="/home/money/gasBill" element={<GasBill />} />
           <Route path="/home/money/outing" element={<Outing />} />
           <Route path="/graphs" element={<Graphs />} />
         </Routes>

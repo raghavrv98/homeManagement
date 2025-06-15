@@ -31,7 +31,8 @@ const tabLabels = [
   "outing",
   "House Rent",
   "Wifi Bill",
-  "Declarations",
+  "Electricity Bill",
+  "Gas Bill",
 ];
 
 const DataTables = () => {
@@ -47,20 +48,7 @@ const DataTables = () => {
   const currentTab = tabLabels[selectedTab];
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [declarationData, setDeclarationData] = useState([
-    {
-      month: "January",
-      income: 100000,
-      investment: 5000,
-      parentsMoney: 10000,
-    },
-    {
-      month: "February",
-      income: 80000,
-      investment: 7000,
-      parentsMoney: 5000,
-    },
-  ]);
+
   const saveData = useRef({ ...editedData });
 
   const fetchData = async () => {
@@ -78,6 +66,8 @@ const DataTables = () => {
           outing: result.data[0]?.money?.outing,
           "House Rent": result.data[0]?.money?.houseRent,
           "Wifi Bill": result.data[0]?.money?.wifi,
+          "Electricity Bill": result.data[0]?.money?.electricity,
+          "Gas Bill": result.data[0]?.money?.gas,
         };
         setApiData(newApiData);
         setLoading(false);
@@ -138,6 +128,8 @@ const DataTables = () => {
       outing: "outing",
       "House Rent": "houseRent",
       "Wifi Bill": "wifi",
+      "Electricity Bill": "electricity",
+      "Gas Bill": "gas",
     };
     return map[label] || "";
   };
@@ -293,55 +285,6 @@ const DataTables = () => {
       useSortBy
     );
 
-  const declarationColumns = useMemo(() => {
-    return [
-      {
-        Header: "#",
-        accessor: (_, i) => i + 1,
-        id: "index",
-      },
-      {
-        Header: "Name of the Month",
-        accessor: "month",
-      },
-      {
-        Header: "Income",
-        accessor: "income",
-      },
-      {
-        Header: "Investment",
-        accessor: "investment",
-      },
-      {
-        Header: "Parent's Money",
-        accessor: "parentsMoney",
-      },
-      {
-        Header: "Actions",
-        id: "actions",
-        Cell: ({ row }) => (
-          <Box display="flex" gap={1}>
-            <Button
-              size="small"
-              onClick={() => alert("Edit clicked")}
-              variant="outlined"
-            >
-              Edit
-            </Button>
-            <Button
-              size="small"
-              onClick={() => alert("Delete clicked")}
-              color="error"
-              variant="outlined"
-            >
-              Delete
-            </Button>
-          </Box>
-        ),
-      },
-    ];
-  }, []);
-
   return (
     <>
       <Header backLink={"/dashboard"} title="Data Tables" />
@@ -396,138 +339,105 @@ const DataTables = () => {
             width: "100%",
           }}
         >
-          {currentTab === "Declarations" ? (
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr>
-                  {declarationColumns.map((column) => (
-                    <th
-                      key={column.id || column.accessor}
-                      style={{
-                        border: "1px solid #ccc",
-                        padding: "8px",
-                        background: "#f5f5f5",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {column.Header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {declarationData.map((item, index) => (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{item.month}</td>
-                    <td>{item.income}</td>
-                    <td>{item.investment}</td>
-                    <td>{item.parentsMoney}</td>
-                    <td>
-                      <Box display="flex" gap={1}>
-                        <Button size="small" variant="outlined">
-                          Edit
-                        </Button>
-                        <Button size="small" color="error" variant="outlined">
-                          Delete
-                        </Button>
-                      </Box>
-                    </td>
-                  </tr>
+          <table
+            {...getTableProps()}
+            style={{ width: "100%", borderCollapse: "collapse" }}
+          >
+            <thead>
+              <tr>
+                {columns.map((column) => (
+                  <th
+                    key={column.id}
+                    style={{
+                      border: "1px solid #ccc",
+                      padding: "8px",
+                      background: "#e8f5e9",
+                      fontWeight: "bold",
+                      position: "sticky",
+                      top: 0,
+                      zIndex: 1,
+                    }}
+                  >
+                    {column.id === "index"
+                      ? "Total"
+                      : typeof totals[column.id] === "number"
+                      ? totals[column.id]
+                      : ""}
+                  </th>
                 ))}
-              </tbody>
-            </table>
-          ) : (
-            // original table code stays here
-            <table
-              {...getTableProps()}
-              style={{ width: "100%", borderCollapse: "collapse" }}
-            >
-              <thead>
-                <tr>
-                  {columns.map((column) => (
+              </tr>
+              {headerGroups.map((headerGroup) => (
+                <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
+                  {headerGroup.headers.map((column) => (
                     <th
+                      {...column.getHeaderProps(column.getSortByToggleProps())}
                       key={column.id}
                       style={{
                         border: "1px solid #ccc",
                         padding: "8px",
-                        background: "#e8f5e9",
-                        fontWeight: "bold",
-                        position: "sticky",
-                        top: 0,
-                        zIndex: 1,
+                        background: "#f5f5f5",
+                        cursor: "pointer",
                       }}
                     >
-                      {column.id === "index"
-                        ? "Total"
-                        : typeof totals[column.id] === "number"
-                        ? totals[column.id]
+                      {column.render("Header")}
+                      {column.isSorted
+                        ? column.isSortedDesc
+                          ? " 🔽"
+                          : " 🔼"
                         : ""}
                     </th>
                   ))}
                 </tr>
-                {headerGroups.map((headerGroup) => (
-                  <tr
-                    {...headerGroup.getHeaderGroupProps()}
-                    key={headerGroup.id}
-                  >
-                    {headerGroup.headers.map((column) => (
-                      <th
-                        {...column.getHeaderProps(
-                          column.getSortByToggleProps()
-                        )}
-                        key={column.id}
-                        style={{
-                          border: "1px solid #ccc",
-                          padding: "8px",
-                          background: "#f5f5f5",
-                          cursor: "pointer",
-                        }}
-                      >
-                        {column.render("Header")}
-                        {column.isSorted
-                          ? column.isSortedDesc
-                            ? " 🔽"
-                            : " 🔼"
-                          : ""}
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody {...getTableBodyProps()}>
-                {loading ? (
-                  <tr>
-                    <td colSpan={columns.length}>Loading...</td>
-                  </tr>
-                ) : rows.length === 0 ? (
-                  <tr>
-                    <td colSpan={columns.length}>No data</td>
-                  </tr>
-                ) : (
-                  rows.map((row) => {
-                    prepareRow(row);
-                    return (
-                      <tr {...row.getRowProps()} key={row.id}>
-                        {row.cells.map((cell) => (
-                          <td
-                            {...cell.getCellProps()}
-                            key={cell.column.id}
-                            style={{
-                              border: "1px solid #ddd",
-                              padding: "8px",
-                            }}
-                          >
-                            {cell.render("Cell")}
-                          </td>
-                        ))}
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          )}
+              ))}
+            </thead>
+            <tbody {...getTableBodyProps()}>
+              {loading ? (
+                <tr
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    fontSize: "20px",
+                    padding: "50px",
+                  }}
+                >
+                  <td colSpan={columns.length}>Loading...</td>
+                </tr>
+              ) : rows.length === 0 ? (
+                <tr
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    fontSize: "20px",
+                    padding: "50px",
+                  }}
+                >
+                  <td colSpan={columns.length}>No data</td>
+                </tr>
+              ) : (
+                rows.map((row) => {
+                  prepareRow(row);
+                  return (
+                    <tr {...row.getRowProps()} key={row.id}>
+                      {row.cells.map((cell) => (
+                        <td
+                          {...cell.getCellProps()}
+                          key={cell.column.id}
+                          style={{
+                            border: "1px solid #ddd",
+                            padding: "8px",
+                          }}
+                        >
+                          {cell.render("Cell")}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </Paper>
       </Box>
     </>
