@@ -24,6 +24,10 @@ import Investment from "./components/Forms/Investment/Investment";
 import LIC from "./components/Forms/LIC/LIC";
 import HomeLoan from "./components/Forms/HomeLoan/HomeLoan";
 import Parents from "./components/Forms/Parents/parents";
+import PersonalExpense from "./components/Forms/PersonalExpense/PersonalExpense";
+import GiftToAmisha from "./components/Forms/GiftToAmisha/GiftToAmisha";
+import AdvityaFlatCost from "./components/Forms/Advitya Flat Cost/AdvityaFlatCost";
+import MumbaiHomeSetupCost from "./components/Forms/MumbaiHomeSetupCost/MumbaiHomeSetupCost";
 
 const App = () => {
   return (
@@ -58,6 +62,20 @@ const App = () => {
           <Route path="/home/money/lic" element={<LIC />} />
           <Route path="/home/money/homeLoan" element={<HomeLoan />} />
           <Route path="/home/money/parents" element={<Parents />} />
+          <Route
+            path="/home/money/personalExpense"
+            element={<PersonalExpense />}
+          />
+          <Route path="/home/money/giftToAmisha" element={<GiftToAmisha />} />
+          <Route
+            path="/home/money/advityaFlatCost"
+            element={<AdvityaFlatCost />}
+          />
+          <Route
+            path="/home/money/mumbaiHomeSetupCost"
+            element={<MumbaiHomeSetupCost />}
+          />
+
           <Route path="/graphs" element={<Graphs />} />
         </Routes>
       </div>

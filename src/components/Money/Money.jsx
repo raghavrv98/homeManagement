@@ -57,6 +57,18 @@ const Money = () => {
         <Button className="box" component={Link} to="./outing">
           <div className="box-content">Outing</div>
         </Button>
+        <Button className="box" component={Link} to="./personalExpense">
+          <div className="box-content">Personal Expense</div>
+        </Button>
+        <Button className="box" component={Link} to="./giftToAmisha">
+          <div className="box-content">Gift To Amisha</div>
+        </Button>
+        <Button className="box" component={Link} to="./advityaFlatCost">
+          <div className="box-content">Advitya Flat Cost</div>
+        </Button>
+        <Button className="box" component={Link} to="./mumbaiHomeSetupCost">
+          <div className="box-content">Mumbai Home Setup Cost</div>
+        </Button>
       </div>
     </>
   );
