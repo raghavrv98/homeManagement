@@ -62,6 +62,7 @@ const App = () => {
           <Route path="/home/money/lic" element={<LIC />} />
           <Route path="/home/money/homeLoan" element={<HomeLoan />} />
           <Route path="/home/money/parents" element={<Parents />} />
+          <Route path="/home/money/outing" element={<Outing />} />
           <Route
             path="/home/money/personalExpense"
             element={<PersonalExpense />}
