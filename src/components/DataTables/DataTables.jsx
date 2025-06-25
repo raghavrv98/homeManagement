@@ -22,6 +22,7 @@ dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 
 const tabLabels = [
+  "Total",
   "Vegetable and Fruits",
   "milk",
   "Kirana Store",
@@ -118,7 +119,18 @@ const DataTables = () => {
   }, [apiError, loading]);
 
   const data = useMemo(() => {
-    const raw = apiData[currentTab] || [];
+    if (!apiData) return [];
+
+    let raw = [];
+
+    if (currentTab === "Total") {
+      Object.values(apiData).forEach((arr) => {
+        if (Array.isArray(arr)) raw = raw.concat(arr);
+        console.log("raw: ", raw);
+      });
+    } else {
+      raw = apiData[currentTab] || [];
+    }
 
     if (!startDate && !endDate) return raw;
 

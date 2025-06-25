@@ -1,75 +1,161 @@
 import React from "react";
-import "./Money.css"; // Importing the CSS file for styling
+import "./Money.css";
 import Header from "../Header/Header.jsx";
-import { Button } from "@mui/material";
+import { Button, Box } from "@mui/material";
 import { Link } from "react-router-dom";
+import {
+  ShoppingCart,
+  LocalDrink,
+  Storefront,
+  Fastfood,
+  Home,
+  LocalGasStation,
+  House,
+  Wifi,
+  FlashOn,
+  Whatshot,
+  AttachMoney,
+  TrendingUp,
+  Security,
+  AccountBalance,
+  Elderly,
+  Hiking,
+  Wallet,
+  CardGiftcard,
+  Apartment,
+  Build,
+} from "@mui/icons-material";
+
+const categories = [
+  {
+    label: "Vegetables & Fruits",
+    path: "vegetables-fruits",
+    icon: <ShoppingCart />,
+    color: "#A8E6CF",
+  },
+  { label: "Milk", path: "milk", icon: <LocalDrink />, color: "#FFD3B6" },
+  {
+    label: "Kirana Store",
+    path: "kirana-store",
+    icon: <Storefront />,
+    color: "#FFAAA5",
+  },
+  {
+    label: "Fast Food",
+    path: "fast-food",
+    icon: <Fastfood />,
+    color: "#FF8C94",
+  },
+  { label: "HomeNeeds", path: "homeNeeds", icon: <Home />, color: "#DCE775" },
+  {
+    label: "Petrol",
+    path: "petrol",
+    icon: <LocalGasStation />,
+    color: "#FFF176",
+  },
+  { label: "House Rent", path: "houseRent", icon: <House />, color: "#AED581" },
+  { label: "Wifi Bill", path: "wifiBill", icon: <Wifi />, color: "#4FC3F7" },
+  {
+    label: "Electricity Bill",
+    path: "electricityBill",
+    icon: <FlashOn />,
+    color: "#FFB74D",
+  },
+  { label: "Gas Bill", path: "gasBill", icon: <Whatshot />, color: "#E57373" },
+  { label: "Income", path: "income", icon: <AttachMoney />, color: "#81C784" },
+  {
+    label: "Investment",
+    path: "investment",
+    icon: <TrendingUp />,
+    color: "#64B5F6",
+  },
+  { label: "LIC", path: "lic", icon: <Security />, color: "#9575CD" },
+  {
+    label: "HomeLoan",
+    path: "homeLoan",
+    icon: <AccountBalance />,
+    color: "#7986CB",
+  },
+  { label: "Parents", path: "parents", icon: <Elderly />, color: "#F48FB1" },
+  { label: "Outing", path: "outing", icon: <Hiking />, color: "#4DB6AC" },
+  {
+    label: "Personal Expense",
+    path: "personalExpense",
+    icon: <Wallet />,
+    color: "#BA68C8",
+  },
+  {
+    label: "Gift To Amisha",
+    path: "giftToAmisha",
+    icon: <CardGiftcard />,
+    color: "#F06292",
+  },
+  {
+    label: "Advitya Flat Cost",
+    path: "advityaFlatCost",
+    icon: <Apartment />,
+    color: "#90A4AE",
+  },
+  {
+    label: "Mumbai Home Setup Cost",
+    path: "mumbaiHomeSetupCost",
+    icon: <Build />,
+    color: "#A1887F",
+  },
+];
 
 const Money = () => {
   return (
     <>
-      <Header backLink={"/dashboard"} />
-      <div className="container">
-        <Button className="box" component={Link} to="./vegetables-fruits">
-          <div className="box-content">Vegetables & Fruits</div>
-        </Button>
-        <Button className="box" component={Link} to="./milk">
-          <div className="box-content">Milk</div>
-        </Button>
-        <Button className="box" component={Link} to="./kirana-store">
-          <div className="box-content">Kirana Store</div>
-        </Button>
-        <Button className="box" component={Link} to="./fast-food">
-          <div className="box-content">Fast Food</div>
-        </Button>
-        <Button className="box" component={Link} to="./homeNeeds">
-          <div className="box-content">HomeNeeds</div>
-        </Button>
-        <Button className="box" component={Link} to="./petrol">
-          <div className="box-content">Petrol</div>
-        </Button>
-        <Button className="box" component={Link} to="./houseRent">
-          <div className="box-content">House Rent</div>
-        </Button>
-        <Button className="box" component={Link} to="./wifiBill">
-          <div className="box-content">Wifi Bill</div>
-        </Button>
-        <Button className="box" component={Link} to="./electricityBill">
-          <div className="box-content">Electricity Bill</div>
-        </Button>
-        <Button className="box" component={Link} to="./gasBill">
-          <div className="box-content">Gas Bill</div>
-        </Button>
-        <Button className="box" component={Link} to="./income">
-          <div className="box-content">Income</div>
-        </Button>
-        <Button className="box" component={Link} to="./investment">
-          <div className="box-content">Investment</div>
-        </Button>
-        <Button className="box" component={Link} to="./lic">
-          <div className="box-content">LIC</div>
-        </Button>
-        <Button className="box" component={Link} to="./homeLoan">
-          <div className="box-content">HomeLoan</div>
-        </Button>
-        <Button className="box" component={Link} to="./parents">
-          <div className="box-content">Parents</div>
-        </Button>
-        <Button className="box" component={Link} to="./outing">
-          <div className="box-content">Outing</div>
-        </Button>
-        <Button className="box" component={Link} to="./personalExpense">
-          <div className="box-content">Personal Expense</div>
-        </Button>
-        <Button className="box" component={Link} to="./giftToAmisha">
-          <div className="box-content">Gift To Amisha</div>
-        </Button>
-        <Button className="box" component={Link} to="./advityaFlatCost">
-          <div className="box-content">Advitya Flat Cost</div>
-        </Button>
-        <Button className="box" component={Link} to="./mumbaiHomeSetupCost">
-          <div className="box-content">Mumbai Home Setup Cost</div>
-        </Button>
-      </div>
+      <Header backLink="/dashboard" />
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 2,
+          padding: 2,
+          justifyContent: "center",
+        }}
+      >
+        {categories.map((item, index) => (
+          <Box
+            key={index}
+            sx={{
+              width: "calc(100% / 6 - 16px)",
+              minWidth: "150px",
+            }}
+          >
+            <Button
+              component={Link}
+              to={`./${item.path}`}
+              sx={{
+                width: "100%",
+                height: "120px",
+                borderRadius: 3,
+                boxShadow: 3,
+                textTransform: "none",
+                whiteSpace: "normal",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: item.color,
+                color: "#333",
+                fontWeight: "bold",
+                fontSize: "0.85rem",
+                "&:hover": {
+                  transform: "scale(1.05)",
+                  boxShadow: 5,
+                  backgroundColor: item.color,
+                },
+              }}
+            >
+              <Box sx={{ fontSize: 32, mb: 1 }}>{item.icon}</Box>
+              {item.label}
+            </Button>
+          </Box>
+        ))}
+      </Box>
     </>
   );
 };

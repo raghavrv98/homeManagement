@@ -17,10 +17,10 @@
   gap: 5px;
 }
 
-.headerBackline{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+.headerBackline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .back-button:hover {
@@ -33,7 +33,7 @@
   align-items: center;
 }
 
-.title h1{
+.title h1 {
   margin: 0px;
 }
 
@@ -41,8 +41,76 @@
   display: flex;
 }
 
-.time{
-    display: flex;
-    gap: 5px;
-    font-weight: bolder;
+.time {
+  display: flex;
+  gap: 5px;
+  font-weight: bolder;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.headerBackline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.25);
+  border: none;
+  color: #333;
+  padding: 8px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.back-button:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.05);
+}
+
+.arrowIcon {
+  margin-right: 6px;
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
+}
+
+.title h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #222;
+  margin: 0;
+  text-align: center;
+}
+
+.time {
+  font-size: 0.95rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #333;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 10px;
+  backdrop-filter: blur(5px);
 }
