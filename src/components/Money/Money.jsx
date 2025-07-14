@@ -24,6 +24,7 @@ import {
   CardGiftcard,
   Apartment,
   Build,
+  CreditCard,
 } from "@mui/icons-material";
 
 const categories = [
@@ -101,6 +102,12 @@ const categories = [
     path: "mumbaiHomeSetupCost",
     icon: <Build />,
     color: "#A1887F",
+  },
+  {
+    label: "Cred Loan Repay",
+    path: "credLoanRepay",
+    icon: <CreditCard />,
+    color: "#FFD74D",
   },
 ];
 

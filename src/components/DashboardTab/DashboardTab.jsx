@@ -59,6 +59,7 @@ const DashboardTab = () => {
     { label: "Gift to Amisha", value: 0, color: "#FF4081" },
     { label: "Advitya Flat Cost", value: 0, color: "#1E1081" },
     { label: "Mumbai Home Setup Cost", value: 0, color: "#5E1081" },
+    { label: "Cred Loan Repay", value: 0, color: "#5A5081" },
   ];
 
   const [selectedYear, setSelectedYear] = useState(currentYear);
@@ -113,7 +114,7 @@ const DashboardTab = () => {
         "Wifi Bill": { key: "wifi", field: "amount" },
         "Electricity Bill": { key: "electricity", field: "amount" },
         "Gas Bill": { key: "gas", field: "amount" },
-        "Home Loan": { key: "homeLoan", field: "cost" },
+        "Home Loan": { key: "homeloan", field: "cost" },
         Income: { key: "income", field: "cost" },
         Investment: { key: "investment", field: "cost" },
         LIC: { key: "lic", field: "cost" },
@@ -121,6 +122,7 @@ const DashboardTab = () => {
         "Personal Expense": { key: "personalExpense", field: "cost" },
         "Gift to Amisha": { key: "giftToAmisha", field: "cost" },
         "Advitya Flat Cost": { key: "advityaFlatCost", field: "cost" },
+        "Cred Loan Repay": { key: "credLoanRepay", field: "cost" },
         "Mumbai Home Setup Cost": {
           key: "mumbaiHomeSetupCost",
           field: "cost",
@@ -157,6 +159,7 @@ const DashboardTab = () => {
               "Personal Expense": 0,
               "Gift to Amisha": 0,
               "Advitya Flat Cost": 0,
+              "Cred Loan Repay": 0,
               "Mumbai Home Setup Cost": 0,
             };
           }
@@ -184,6 +187,7 @@ const DashboardTab = () => {
           "Personal Expense": 0,
           "Gift to Amisha": 0,
           "Advitya Flat Cost": 0,
+          "Cred Loan Repay": 0,
           "Mumbai Home Setup Cost": 0,
         };
 

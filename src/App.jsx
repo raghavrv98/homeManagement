@@ -28,6 +28,7 @@ import PersonalExpense from "./components/Forms/PersonalExpense/PersonalExpense"
 import GiftToAmisha from "./components/Forms/GiftToAmisha/GiftToAmisha";
 import AdvityaFlatCost from "./components/Forms/Advitya Flat Cost/AdvityaFlatCost";
 import MumbaiHomeSetupCost from "./components/Forms/MumbaiHomeSetupCost/MumbaiHomeSetupCost";
+import CredLoanRepay from "./components/Forms/CredLoanRepay/CredLoanRepay";
 
 const App = () => {
   return (
@@ -56,6 +57,7 @@ const App = () => {
             path="/home/money/electricityBill"
             element={<ElectricityBill />}
           />
+          <Route path="/home/money/credLoanRepay" element={<CredLoanRepay />} />
           <Route path="/home/money/gasBill" element={<GasBill />} />
           <Route path="/home/money/income" element={<Income />} />
           <Route path="/home/money/investment" element={<Investment />} />

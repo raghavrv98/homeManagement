@@ -43,6 +43,7 @@ const tabLabels = [
   "Personal Expense",
   "Advitya Flat Cost",
   "Mumbai Home Setup Cost",
+  "Cred Loan Repay",
 ];
 
 const DataTables = () => {
@@ -56,22 +57,10 @@ const DataTables = () => {
   const [editingRowIndex, setEditingRowIndex] = useState(null);
   const [editedData, setEditedData] = useState({});
   const currentTab = tabLabels[selectedTab];
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState(dayjs());
+  const [endDate, setEndDate] = useState(dayjs());
 
   const saveData = useRef({ ...editedData });
-
-  const formatINRCurrency = (value) => {
-    const number = Number(value);
-
-    if (isNaN(number)) return "₹0";
-
-    return number.toLocaleString("en-IN", {
-      style: "currency",
-      currency: "INR",
-      maximumFractionDigits: 0,
-    });
-  };
 
   const fetchData = async () => {
     try {
@@ -99,6 +88,7 @@ const DataTables = () => {
           "Gift to Amisha": result.data[0]?.money?.giftToAmisha,
           "Advitya Flat Cost": result.data[0]?.money?.advityaFlatCost,
           "Mumbai Home Setup Cost": result.data[0]?.money?.mumbaiHomeSetupCost,
+          "Cred Loan Repay": result.data[0]?.money?.credLoanRepay,
         };
         setApiData(newApiData);
         setLoading(false);
@@ -181,6 +171,7 @@ const DataTables = () => {
       "Gift to Amisha": "giftToAmisha",
       "Advitya Flat Cost": "advityaFlatCost",
       "Mumbai Home Setup Cost": "mumbaiHomeSetupCost",
+      "Cred Loan Repay": "credLoanRepay",
     };
     return map[label] || "";
   };
