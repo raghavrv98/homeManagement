@@ -20,12 +20,120 @@ const getCurrentDateTimeLocal = () => {
   )}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 };
 
-// Dummy data for policy details
-const policyData = {
-  A8655911: { maturityDate: "2030-12-31", maturityAmount: 100000 },
-  227603061: { maturityDate: "2032-06-15", maturityAmount: 200000 },
-  259324368: { maturityDate: "2029-08-01", maturityAmount: 150000 },
-};
+// Updated policy data as array of objects
+const policyData = [
+  {
+    policyNumber: "562593772",
+    memberName: "Anil Agrawal",
+    maturityDate: "2029-04-28",
+    maturityAmount: 500000,
+    cost: 22756,
+  },
+
+  {
+    policyNumber: "563352254",
+    memberName: "Anil Agrawal",
+    maturityDate: "2028-05-28",
+    maturityAmount: 500000,
+    cost: 25059,
+  },
+  {
+    policyNumber: "563740338",
+    memberName: "Anil Agrawal",
+    maturityDate: "2030-07-28",
+    maturityAmount: 250000,
+    cost: 6065,
+  },
+  {
+    policyNumber: "239440278",
+    memberName: "Anil Agrawal",
+    maturityDate: "2042-04-28",
+    maturityAmount: 1500000,
+    cost: 80716,
+  },
+  {
+    policyNumber: "399554054",
+    memberName: "Anil Agrawal",
+    maturityDate: "2029-08-31",
+    maturityAmount: 165310,
+    cost: 14825,
+  },
+
+  {
+    policyNumber: "239437433",
+    memberName: "Richa Agrawal",
+    maturityDate: "2036-08-28",
+    maturityAmount: 100000,
+    cost: 6891,
+  },
+  {
+    policyNumber: "244667475",
+    memberName: "Richa Agrawal",
+    maturityDate: "2050-04-01",
+    maturityAmount: 1400000,
+    cost: 50845,
+  },
+  {
+    policyNumber: "244670482",
+    memberName: "Richa Agrawal",
+    maturityDate: "2046-04-01",
+    maturityAmount: 500000,
+    cost: 21417,
+  },
+  {
+    policyNumber: "268751066",
+    memberName: "Richa Agrawal",
+    maturityDate: "2045-01-28",
+    maturityAmount: 500000,
+    cost: 25631,
+  },
+
+  {
+    policyNumber: "248239147",
+    memberName: "Raghav Agrawal",
+    maturityDate: "2042-12-28",
+    maturityAmount: 100000,
+    cost: 4868,
+  },
+
+  {
+    policyNumber: "227603061",
+    memberName: "Raghav Agrawal",
+    maturityDate: "2044-04-01",
+    maturityAmount: 1200000,
+    cost: 49697,
+  },
+
+  {
+    policyNumber: "259324368",
+    memberName: "Raghav Agrawal",
+    maturityDate: "2044-04-01",
+    maturityAmount: 1000000,
+    cost: 50069,
+  },
+
+  {
+    policyNumber: "A8655911",
+    memberName: "Raghav Agrawal per year milega from 05 nov 2028",
+    maturityDate: "2028-11-05",
+    maturityAmount: 140000,
+    cost: 102250,
+  },
+  {
+    policyNumber: "229192088",
+    memberName: "Nishtha Agrawal",
+    maturityDate: "2036-05-28",
+    maturityAmount: 700000,
+    cost: 43979,
+  },
+  {
+    policyNumber: "248239144",
+    memberName: "Nishtha Agrawal",
+    maturityDate: "2042-12-28",
+    maturityAmount: 100000,
+    cost: 4863,
+  },
+];
 
 const LIC = () => {
   const now = getCurrentDateTimeLocal();
@@ -37,6 +145,7 @@ const LIC = () => {
     maturityDate: "",
     maturityAmount: "",
     timestamp: now,
+    memberName: "",
   });
 
   const [error, setError] = useState({
@@ -66,13 +175,17 @@ const LIC = () => {
     const { name, value } = e.target;
 
     if (name === "policyNumber") {
-      const selected = policyData[value];
-      setFormData((prev) => ({
-        ...prev,
-        policyNumber: value,
-        maturityDate: selected.maturityDate,
-        maturityAmount: selected.maturityAmount,
-      }));
+      const selected = policyData.find((item) => item.policyNumber === value);
+      if (selected) {
+        setFormData((prev) => ({
+          ...prev,
+          policyNumber: selected.policyNumber,
+          memberName: selected.memberName,
+          maturityDate: selected.maturityDate,
+          maturityAmount: selected.maturityAmount,
+          cost: selected.cost?.toString() || "",
+        }));
+      }
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -98,6 +211,7 @@ const LIC = () => {
             maturityDate: new Date(formData.maturityDate).getTime(),
             maturityAmount: Number(formData.maturityAmount),
             timestamp: new Date(formData.timestamp).getTime(),
+            memberName: formData.memberName,
           }),
         });
 
@@ -111,6 +225,7 @@ const LIC = () => {
             maturityDate: "",
             maturityAmount: "",
             timestamp: getCurrentDateTimeLocal(),
+            memberName: "",
           });
           console.log("Saved:", result);
         } else {
@@ -148,9 +263,11 @@ const LIC = () => {
               onChange={handleChange}
               label="Policy Number"
             >
-              <MenuItem value="A8655911">A8655911 - ICICI</MenuItem>
-              <MenuItem value="227603061">227603061 - LIC</MenuItem>
-              <MenuItem value="259324368">259324368 - LIC</MenuItem>
+              {policyData.map((policy) => (
+                <MenuItem key={policy.policyNumber} value={policy.policyNumber}>
+                  {policy.policyNumber} - {policy.memberName}
+                </MenuItem>
+              ))}
             </Select>
             <FormHelperText>{error.policyNumber}</FormHelperText>
           </FormControl>
@@ -163,6 +280,16 @@ const LIC = () => {
             variant="outlined"
             error={Boolean(error.cost)}
             helperText={error.cost}
+            fullWidth
+            margin="normal"
+          />
+
+          <TextField
+            label="Member Name"
+            name="memberName"
+            value={formData.memberName}
+            variant="outlined"
+            disabled
             fullWidth
             margin="normal"
           />

@@ -36,6 +36,8 @@ const DashboardTab = () => {
     { label: "Total Expense", value: 0, color: "#D32F2F" },
     { label: "Total Investment", value: 0, color: "#FFC107" },
     { label: "Total Profit", value: 0, color: "#2E7D32" },
+    { label: "Mumbai Home Expenses", value: 0, color: "#6A1B9A" },
+    { label: "Faridabad Home Expenses", value: 0, color: "#00897B" },
   ];
 
   const categories = [
@@ -215,11 +217,9 @@ const DashboardTab = () => {
       0
     );
 
-    const totalExpense = data.reduce(
-      (sum, month) =>
-        sum + (month.totalExpense - (totalIncome + totalInvestment) || 0),
-      0
-    );
+    const totalExpense =
+      data.reduce((sum, month) => sum + Math.abs(month.totalExpense), 0) -
+      (totalIncome + totalInvestment);
 
     const totalProfit = totalIncome - totalExpense;
 
@@ -259,8 +259,33 @@ const DashboardTab = () => {
   const getMonthlyValueHandler = (month, label) => {
     const income = month?.Income || 0;
     const investment = month?.Investment || 0;
-    const expense = month?.totalExpense - (income + investment) || 0;
-    const profit = income - (expense + investment) || 0;
+
+    const mumbaiTotal =
+      (month?.["Vegetable and Fruits"] || 0) +
+      (month?.Milk || 0) +
+      (month?.["Kirana Store"] || 0) +
+      (month?.["Fast Food"] || 0) +
+      (month?.Homeneeds || 0) +
+      (month?.Petrol || 0) +
+      (month?.Outing || 0) +
+      (month?.["House Rent"] || 0) +
+      (month?.["Wifi Bill"] || 0) +
+      (month?.["Electricity Bill"] || 0) +
+      (month?.["Gas Bill"] || 0) +
+      (month?.["Personal Expense"] || 0) +
+      (month?.["Gift to Amisha"] || 0) +
+      (month?.["Mumbai Home Setup Cost"] || 0);
+
+    const faridabadTotal =
+      (month?.["Advitya Flat Cost"] || 0) +
+      (month?.["Home Loan"] || 0) +
+      (month?.["Cred Loan Repay"] || 0) +
+      (month?.LIC || 0) +
+      (month?.Parents || 0);
+
+    // Calculate expenses only (exclude income + investment)
+    const expense = mumbaiTotal + faridabadTotal;
+    const profit = income - expense;
 
     switch (label) {
       case "Total Income":
@@ -271,6 +296,10 @@ const DashboardTab = () => {
         return formatINRCurrency(investment);
       case "Total Profit":
         return formatINRCurrency(profit);
+      case "Mumbai Home Expenses":
+        return formatINRCurrency(mumbaiTotal);
+      case "Faridabad Home Expenses":
+        return formatINRCurrency(faridabadTotal);
       default:
         return null;
     }
