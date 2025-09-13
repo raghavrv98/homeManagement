@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import Header from "../Header/Header";
 import { API_URL } from "../../constant.js";
+import PageLoader from "../PageLoader.jsx";
 
 const DashboardTab = () => {
   const currentYear = new Date().getFullYear();
@@ -58,7 +59,6 @@ const DashboardTab = () => {
     { label: "LIC", value: 0, color: "#1565C0" },
     { label: "Parents", value: 0, color: "#AD1457" },
     { label: "Personal Expense", value: 0, color: "#6A1B9A" },
-    { label: "Gift to Amisha", value: 0, color: "#FF4081" },
     { label: "Advitya Flat Cost", value: 0, color: "#1E1081" },
     { label: "Mumbai Home Setup Cost", value: 0, color: "#5E1081" },
     { label: "Cred Loan Repay", value: 0, color: "#5A5081" },
@@ -122,7 +122,6 @@ const DashboardTab = () => {
         LIC: { key: "lic", field: "cost" },
         Parents: { key: "parents", field: "cost" },
         "Personal Expense": { key: "personalExpense", field: "cost" },
-        "Gift to Amisha": { key: "giftToAmisha", field: "cost" },
         "Advitya Flat Cost": { key: "advityaFlatCost", field: "cost" },
         "Cred Loan Repay": { key: "credLoanRepay", field: "cost" },
         "Mumbai Home Setup Cost": {
@@ -159,7 +158,6 @@ const DashboardTab = () => {
               LIC: 0,
               Parents: 0,
               "Personal Expense": 0,
-              "Gift to Amisha": 0,
               "Advitya Flat Cost": 0,
               "Cred Loan Repay": 0,
               "Mumbai Home Setup Cost": 0,
@@ -187,7 +185,6 @@ const DashboardTab = () => {
           "Electricity Bill": 0,
           "Gas Bill": 0,
           "Personal Expense": 0,
-          "Gift to Amisha": 0,
           "Advitya Flat Cost": 0,
           "Cred Loan Repay": 0,
           "Mumbai Home Setup Cost": 0,
@@ -221,7 +218,7 @@ const DashboardTab = () => {
       data.reduce((sum, month) => sum + Math.abs(month.totalExpense), 0) -
       (totalIncome + totalInvestment);
 
-    const totalProfit = totalIncome - totalExpense;
+    const totalProfit = totalIncome - (totalExpense + totalInvestment);
 
     return [
       {
@@ -240,7 +237,7 @@ const DashboardTab = () => {
         color: "#FBC02D",
       },
       {
-        label: "Total Profit",
+        label: "Total Cash",
         value: totalProfit,
         color: "#43A047",
       },
@@ -273,7 +270,6 @@ const DashboardTab = () => {
       (month?.["Electricity Bill"] || 0) +
       (month?.["Gas Bill"] || 0) +
       (month?.["Personal Expense"] || 0) +
-      (month?.["Gift to Amisha"] || 0) +
       (month?.["Mumbai Home Setup Cost"] || 0);
 
     const faridabadTotal =
@@ -313,317 +309,327 @@ const DashboardTab = () => {
         isShowLogout={true}
         backLink="/dashboard"
       />
-
-      <Box p={3}>
-        {/* SECTION 1: Year Dropdown and Totals */}
-        <Box mb={4}>
-          <Box
-            display="flex"
-            flexWrap={{ xs: "wrap", md: "nowrap" }}
-            gap={2}
-            justifyContent="space-between"
-            alignItems="flex-start"
-          >
-            {/* Year Dropdown */}
-            <Box
-              flex={{ xs: "1 1 100%", md: "0 0 250px" }}
-              minWidth={{ xs: "100%", md: "200px" }}
-              maxWidth={{ xs: "100%", md: "300px" }}
-            >
-              <FormControl fullWidth>
-                <InputLabel id="year-select-label">Year</InputLabel>
-                <Select
-                  labelId="year-select-label"
-                  value={selectedYear}
-                  label="Year"
-                  onChange={handleYearChange}
-                >
-                  {years.map((year) => (
-                    <MenuItem key={year} value={year}>
-                      {year}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-
-            {/* Summary Cards */}
+      {loading ? (
+        <PageLoader />
+      ) : (
+        <Box p={3}>
+          {/* SECTION 1: Year Dropdown and Totals */}
+          <Box mb={4}>
             <Box
               display="flex"
-              flex="1 1 auto"
-              flexWrap={{ xs: "wrap", sm: "nowrap" }}
-              justifyContent="flex-end"
+              flexWrap={{ xs: "wrap", md: "nowrap" }}
               gap={2}
-              overflowX="auto"
-              minWidth={0}
+              justifyContent="space-between"
+              alignItems="flex-start"
             >
-              {summaryData.map((item, index) => (
+              {/* Year Dropdown */}
+              <Box
+                flex={{ xs: "1 1 100%", md: "0 0 250px" }}
+                minWidth={{ xs: "100%", md: "200px" }}
+                maxWidth={{ xs: "100%", md: "300px" }}
+              >
+                <FormControl fullWidth>
+                  <InputLabel id="year-select-label">Year</InputLabel>
+                  <Select
+                    labelId="year-select-label"
+                    value={selectedYear}
+                    label="Year"
+                    onChange={handleYearChange}
+                  >
+                    {years.map((year) => (
+                      <MenuItem key={year} value={year}>
+                        {year}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
+
+              {/* Summary Cards */}
+              <Box
+                display="flex"
+                flex="1 1 auto"
+                flexWrap={{ xs: "wrap", sm: "nowrap" }}
+                justifyContent="flex-end"
+                gap={2}
+                overflowX="auto"
+                minWidth={0}
+              >
+                {summaryData.map((item, index) => (
+                  <Box
+                    key={index}
+                    flex="0 0 auto"
+                    minWidth={{ xs: "100%", sm: "200px" }}
+                  >
+                    <Card
+                      sx={{
+                        bgcolor: "#f5f5f5",
+                        boxShadow: 1,
+                        color: item.color,
+                      }}
+                    >
+                      <CardContent>
+                        <Typography variant="subtitle2" color="textSecondary">
+                          {item.label}
+                        </Typography>
+                        <Typography variant="h5">
+                          {formatINRCurrency(item?.value)}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          </Box>
+
+          <Divider sx={{ my: 4 }} />
+
+          {/* SECTION 2: Monthly Cards or Detailed View */}
+          {selectedMonthIndex === null ? (
+            <Box
+              display="flex"
+              flexWrap="wrap"
+              justifyContent="flex-start"
+              gap={2}
+            >
+              {apiData?.map((month, index) => (
                 <Box
                   key={index}
-                  flex="0 0 auto"
-                  minWidth={{ xs: "100%", sm: "200px" }}
+                  flex={{
+                    xs: "1 1 100%",
+                    sm: "1 1 calc(50% - 16px)",
+                    md: "1 1 calc(33.33% - 16px)",
+                    lg: "1 1 calc(16.66% - 16px)",
+                  }}
+                  minWidth="150px"
+                  display="flex"
                 >
                   <Card
                     sx={{
-                      bgcolor: "#f5f5f5",
-                      boxShadow: 1,
-                      color: item.color,
+                      bgcolor: "#F5F7FA",
+                      boxShadow: 2,
+                      border: "1px solid #E0E0E0",
+                      width: "100%",
                     }}
                   >
                     <CardContent>
-                      <Typography variant="subtitle2" color="textSecondary">
-                        {item.label}
+                      <Typography
+                        variant="h6"
+                        sx={{ color: "#1976D2", fontWeight: "bold", mb: 2 }}
+                      >
+                        {month?.month}
                       </Typography>
-                      <Typography variant="h5">
-                        {formatINRCurrency(item?.value)}
-                      </Typography>
+
+                      {monthDetails.map((item, i) => (
+                        <Box
+                          key={i}
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            mb: 1,
+                            bgcolor: "#ffffff",
+                            px: 1,
+                            py: 0.5,
+                            borderRadius: 1,
+                          }}
+                        >
+                          <Typography variant="body2" color="text.secondary">
+                            {item.label}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{ fontWeight: "bold", color: item.color }}
+                          >
+                            {getMonthlyValueHandler(month, item.label)}
+                          </Typography>
+                        </Box>
+                      ))}
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          mt: 2,
+                        }}
+                      >
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          sx={{
+                            color: "#1976D2",
+                            borderColor: "#1976D2",
+                            fontWeight: 500,
+                            textTransform: "none",
+                            "&:hover": {
+                              backgroundColor: "#E3F2FD",
+                              borderColor: "#0D47A1",
+                              color: "#0D47A1",
+                            },
+                          }}
+                          onClick={() => handleViewDetails(index)}
+                        >
+                          View Details
+                        </Button>
+                      </Box>
                     </CardContent>
                   </Card>
                 </Box>
               ))}
             </Box>
-          </Box>
-        </Box>
-
-        <Divider sx={{ my: 4 }} />
-
-        {/* SECTION 2: Monthly Cards or Detailed View */}
-        {selectedMonthIndex === null ? (
-          <Box
-            display="flex"
-            flexWrap="wrap"
-            justifyContent="flex-start"
-            gap={2}
-          >
-            {apiData?.map((month, index) => (
-              <Box
-                key={index}
-                flex={{
-                  xs: "1 1 100%",
-                  sm: "1 1 calc(50% - 16px)",
-                  md: "1 1 calc(33.33% - 16px)",
-                  lg: "1 1 calc(16.66% - 16px)",
-                }}
-                minWidth="150px"
-                display="flex"
+          ) : (
+            <Box display="flex" flexDirection="column" gap={2}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleBackToAll}
+                sx={{ width: "fit-content" }}
               >
-                <Card
-                  sx={{
-                    bgcolor: "#F5F7FA",
-                    boxShadow: 2,
-                    border: "1px solid #E0E0E0",
-                    width: "100%",
-                  }}
-                >
-                  <CardContent>
-                    <Typography
-                      variant="h6"
-                      sx={{ color: "#1976D2", fontWeight: "bold", mb: 2 }}
-                    >
-                      {month?.month}
-                    </Typography>
+                ← Back to All Months
+              </Button>
 
-                    {monthDetails.map((item, i) => (
-                      <Box
-                        key={i}
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          mb: 1,
-                          bgcolor: "#ffffff",
-                          px: 1,
-                          py: 0.5,
-                          borderRadius: 1,
-                        }}
-                      >
-                        <Typography variant="body2" color="text.secondary">
-                          {item.label}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{ fontWeight: "bold", color: item.color }}
-                        >
-                          {getMonthlyValueHandler(month, item.label)}
-                        </Typography>
-                      </Box>
-                    ))}
-
-                    <Box
-                      sx={{ display: "flex", justifyContent: "center", mt: 2 }}
-                    >
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        sx={{
-                          color: "#1976D2",
-                          borderColor: "#1976D2",
-                          fontWeight: 500,
-                          textTransform: "none",
-                          "&:hover": {
-                            backgroundColor: "#E3F2FD",
-                            borderColor: "#0D47A1",
-                            color: "#0D47A1",
-                          },
-                        }}
-                        onClick={() => handleViewDetails(index)}
-                      >
-                        View Details
-                      </Button>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Box>
-            ))}
-          </Box>
-        ) : (
-          <Box display="flex" flexDirection="column" gap={2}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleBackToAll}
-              sx={{ width: "fit-content" }}
-            >
-              ← Back to All Months
-            </Button>
-
-            <Card
-              sx={{
-                bgcolor: "#F5F7FA",
-                boxShadow: 2,
-                border: "1px solid #E0E0E0",
-                width: "100%",
-                p: 3,
-              }}
-            >
-              {/* Month Title */}
-              <Typography
-                variant="h5"
-                sx={{ color: "#1976D2", fontWeight: "bold", mb: 3 }}
-              >
-                {months[selectedMonthIndex]}
-              </Typography>
-
-              {/* FLEXBOX version of details section */}
-              <Box
+              <Card
                 sx={{
-                  display: "flex",
-                  flexDirection: { xs: "column", md: "row" },
-                  gap: 3,
-                  flexWrap: "wrap",
+                  bgcolor: "#F5F7FA",
+                  boxShadow: 2,
+                  border: "1px solid #E0E0E0",
+                  width: "100%",
+                  p: 3,
                 }}
               >
-                {/* LEFT: Label + Value Boxes */}
+                {/* Month Title */}
+                <Typography
+                  variant="h5"
+                  sx={{ color: "#1976D2", fontWeight: "bold", mb: 3 }}
+                >
+                  {months[selectedMonthIndex]}
+                </Typography>
+
+                {/* FLEXBOX version of details section */}
                 <Box
                   sx={{
                     display: "flex",
+                    flexDirection: { xs: "column", md: "row" },
+                    gap: 3,
                     flexWrap: "wrap",
-                    gap: 4,
-                    alignItems: "flex-start",
                   }}
                 >
-                  {/* LEFT: Category Cards */}
+                  {/* LEFT: Label + Value Boxes */}
                   <Box
                     sx={{
-                      flex: { xs: "1 1 100%", md: "2 1 0%" },
                       display: "flex",
                       flexWrap: "wrap",
-                      gap: 2,
+                      gap: 4,
+                      alignItems: "flex-start",
                     }}
                   >
-                    {categories.map((item, index) => {
-                      const value =
-                        apiData[selectedMonthIndex]?.[item.label] ?? 0;
-                      return (
-                        <Box
-                          key={index}
-                          sx={{
-                            flex: {
-                              xs: "1 1 100%", // Full width on mobile
-                              sm: "1 1 calc(50% - 16px)", // Two per row on tablets
-                              md: "1 1 calc(33.33% - 16px)", // Three per row on medium screens
-                              lg: "0 0 350px", // Fixed width on large screens
-                            },
-                            minWidth: {
-                              xs: "100%",
-                              sm: "250px",
-                            },
-                            bgcolor: "#fff",
-                            p: 2,
-                            borderRadius: 2,
-                            boxShadow: 1,
-                          }}
-                        >
+                    {/* LEFT: Category Cards */}
+                    <Box
+                      sx={{
+                        flex: { xs: "1 1 100%", md: "2 1 0%" },
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 2,
+                      }}
+                    >
+                      {categories.map((item, index) => {
+                        const value =
+                          apiData[selectedMonthIndex]?.[item.label] ?? 0;
+                        return (
                           <Box
+                            key={index}
                             sx={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              bgcolor: "#F9FAFB",
-                              px: 2,
-                              py: 1.5,
-                              borderRadius: 1,
-                              border: "1px solid #E0E0E0",
+                              flex: {
+                                xs: "1 1 100%", // Full width on mobile
+                                sm: "1 1 calc(50% - 16px)", // Two per row on tablets
+                                md: "1 1 calc(33.33% - 16px)", // Three per row on medium screens
+                                lg: "0 0 350px", // Fixed width on large screens
+                              },
+                              minWidth: {
+                                xs: "100%",
+                                sm: "250px",
+                              },
+                              bgcolor: "#fff",
+                              p: 2,
+                              borderRadius: 2,
+                              boxShadow: 1,
                             }}
                           >
-                            <Typography variant="body1">
-                              {item.label}
-                            </Typography>
-                            <Typography
-                              variant="body1"
-                              sx={{ fontWeight: "bold", color: item.color }}
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                bgcolor: "#F9FAFB",
+                                px: 2,
+                                py: 1.5,
+                                borderRadius: 1,
+                                border: "1px solid #E0E0E0",
+                              }}
                             >
-                              ₹{value.toLocaleString()}
-                            </Typography>
+                              <Typography variant="body1">
+                                {item.label}
+                              </Typography>
+                              <Typography
+                                variant="body1"
+                                sx={{ fontWeight: "bold", color: item.color }}
+                              >
+                                ₹{value.toLocaleString()}
+                              </Typography>
+                            </Box>
                           </Box>
-                        </Box>
-                      );
-                    })}
-                  </Box>
+                        );
+                      })}
+                    </Box>
 
-                  {/* RIGHT: Summary Cards */}
-                  <Box
-                    sx={{
-                      flex: { xs: "1 1 100%", md: "1 1 300px" },
-                      display: "flex",
-                      flexDirection: "column",
-                      width: "100%",
-                      maxWidth: { xs: "100%", sm: "250px" },
-                      gap: 2,
-                    }}
-                  >
-                    {monthDetails.map((item, index) => (
-                      <Card
-                        key={index}
-                        sx={{
-                          bgcolor: "#fff",
-                          boxShadow: 1,
-                          borderLeft: `6px solid ${item.color}`,
-                          px: 2,
-                          py: 2,
-                        }}
-                      >
-                        <Typography variant="subtitle2" color="text.secondary">
-                          {item.label}
-                        </Typography>
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: "bold", color: item.color }}
+                    {/* RIGHT: Summary Cards */}
+                    <Box
+                      sx={{
+                        flex: { xs: "1 1 100%", md: "1 1 300px" },
+                        display: "flex",
+                        flexDirection: "column",
+                        width: "100%",
+                        maxWidth: { xs: "100%", sm: "250px" },
+                        gap: 2,
+                      }}
+                    >
+                      {monthDetails.map((item, index) => (
+                        <Card
+                          key={index}
+                          sx={{
+                            bgcolor: "#fff",
+                            boxShadow: 1,
+                            borderLeft: `6px solid ${item.color}`,
+                            px: 2,
+                            py: 2,
+                          }}
                         >
-                          {getMonthlyValueHandler(
-                            apiData[selectedMonthIndex],
-                            item.label
-                          )}
-                        </Typography>
-                      </Card>
-                    ))}
+                          <Typography
+                            variant="subtitle2"
+                            color="text.secondary"
+                          >
+                            {item.label}
+                          </Typography>
+                          <Typography
+                            variant="h6"
+                            sx={{ fontWeight: "bold", color: item.color }}
+                          >
+                            {getMonthlyValueHandler(
+                              apiData[selectedMonthIndex],
+                              item.label
+                            )}
+                          </Typography>
+                        </Card>
+                      ))}
+                    </Box>
                   </Box>
                 </Box>
-              </Box>
-            </Card>
-          </Box>
-        )}
-      </Box>
+              </Card>
+            </Box>
+          )}
+        </Box>
+      )}
     </>
   );
 };

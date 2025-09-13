@@ -1,0 +1,8 @@
+.dashboardContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  flex-wrap: wrap;
+  gap: 30px;
+}

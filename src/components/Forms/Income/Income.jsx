@@ -78,7 +78,6 @@ const Income = () => {
             timestamp: getCurrentDateTimeLocal(),
           });
           alert("Income saved successfully");
-          console.log("Saved:", result);
         } else {
           alert("Server error");
           console.error("Server error:", result.msg);

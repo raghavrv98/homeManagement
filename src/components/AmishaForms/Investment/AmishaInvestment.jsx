@@ -11,32 +11,31 @@ const getCurrentDateTimeLocal = () => {
   )}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 };
 
-const Parents = () => {
+const AmishaInvestment = () => {
   const now = getCurrentDateTimeLocal();
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    reason: "",
+    fromIncome: "",
     cost: "",
     timestamp: now,
   });
-
   const [error, setError] = useState({
-    reason: "",
+    fromIncome: "",
     cost: "",
   });
 
   const validate = () => {
     let valid = true;
-    const newError = { reason: "", cost: "" };
+    const newError = { fromIncome: "", cost: "" };
 
-    if (!formData.reason.trim()) {
-      newError.reason = "Reason is required";
+    if (!formData.fromIncome.trim()) {
+      newError.fromIncome = "From Income is required";
       valid = false;
     }
 
     if (!formData.cost.trim() || isNaN(Number(formData.cost))) {
-      newError.cost = "Valid amount is required";
+      newError.cost = "Valid cost is required";
       valid = false;
     }
 
@@ -58,27 +57,30 @@ const Parents = () => {
     if (validate()) {
       setLoading(true);
       try {
-        const response = await fetch(`${API_URL}/user/raghav/parents`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            reason: formData.reason,
-            cost: Number(formData.cost),
-            timestamp: new Date(formData.timestamp).getTime(),
-          }),
-        });
+        const response = await fetch(
+          `${API_URL}/user/raghav/amishaInvestment`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              fromIncome: formData.fromIncome,
+              cost: Number(formData.cost),
+              timestamp: new Date(formData.timestamp).getTime(),
+            }),
+          }
+        );
 
         const result = await response.json();
 
         if (response.ok) {
-          alert("Parents entry saved successfully");
           setFormData({
-            reason: "",
+            fromIncome: "",
             cost: "",
             timestamp: getCurrentDateTimeLocal(),
           });
+          alert("Amisha Investment saved successfully");
         } else {
           alert("Server error");
           console.error("Server error:", result.msg);
@@ -94,27 +96,27 @@ const Parents = () => {
 
   return (
     <>
-      <Header backLink="/home/money" title="Parents Expense Entry" />
+      <Header backLink="/home/amishaMoney" title="Amisha Investment Entry" />
       <div className="container">
         <form className="form" onSubmit={handleSubmit}>
           <Typography variant="h5" align="center" gutterBottom>
-            Add Parents Expense
+            Amisha Investment Entry
           </Typography>
 
           <TextField
-            label="Reason"
-            name="reason"
-            value={formData.reason}
+            label="From Income"
+            name="fromIncome"
+            value={formData.fromIncome}
             onChange={handleChange}
             variant="outlined"
-            error={Boolean(error.reason)}
-            helperText={error.reason}
+            error={Boolean(error.fromIncome)}
+            helperText={error.fromIncome}
             fullWidth
             margin="normal"
           />
 
           <TextField
-            label="Amount"
+            label="Cost"
             name="cost"
             value={formData.cost}
             onChange={handleChange}
@@ -152,4 +154,4 @@ const Parents = () => {
   );
 };
 
-export default Parents;
+export default AmishaInvestment;

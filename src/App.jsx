@@ -25,10 +25,17 @@ import LIC from "./components/Forms/LIC/LIC";
 import HomeLoan from "./components/Forms/HomeLoan/HomeLoan";
 import Parents from "./components/Forms/Parents/parents";
 import PersonalExpense from "./components/Forms/PersonalExpense/PersonalExpense";
-import GiftToAmisha from "./components/Forms/GiftToAmisha/GiftToAmisha";
 import AdvityaFlatCost from "./components/Forms/Advitya Flat Cost/AdvityaFlatCost";
 import MumbaiHomeSetupCost from "./components/Forms/MumbaiHomeSetupCost/MumbaiHomeSetupCost";
 import CredLoanRepay from "./components/Forms/CredLoanRepay/CredLoanRepay";
+import AmishaDashboardTab from "./components/AmishaDashboard/AmishaDashboardTab";
+import AmishaDataTables from "./components/AmishaDataTables/AmishaDataTables";
+import AmishaMoney from "./components/AmishaMoney/AmishaMoney";
+import AmishaExpense from "./components/AmishaForms/AmishaExpense/AmishaExpense";
+import AmishaInvestment from "./components/AmishaForms/Investment/AmishaInvestment";
+import AmishaIncome from "./components/AmishaForms/AmishaIncome/AmishaIncome";
+import AmishaRepay from "./components/AmishaForms/AmishaRepay/AmishaRepay";
+import AmishaGiftCost from "./components/AmishaForms/AmishaGiftCost/AmishaGiftCost";
 
 const App = () => {
   return (
@@ -69,7 +76,6 @@ const App = () => {
             path="/home/money/personalExpense"
             element={<PersonalExpense />}
           />
-          <Route path="/home/money/giftToAmisha" element={<GiftToAmisha />} />
           <Route
             path="/home/money/advityaFlatCost"
             element={<AdvityaFlatCost />}
@@ -78,8 +84,32 @@ const App = () => {
             path="/home/money/mumbaiHomeSetupCost"
             element={<MumbaiHomeSetupCost />}
           />
-
           <Route path="/graphs" element={<Graphs />} />
+
+          <Route
+            path="/home/amishaMoney/amishaIncome"
+            element={<AmishaIncome />}
+          />
+          <Route
+            path="/home/amishaMoney/amishaInvestment"
+            element={<AmishaInvestment />}
+          />
+          <Route
+            path="/home/amishaMoney/amishaExpenses"
+            element={<AmishaExpense />}
+          />
+          <Route
+            path="/home/amishaMoney/amishaRepay"
+            element={<AmishaRepay />}
+          />
+          <Route
+            path="/home/amishaMoney/amishaGiftCost"
+            element={<AmishaGiftCost />}
+          />
+
+          <Route path="/amishaDashboardTab" element={<AmishaDashboardTab />} />
+          <Route path="/amishaDataTables" element={<AmishaDataTables />} />
+          <Route path="/home/amishaMoney" element={<AmishaMoney />} />
         </Routes>
       </div>
     </Router>

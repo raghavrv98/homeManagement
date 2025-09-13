@@ -92,7 +92,6 @@ const Outing = () => {
           });
           alert("Outing saved successfully");
           setLoading(false);
-          console.log("Saved:", result);
         } else {
           alert("Error from server");
           setLoading(false);

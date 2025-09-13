@@ -11,7 +11,7 @@ const getCurrentDateTimeLocal = () => {
   )}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 };
 
-const GiftToAmisha = () => {
+const AmishaExpense = () => {
   const now = getCurrentDateTimeLocal();
 
   const [loading, setLoading] = useState(false);
@@ -58,7 +58,7 @@ const GiftToAmisha = () => {
     if (validate()) {
       setLoading(true);
       try {
-        const response = await fetch(`${API_URL}/user/raghav/giftToAmisha`, {
+        const response = await fetch(`${API_URL}/user/raghav/amishaExpenses`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -73,13 +73,12 @@ const GiftToAmisha = () => {
         const result = await response.json();
 
         if (response.ok) {
-          alert("gift to amisha entry saved successfully");
+          alert("Amisha Expense entry saved successfully");
           setFormData({
             name: "",
             cost: "",
             timestamp: getCurrentDateTimeLocal(),
           });
-          console.log("Saved:", result);
         } else {
           alert("Server error");
           console.error("Server error:", result.msg);
@@ -95,11 +94,11 @@ const GiftToAmisha = () => {
 
   return (
     <>
-      <Header backLink="/home/money" title="Gift To Amisha Entry" />
+      <Header backLink="/home/amishaMoney" title="Amisha Expense Entry" />
       <div className="container">
         <form className="form" onSubmit={handleSubmit}>
           <Typography variant="h5" align="center" gutterBottom>
-            Add Gift To Amisha
+            Add Amisha Expense Entry
           </Typography>
 
           <TextField
@@ -153,4 +152,4 @@ const GiftToAmisha = () => {
   );
 };
 
-export default GiftToAmisha;
+export default AmishaExpense;

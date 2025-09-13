@@ -11,27 +11,27 @@ const getCurrentDateTimeLocal = () => {
   )}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 };
 
-const Parents = () => {
+const AmishaRepay = () => {
   const now = getCurrentDateTimeLocal();
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    reason: "",
+    name: "",
     cost: "",
     timestamp: now,
   });
 
   const [error, setError] = useState({
-    reason: "",
+    name: "",
     cost: "",
   });
 
   const validate = () => {
     let valid = true;
-    const newError = { reason: "", cost: "" };
+    const newError = { name: "", cost: "" };
 
-    if (!formData.reason.trim()) {
-      newError.reason = "Reason is required";
+    if (!formData.name.trim()) {
+      newError.name = "name is required";
       valid = false;
     }
 
@@ -58,13 +58,13 @@ const Parents = () => {
     if (validate()) {
       setLoading(true);
       try {
-        const response = await fetch(`${API_URL}/user/raghav/parents`, {
+        const response = await fetch(`${API_URL}/user/raghav/amishaRepay`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            reason: formData.reason,
+            name: formData.name,
             cost: Number(formData.cost),
             timestamp: new Date(formData.timestamp).getTime(),
           }),
@@ -73,9 +73,9 @@ const Parents = () => {
         const result = await response.json();
 
         if (response.ok) {
-          alert("Parents entry saved successfully");
+          alert("Amisha Repay Cost entry saved successfully");
           setFormData({
-            reason: "",
+            name: "",
             cost: "",
             timestamp: getCurrentDateTimeLocal(),
           });
@@ -94,21 +94,21 @@ const Parents = () => {
 
   return (
     <>
-      <Header backLink="/home/money" title="Parents Expense Entry" />
+      <Header backLink="/home/amishaMoney" title="Amisha Repay Entry" />
       <div className="container">
         <form className="form" onSubmit={handleSubmit}>
           <Typography variant="h5" align="center" gutterBottom>
-            Add Parents Expense
+            Add Amisha Repay Entry
           </Typography>
 
           <TextField
-            label="Reason"
-            name="reason"
-            value={formData.reason}
+            label="Name"
+            name="name"
+            value={formData.name}
             onChange={handleChange}
             variant="outlined"
-            error={Boolean(error.reason)}
-            helperText={error.reason}
+            error={Boolean(error.name)}
+            helperText={error.name}
             fullWidth
             margin="normal"
           />
@@ -152,4 +152,4 @@ const Parents = () => {
   );
 };
 
-export default Parents;
+export default AmishaRepay;

@@ -88,7 +88,6 @@ const MumbaiHomeSetupCost = () => {
             howOld: "",
             timestamp: getCurrentDateTimeLocal(),
           });
-          console.log("Saved:", result);
         } else {
           alert("Server error");
           console.error("Server error:", result.msg);

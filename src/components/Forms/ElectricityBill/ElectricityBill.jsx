@@ -64,7 +64,6 @@ const ElectricityBill = () => {
           });
           alert("Data saved successfully");
           setLoading(false);
-          console.log("Data saved successfully:", result);
         } else {
           alert("Error from server");
           setLoading(false);

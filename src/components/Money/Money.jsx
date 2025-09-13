@@ -21,7 +21,6 @@ import {
   Elderly,
   Hiking,
   Wallet,
-  CardGiftcard,
   Apartment,
   Build,
   CreditCard,
@@ -84,12 +83,6 @@ const categories = [
     path: "personalExpense",
     icon: <Wallet />,
     color: "#BA68C8",
-  },
-  {
-    label: "Gift To Amisha",
-    path: "giftToAmisha",
-    icon: <CardGiftcard />,
-    color: "#F06292",
   },
   {
     label: "Advitya Flat Cost",

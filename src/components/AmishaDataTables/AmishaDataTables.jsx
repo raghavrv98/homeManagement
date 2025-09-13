@@ -21,82 +21,45 @@ import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 
-const tabLabels = [
-  "Total",
-  "Vegetable and Fruits",
-  "milk",
-  "Kirana Store",
-  "Fast Food",
-  "Homeneeds",
-  "Petrol",
-  "outing",
-  "House Rent",
-  "Wifi Bill",
-  "Electricity Bill",
-  "Gas Bill",
-  "homeloan",
-  "income",
-  "investment",
-  "lic",
-  "parents",
-  "Personal Expense",
-  "Advitya Flat Cost",
-  "Mumbai Home Setup Cost",
-  "Cred Loan Repay",
-];
+// ✅ Added Repay & Gift Cost
+const tabLabels = ["Income", "Investment", "Expenses", "Repay", "Gift Cost"];
 
-const DataTables = () => {
+const AmishaDataTables = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [selectedTab, setSelectedTab] = useState(0);
-  const [apiData, setApiData] = useState([]);
-  const [apiError, setApiError] = useState("");
+  const [apiData, setApiData] = useState({});
   const [loading, setLoading] = useState(true);
   const [editingRowIndex, setEditingRowIndex] = useState(null);
   const [editedData, setEditedData] = useState({});
-  const currentTab = tabLabels[selectedTab];
-  const [startDate, setStartDate] = useState(dayjs());
-  const [endDate, setEndDate] = useState(dayjs());
+  const [startDate, setStartDate] = useState();
+  const [endDate, setEndDate] = useState();
 
+  const currentTab = tabLabels[selectedTab]; // Active tab
   const saveData = useRef({ ...editedData });
 
+  /**
+   * ✅ Fetch all 5 categories: income, investment, expenses, repay, giftCost
+   */
   const fetchData = async () => {
     try {
       const response = await fetch(`${API_URL}/users/raghav`);
       const result = await response.json();
+
       if (response.ok) {
-        const newApiData = {
-          "Vegetable and Fruits": result.data[0]?.money?.vegetablesFruits,
-          "Kirana Store": result.data[0]?.money?.kiranaStore,
-          "Fast Food": result.data[0]?.money?.fastFood,
-          milk: result.data[0]?.money?.milk,
-          Homeneeds: result.data[0]?.money?.homeNeeds,
-          Petrol: result.data[0]?.money?.petrol,
-          outing: result.data[0]?.money?.outing,
-          "House Rent": result.data[0]?.money?.houseRent,
-          "Wifi Bill": result.data[0]?.money?.wifi,
-          "Electricity Bill": result.data[0]?.money?.electricity,
-          "Gas Bill": result.data[0]?.money?.gas,
-          homeloan: result.data[0]?.money?.homeloan,
-          income: result.data[0]?.money?.income,
-          investment: result.data[0]?.money?.investment,
-          lic: result.data[0]?.money?.lic,
-          parents: result.data[0]?.money?.parents,
-          "Personal Expense": result.data[0]?.money?.personalExpense,
-          "Advitya Flat Cost": result.data[0]?.money?.advityaFlatCost,
-          "Mumbai Home Setup Cost": result.data[0]?.money?.mumbaiHomeSetupCost,
-          "Cred Loan Repay": result.data[0]?.money?.credLoanRepay,
-        };
-        setApiData(newApiData);
-        setLoading(false);
+        setApiData({
+          Income: result.data[0]?.money?.amishaIncome,
+          Investment: result.data[0]?.money?.amishaInvestment,
+          Expenses: result.data[0]?.money?.amishaExpenses,
+          Repay: result.data[0]?.money?.amishaRepay,
+          "Gift Cost": result.data[0]?.money?.amishaGiftCost,
+        });
       } else {
-        setApiError(result.msg || "Failed to fetch data");
+        console.error(result.msg || "Failed to fetch data");
       }
     } catch (error) {
-      alert(apiError || error.message);
-      console.error("Error fetching data:", error);
-      setApiError("An error occurred: " + error.message);
+      console.error("Error fetching data:", error.message);
     } finally {
       setLoading(false);
     }
@@ -104,21 +67,13 @@ const DataTables = () => {
 
   useEffect(() => {
     fetchData();
-  }, [apiError, loading]);
+  }, []);
 
+  /**
+   * ✅ Filter data by current tab + date range
+   */
   const data = useMemo(() => {
-    if (!apiData) return [];
-
-    let raw = [];
-
-    if (currentTab === "Total") {
-      Object.values(apiData).forEach((arr) => {
-        if (Array.isArray(arr)) raw = raw.concat(arr);
-      });
-    } else {
-      raw = apiData[currentTab] || [];
-    }
-
+    let raw = apiData[currentTab] || [];
     if (!startDate && !endDate) return raw;
 
     return raw.filter((item) => {
@@ -136,42 +91,17 @@ const DataTables = () => {
     });
   }, [apiData, currentTab, startDate, endDate]);
 
+  /**
+   * ✅ Editing row
+   */
   const handleEdit = (i) => {
     setEditingRowIndex(i);
     setEditedData({ ...data[i] });
   };
-
   const handleCancel = () => {
     setEditingRowIndex(null);
     setEditedData({});
   };
-
-  const getCategoryKeyFromLabel = (label) => {
-    const map = {
-      "Vegetable and Fruits": "vegetablesFruits",
-      milk: "milk",
-      "Kirana Store": "kiranaStore",
-      "Fast Food": "fastFood",
-      Homeneeds: "homeNeeds",
-      Petrol: "petrol",
-      outing: "outing",
-      "House Rent": "houseRent",
-      "Wifi Bill": "wifi",
-      "Electricity Bill": "electricity",
-      "Gas Bill": "gas",
-      homeloan: "homeloan",
-      income: "income",
-      investment: "investment",
-      lic: "lic",
-      parents: "parents",
-      "Personal Expense": "personalExpense",
-      "Advitya Flat Cost": "advityaFlatCost",
-      "Mumbai Home Setup Cost": "mumbaiHomeSetupCost",
-      "Cred Loan Repay": "credLoanRepay",
-    };
-    return map[label] || "";
-  };
-
   const onChangeEditHandler = (e, key) => {
     setEditedData((prev) => {
       const updated = { ...prev, [key]: e.target.value };
@@ -180,11 +110,15 @@ const DataTables = () => {
     });
   };
 
+  /**
+   * ✅ Save changes
+   */
   const handleSave = async () => {
     try {
-      const category = getCategoryKeyFromLabel(currentTab);
       const response = await fetch(
-        `${API_URL}/user/raghav/${category}/${saveData?.current?._id}`,
+        `${API_URL}/user/raghav/amisha${currentTab.replace(" ", "")}/${
+          saveData?.current?._id
+        }`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -196,21 +130,26 @@ const DataTables = () => {
       alert("Entry updated successfully");
       fetchData();
     } catch (error) {
-      console.error("Error updating entry:", error);
+      console.error("Error updating entry:", error.message);
       alert("Failed to update entry");
     }
     setEditingRowIndex(null);
     setEditedData({});
   };
 
+  /**
+   * ✅ Delete entry
+   */
   const handleDelete = async (index) => {
     const entryId = data[index]._id;
     if (!window.confirm("Are you sure you want to delete this entry?")) return;
 
     try {
-      const category = getCategoryKeyFromLabel(currentTab);
       const response = await fetch(
-        `${API_URL}/user/raghav/${category}/${entryId}`,
+        `${API_URL}/user/raghav/amisha${currentTab.replace(
+          " ",
+          ""
+        )}/${entryId}`,
         { method: "DELETE" }
       );
       const result = await response.json();
@@ -218,23 +157,22 @@ const DataTables = () => {
       alert("Entry deleted successfully");
       fetchData();
     } catch (error) {
-      console.error("Error deleting entry:", error);
+      console.error("Error deleting entry:", error.message);
       alert("Failed to delete entry");
     }
   };
 
+  /**
+   * ✅ Format timestamp for table
+   */
   const formatTimestamp = (iso) => {
     const date = new Date(iso);
-    const day = date.getDate();
-    const month = date.toLocaleString("en-US", { month: "long" });
-    const year = date.getFullYear();
-    let hours = date.getHours();
-    const minutes = date.getMinutes().toString().padStart(2, "0");
-    const ampm = hours >= 12 ? "pm" : "am";
-    hours = hours % 12 || 12;
-    return `${day} ${month} ${year} ${hours}:${minutes} ${ampm}`;
+    return dayjs(date).format("DD MMM YYYY hh:mm A");
   };
 
+  /**
+   * ✅ Calculate totals row
+   */
   const totals = useMemo(() => {
     const total = {};
     if (data.length === 0) return total;
@@ -247,6 +185,9 @@ const DataTables = () => {
     return total;
   }, [data]);
 
+  /**
+   * ✅ Build table columns
+   */
   const columns = useMemo(() => {
     if (!data.length) return [];
     const keys = Object.keys(data[0]).filter((key) => key !== "_id");
@@ -327,6 +268,7 @@ const DataTables = () => {
     <>
       <Header backLink={"/dashboard"} title="Data Tables" />
       <Box p={2}>
+        {/* ✅ Tabs now include Repay + Gift Cost */}
         <Tabs
           value={selectedTab}
           onChange={(_, newValue) => setSelectedTab(newValue)}
@@ -341,6 +283,7 @@ const DataTables = () => {
           ))}
         </Tabs>
 
+        {/* ✅ Date filters */}
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <Box
             display="flex"
@@ -369,19 +312,14 @@ const DataTables = () => {
           </Box>
         </LocalizationProvider>
 
-        <Paper
-          sx={{
-            mt: 2,
-            overflowX: "auto",
-            height: "75vh",
-            width: "100%",
-          }}
-        >
+        {/* ✅ Table */}
+        <Paper sx={{ mt: 2, overflowX: "auto", height: "75vh", width: "100%" }}>
           <table
             {...getTableProps()}
             style={{ width: "100%", borderCollapse: "collapse" }}
           >
             <thead>
+              {/* ✅ Totals row */}
               <tr>
                 {columns.map((column) => (
                   <th
@@ -404,6 +342,7 @@ const DataTables = () => {
                   </th>
                 ))}
               </tr>
+              {/* ✅ Headers */}
               {headerGroups.map((headerGroup) => (
                 <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
                   {headerGroup.headers.map((column) => (
@@ -430,28 +369,22 @@ const DataTables = () => {
             </thead>
             <tbody {...getTableBodyProps()}>
               {loading ? (
-                <tr
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    fontSize: "20px",
-                    padding: "50px",
-                  }}
-                >
-                  <td colSpan={columns.length}>Loading...</td>
+                <tr>
+                  <td
+                    colSpan={columns.length}
+                    style={{ textAlign: "center", padding: "50px" }}
+                  >
+                    Loading...
+                  </td>
                 </tr>
               ) : rows.length === 0 ? (
-                <tr
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    fontSize: "20px",
-                    padding: "50px",
-                  }}
-                >
-                  <td colSpan={columns.length}>No data</td>
+                <tr>
+                  <td
+                    colSpan={columns.length}
+                    style={{ textAlign: "center", padding: "50px" }}
+                  >
+                    No data
+                  </td>
                 </tr>
               ) : (
                 rows.map((row) => {
@@ -482,4 +415,4 @@ const DataTables = () => {
   );
 };
 
-export default DataTables;
+export default AmishaDataTables;
