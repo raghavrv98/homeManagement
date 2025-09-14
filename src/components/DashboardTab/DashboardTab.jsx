@@ -62,6 +62,8 @@ const DashboardTab = () => {
     { label: "Advitya Flat Cost", value: 0, color: "#1E1081" },
     { label: "Mumbai Home Setup Cost", value: 0, color: "#5E1081" },
     { label: "Cred Loan Repay", value: 0, color: "#5A5081" },
+    { label: "Mumbai Misc", value: 0, color: "#0288D1" },
+    { label: "Faridabad Misc", value: 0, color: "#7CB342" },
   ];
 
   const [selectedYear, setSelectedYear] = useState(currentYear);
@@ -128,6 +130,8 @@ const DashboardTab = () => {
           key: "mumbaiHomeSetupCost",
           field: "cost",
         },
+        "Mumbai Misc": { key: "mumbaiMisc", field: "cost" },
+        "Faridabad Misc": { key: "faridabadMisc", field: "cost" },
       };
 
       for (const [label, { key, field }] of Object.entries(categoriesConfig)) {
@@ -161,6 +165,8 @@ const DashboardTab = () => {
               "Advitya Flat Cost": 0,
               "Cred Loan Repay": 0,
               "Mumbai Home Setup Cost": 0,
+              "Mumbai Misc": 0,
+              "Faridabad Misc": 0,
             };
           }
 
@@ -188,6 +194,8 @@ const DashboardTab = () => {
           "Advitya Flat Cost": 0,
           "Cred Loan Repay": 0,
           "Mumbai Home Setup Cost": 0,
+          "Mumbai Misc": 0,
+          "Faridabad Misc": 0,
         };
 
         const totalExpense = Object.entries(entry)
@@ -270,6 +278,7 @@ const DashboardTab = () => {
       (month?.["Electricity Bill"] || 0) +
       (month?.["Gas Bill"] || 0) +
       (month?.["Personal Expense"] || 0) +
+      (month?.["Mumbai Misc"] || 0) +
       (month?.["Mumbai Home Setup Cost"] || 0);
 
     const faridabadTotal =
@@ -277,7 +286,8 @@ const DashboardTab = () => {
       (month?.["Home Loan"] || 0) +
       (month?.["Cred Loan Repay"] || 0) +
       (month?.LIC || 0) +
-      (month?.Parents || 0);
+      (month?.Parents || 0) +
+      (month?.["Faridabad Misc"] || 0);
 
     // Calculate expenses only (exclude income + investment)
     const expense = mumbaiTotal + faridabadTotal;

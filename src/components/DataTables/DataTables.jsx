@@ -43,6 +43,8 @@ const tabLabels = [
   "Advitya Flat Cost",
   "Mumbai Home Setup Cost",
   "Cred Loan Repay",
+  "Mumbai Misc",
+  "Faridabad Misc",
 ];
 
 const DataTables = () => {
@@ -87,6 +89,8 @@ const DataTables = () => {
           "Advitya Flat Cost": result.data[0]?.money?.advityaFlatCost,
           "Mumbai Home Setup Cost": result.data[0]?.money?.mumbaiHomeSetupCost,
           "Cred Loan Repay": result.data[0]?.money?.credLoanRepay,
+          "Mumbai Misc": result.data[0]?.money?.mumbaiMisc,
+          "Faridabad Misc": result.data[0]?.money?.faridabadMisc,
         };
         setApiData(newApiData);
         setLoading(false);
@@ -168,6 +172,8 @@ const DataTables = () => {
       "Advitya Flat Cost": "advityaFlatCost",
       "Mumbai Home Setup Cost": "mumbaiHomeSetupCost",
       "Cred Loan Repay": "credLoanRepay",
+      "Mumbai Misc": "mumbaiMisc",
+      "Faridabad Misc": "faridabadMisc",
     };
     return map[label] || "";
   };

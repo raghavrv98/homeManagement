@@ -36,6 +36,8 @@ import AmishaInvestment from "./components/AmishaForms/Investment/AmishaInvestme
 import AmishaIncome from "./components/AmishaForms/AmishaIncome/AmishaIncome";
 import AmishaRepay from "./components/AmishaForms/AmishaRepay/AmishaRepay";
 import AmishaGiftCost from "./components/AmishaForms/AmishaGiftCost/AmishaGiftCost";
+import MumbaiMisc from "./components/Forms/MumbaiMisc/MumbaiMisc";
+import FaridabadMisc from "./components/Forms/FaridabadMisc/FaridabadMisc";
 
 const App = () => {
   return (
@@ -76,6 +78,8 @@ const App = () => {
             path="/home/money/personalExpense"
             element={<PersonalExpense />}
           />
+          <Route path="/home/money/mumbaiMisc" element={<MumbaiMisc />} />
+          <Route path="/home/money/faridabadMisc" element={<FaridabadMisc />} />
           <Route
             path="/home/money/advityaFlatCost"
             element={<AdvityaFlatCost />}

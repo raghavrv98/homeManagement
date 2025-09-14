@@ -102,6 +102,18 @@ const categories = [
     icon: <CreditCard />,
     color: "#FFD74D",
   },
+  {
+    label: "Mumbai Misc",
+    path: "mumbaiMisc",
+    icon: <Wallet />,
+    color: "#FFCC80",
+  },
+  {
+    label: "Faridabad Misc",
+    path: "faridabadMisc",
+    icon: <Wallet />,
+    color: "#80DEEA",
+  },
 ];
 
 const Money = () => {
