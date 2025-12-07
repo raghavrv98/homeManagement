@@ -26,6 +26,12 @@ const categories = [
     color: "#64B5F6", // Blue
   },
   {
+    label: "Monthly Expense",
+    path: "amishaMonthlyExpense",
+    icon: <Wallet />,
+    color: "#FFD54F", // 🌟 New Yellow
+  },
+  {
     label: "Expenses",
     path: "amishaExpenses",
     icon: <Wallet />,

@@ -19,3 +19,15 @@ body{
     width: 50%;
     height: 50%;
 }
+
+.form {
+  padding: 2rem;
+  background: white;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+  justify-content: center;
+  align-items: center;
+  height: fit-content;
+}

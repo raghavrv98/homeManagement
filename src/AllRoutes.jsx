@@ -41,6 +41,7 @@ import AmishaGiftCost from "./components/AmishaForms/AmishaGiftCost/AmishaGiftCo
 import MumbaiMisc from "./components/Forms/MumbaiMisc/MumbaiMisc";
 import FaridabadMisc from "./components/Forms/FaridabadMisc/FaridabadMisc";
 import ErrorPage from "./components/ErrorPages/errorPage";
+import AmishaMonthlyExpense from "./components/AmishaForms/AmishaMonthlyExpense/AmishaMonthlyExpense";
 
 const AllRoutes = () => {
   return (
@@ -324,6 +325,15 @@ const AllRoutes = () => {
         element={
           <ProtectedRoute>
             <AmishaInvestment />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/home/amishaMoney/amishaMonthlyExpense"
+        element={
+          <ProtectedRoute>
+            <AmishaMonthlyExpense />
           </ProtectedRoute>
         }
       />

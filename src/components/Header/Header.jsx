@@ -35,7 +35,7 @@ const Header = ({ backLink, isShowBack = true, title = "Home Management" }) => {
   };
 
   const logoutHandler = () => {
-    sessionStorage.clear();
+    localStorage.clear();
     navigate("/");
   };
 

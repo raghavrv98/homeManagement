@@ -22,7 +22,14 @@ dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 
 // ✅ Added Repay & Gift Cost
-const tabLabels = ["Income", "Investment", "Expenses", "Repay", "Gift Cost"];
+const tabLabels = [
+  "Income",
+  "Investment",
+  "Monthly Expense",
+  "Expenses",
+  "Repay",
+  "Gift Cost",
+];
 
 const AmishaDataTables = () => {
   const theme = useTheme();
@@ -51,6 +58,7 @@ const AmishaDataTables = () => {
         setApiData({
           Income: result.data[0]?.money?.amishaIncome,
           Investment: result.data[0]?.money?.amishaInvestment,
+          "Monthly Expense": result.data[0]?.money?.amishaMonthlyExpense,
           Expenses: result.data[0]?.money?.amishaExpenses,
           Repay: result.data[0]?.money?.amishaRepay,
           "Gift Cost": result.data[0]?.money?.amishaGiftCost,
@@ -171,26 +179,82 @@ const AmishaDataTables = () => {
   };
 
   /**
+   * ✅ Calculate interest
+   */
+  const calculateInterest = (amount, timestamp) => {
+    if (!amount || !timestamp) return 0;
+
+    const entryDate = dayjs(timestamp);
+    const now = dayjs();
+
+    // Full months difference (no partial months counted)
+    const monthsPassed = now.diff(entryDate, "month");
+
+    const interest = Math.round((amount * monthsPassed * 1) / 100);
+
+    return interest;
+  };
+
+  /**
    * ✅ Calculate totals row
    */
   const totals = useMemo(() => {
     const total = {};
     if (data.length === 0) return total;
+
     Object.keys(data[0]).forEach((key) => {
       total[key] = data.reduce((sum, item) => {
         const val = item[key];
         return typeof val === "number" ? sum + val : "";
       }, 0);
     });
+
+    // 👉 Add total of interest for Income tab
+    if (currentTab === "Income") {
+      total["interestTillNow"] = data.reduce((sum, item) => {
+        return sum + calculateInterest(Number(item.cost), item.timestamp);
+      }, 0);
+    }
+
     return total;
-  }, [data]);
+  }, [data, currentTab]);
 
   /**
    * ✅ Build table columns
    */
+
   const columns = useMemo(() => {
     if (!data.length) return [];
     const keys = Object.keys(data[0]).filter((key) => key !== "_id");
+
+    let dynamicColumns = keys.map((key) => ({
+      Header: key.charAt(0).toUpperCase() + key.slice(1),
+      accessor: key,
+      id: key,
+      Cell: ({ row, value }) =>
+        editingRowIndex === row.index ? (
+          <TextField
+            defaultValue={editedData[key] ?? ""}
+            onChange={(e) => onChangeEditHandler(e, key)}
+            size="small"
+            fullWidth
+          />
+        ) : key === "timestamp" ? (
+          formatTimestamp(value)
+        ) : (
+          value
+        ),
+    }));
+
+    // 👉 Add Interest column only for Income tab
+    if (currentTab === "Income") {
+      dynamicColumns.push({
+        Header: "Interest till now @ 1%",
+        id: "interestTillNow",
+        accessor: (row) => calculateInterest(Number(row.cost), row.timestamp),
+        Cell: ({ value }) => value,
+      });
+    }
 
     return [
       {
@@ -198,24 +262,7 @@ const AmishaDataTables = () => {
         accessor: (_, i) => i + 1,
         id: "index",
       },
-      ...keys.map((key) => ({
-        Header: key.charAt(0).toUpperCase() + key.slice(1),
-        accessor: key,
-        id: key,
-        Cell: ({ row, value }) =>
-          editingRowIndex === row.index ? (
-            <TextField
-              defaultValue={editedData[key] ?? ""}
-              onChange={(e) => onChangeEditHandler(e, key)}
-              size="small"
-              fullWidth
-            />
-          ) : key === "timestamp" ? (
-            formatTimestamp(value)
-          ) : (
-            value
-          ),
-      })),
+      ...dynamicColumns,
       {
         Header: "Actions",
         id: "actions",
@@ -250,7 +297,7 @@ const AmishaDataTables = () => {
           ),
       },
     ];
-  }, [data, editingRowIndex]);
+  }, [data, editingRowIndex, currentTab]);
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable(

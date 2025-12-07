@@ -24,9 +24,6 @@ export default function LoginForm() {
 
   const navigate = useNavigate();
 
-  // =============================
-  // VALIDATION
-  // =============================
   const validate = () => {
     let valid = true;
     const newErrors = { username: "", password: "" };
@@ -44,10 +41,9 @@ export default function LoginForm() {
     return valid;
   };
 
-  // =============================
-  // LOGIN HANDLER (API CALL)
-  // =============================
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault(); // IMPORTANT: handles enter key submission
+
     if (!validate()) return;
 
     setLoading(true);
@@ -67,9 +63,8 @@ export default function LoginForm() {
       if (res.status === 200) {
         setStatus("success");
 
-        // store session data
-        sessionStorage.setItem("loginStatus", true);
-        sessionStorage.setItem("name", data?.user?.username);
+        localStorage.setItem("loginStatus", true);
+        localStorage.setItem("name", data?.user?.username);
 
         navigate("/dashboard");
       } else {
@@ -86,7 +81,7 @@ export default function LoginForm() {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        minHeight: "80vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -104,69 +99,67 @@ export default function LoginForm() {
         }}
       >
         <CardContent>
-          <Typography
-            variant="h5"
-            textAlign="center"
-            fontWeight="600"
-            gutterBottom
-          >
-            Login
-          </Typography>
-
-          <Typography
-            variant="body2"
-            textAlign="center"
-            color="text.secondary"
-            mb={2}
-          >
-            Enter your credentials to access your account
-          </Typography>
-
-          {/* Username */}
-          <TextField
-            label="User ID"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            error={Boolean(errors.username)}
-            helperText={errors.username}
-          />
-
-          {/* Password */}
-          <TextField
-            label="Password"
-            type="password"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            error={Boolean(errors.password)}
-            helperText={errors.password}
-          />
-
-          {/* Login Button */}
-          <Button
-            variant="contained"
-            fullWidth
-            sx={{ mt: 3, py: 1.4, borderRadius: 2 }}
-            disabled={loading}
-            onClick={handleLogin}
-          >
-            {loading ? <CircularProgress size={24} /> : "LOGIN"}
-          </Button>
-
-          {/* Status Message */}
-          {status && (
-            <Alert
-              severity={status}
-              sx={{ mt: 3, whiteSpace: "pre-wrap", wordBreak: "break-word" }}
+          <form onSubmit={handleLogin}>
+            <Typography
+              variant="h5"
+              textAlign="center"
+              fontWeight="600"
+              gutterBottom
             >
-              {message}
-            </Alert>
-          )}
+              Login
+            </Typography>
+
+            <Typography
+              variant="body2"
+              textAlign="center"
+              color="text.secondary"
+              mb={2}
+            >
+              Enter your credentials to access your account
+            </Typography>
+
+            <TextField
+              label="User ID"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              error={Boolean(errors.username)}
+              helperText={errors.username}
+            />
+
+            <TextField
+              label="Password"
+              type="password"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              error={Boolean(errors.password)}
+              helperText={errors.password}
+            />
+
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              sx={{ mt: 3, py: 1.4, borderRadius: 2 }}
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={24} /> : "LOGIN"}
+            </Button>
+
+            {status && (
+              <Alert
+                severity={status}
+                sx={{ mt: 3, whiteSpace: "pre-wrap", wordBreak: "break-word" }}
+              >
+                {message}
+              </Alert>
+            )}
+          </form>
         </CardContent>
       </Card>
     </Box>

@@ -2,7 +2,7 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 
 const ProtectedRoute = ({ children }) => {
-  const isLoggedIn = sessionStorage.getItem("loginStatus");
+  const isLoggedIn = localStorage.getItem("loginStatus");
 
   if (!isLoggedIn) {
     return <Navigate to="/error" replace />;

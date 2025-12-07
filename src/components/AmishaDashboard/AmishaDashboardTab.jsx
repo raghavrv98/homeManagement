@@ -13,6 +13,7 @@ import {
 import Header from "../Header/Header.jsx";
 import { API_URL } from "../../constant.js";
 import PageLoader from "../PageLoader.jsx";
+import dayjs from "dayjs";
 
 const AmishaDashboardTab = () => {
   const currentYear = new Date().getFullYear();
@@ -23,17 +24,19 @@ const AmishaDashboardTab = () => {
     { label: "Total Income", value: 0, color: "#1976D2" },
     { label: "Total Expenses", value: 0, color: "#D32F2F" },
     { label: "Total Investment", value: 0, color: "#FFC107" },
+    { label: "Total Monthly Expense", value: 0, color: "#A3C107" },
     { label: "Total Repay", value: 0, color: "#8E24AA" },
     { label: "Total Gift Cost", value: 0, color: "#F06292" },
-    { label: "Total Cash", value: 0, color: "#2E7D32" },
+    // { label: "Total Cash", value: 0, color: "#2E7D32" },
   ];
 
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const handleYearChange = (event) => setSelectedYear(event.target.value);
+  const [incomeEntries, setIncomeEntries] = useState([]);
 
   const [apiData, setApiData] = useState([]);
   const [summaryData, setSummaryData] = useState([]);
-  const [apiError, setApiError] = useState("");
+  // const [apiError, setApiError] = useState("");
   const [loading, setLoading] = useState(true);
 
   const formatINRCurrency = (value) => {
@@ -46,6 +49,42 @@ const AmishaDashboardTab = () => {
     });
   };
 
+  const calculateInterest = (amount, timestamp) => {
+    if (!amount || !timestamp) return 0;
+
+    const entryDate = dayjs(timestamp);
+    const now = dayjs();
+
+    // Full months difference (no partial months counted)
+    const monthsPassed = now.diff(entryDate, "month");
+
+    const interest = Math.round((amount * monthsPassed * 1) / 100);
+
+    return interest;
+  };
+
+  const calculateInterestFromIncome = (incomeEntries = []) => {
+    let totalInterest = 0;
+
+    const interestList = incomeEntries.map((entry) => {
+      const amount = Number(entry.cost) || 0;
+      const timestamp = entry.timestamp;
+
+      const interest = calculateInterest(amount, timestamp);
+
+      totalInterest += interest;
+
+      return {
+        description: entry?.description || "No description",
+        amount,
+        monthsPassed: dayjs().diff(dayjs(timestamp), "month"),
+        interest,
+      };
+    });
+
+    return { totalInterest, interestList };
+  };
+
   const fetchData = async () => {
     try {
       const response = await fetch(`${API_URL}/users/raghav`);
@@ -54,12 +93,14 @@ const AmishaDashboardTab = () => {
       if (!response.ok) throw new Error(result.msg || "Failed to fetch data");
 
       const money = result.data[0]?.money || {};
+      setIncomeEntries(money?.amishaIncome || []);
       const monthMap = {}; // Temporarily hold unsorted monthly data
 
       // Define categories to calculate
       const categoriesConfig = {
         Income: { key: "amishaIncome", field: "cost" },
         Investment: { key: "amishaInvestment", field: "cost" },
+        MonthlyExpense: { key: "amishaMonthlyExpense", field: "cost" },
         Expenses: { key: "amishaExpenses", field: "cost" },
         Repay: { key: "amishaRepay", field: "cost" },
         GiftCost: { key: "amishaGiftCost", field: "cost" },
@@ -76,6 +117,7 @@ const AmishaDashboardTab = () => {
             monthMap[monthIndex] = {
               Income: 0,
               Investment: 0,
+              MonthlyExpense: 0,
               Expenses: 0,
               Repay: 0,
               GiftCost: 0,
@@ -94,6 +136,7 @@ const AmishaDashboardTab = () => {
           month: new Date(2000, i).toLocaleString("default", { month: "long" }),
           Income: 0,
           Investment: 0,
+          MonthlyExpense: 0,
           Expenses: 0,
           Repay: 0,
           GiftCost: 0,
@@ -105,7 +148,7 @@ const AmishaDashboardTab = () => {
       setLoading(false);
     } catch (error) {
       alert(error.message);
-      setApiError("An error occurred: " + error.message);
+      // setApiError("An error occurred: " + error.message);
       setLoading(false);
     }
   };
@@ -118,24 +161,39 @@ const AmishaDashboardTab = () => {
       0
     );
     const totalExpenses = data.reduce((sum, m) => sum + (m?.Expenses || 0), 0);
+    const totalMonthlyExpenses = data.reduce(
+      (sum, m) => sum + (m?.MonthlyExpense || 0),
+      0
+    );
     const totalRepay = data.reduce((sum, m) => sum + (m?.Repay || 0), 0);
     const totalGiftCost = data.reduce((sum, m) => sum + (m?.GiftCost || 0), 0);
 
-    const totalCash = totalIncome - (totalInvestment + totalExpenses);
-    const totalBalanceLeft = totalIncome - (totalRepay + totalInvestment + totalCash);
+    // const totalCash = totalIncome - (totalInvestment + totalExpenses);
+    const totalBalanceLeft = totalIncome - (totalRepay + totalMonthlyExpenses);
+    const totalInterestTillNow = calculateInterestFromIncome(incomeEntries);
 
     return [
       {
-        label: "Total Balance Left",
-        value: totalBalanceLeft,
+        label: "Total Interest till now @ 1%",
+        value: totalInterestTillNow.totalInterest,
         color: "#F06292",
       },
+      {
+        label: "Total Balance Left",
+        value: totalBalanceLeft + totalInterestTillNow?.totalInterest + 185000,
+        color: "#F06292",
+      },
+      { label: "Total Repay", value: totalRepay, color: "#8E24AA" },
       { label: "Total Income", value: totalIncome, color: "#1E88E5" },
       { label: "Total Expenses", value: totalExpenses, color: "#E53935" },
+      {
+        label: "Total Monthly Expenses",
+        value: totalMonthlyExpenses,
+        color: "#D33393",
+      },
       { label: "Total Investment", value: totalInvestment, color: "#FBC02D" },
-      { label: "Total Repay", value: totalRepay, color: "#8E24AA" },
       { label: "Total Gift Cost", value: totalGiftCost, color: "#F06292" },
-      { label: "Total Cash", value: totalCash, color: "#43A047" },
+      // { label: "Total Cash", value: totalCash, color: "#43A047" },
     ];
   };
 
@@ -151,6 +209,7 @@ const AmishaDashboardTab = () => {
   const getMonthlyValueHandler = (month, label) => {
     const Income = month?.Income || 0;
     const Investment = month?.Investment || 0;
+    const MonthlyExpense = month?.MonthlyExpense || 0;
     const Expenses = month?.Expenses || 0;
     const Repay = month?.Repay || 0;
     const GiftCost = month?.GiftCost || 0;
@@ -162,6 +221,8 @@ const AmishaDashboardTab = () => {
         return formatINRCurrency(Expenses);
       case "Total Investment":
         return formatINRCurrency(Investment);
+      case "Total Monthly Expense":
+        return formatINRCurrency(MonthlyExpense);
       case "Total Repay":
         return formatINRCurrency(Repay);
       case "Total Gift Cost":
@@ -198,9 +259,9 @@ const AmishaDashboardTab = () => {
             >
               {/* Year Dropdown */}
               <Box
-                flex={{ xs: "1 1 100%", md: "0 0 100px" }}
-                minWidth={{ xs: "100%", md: "100px" }}
-                maxWidth={{ xs: "100%", md: "100px" }}
+                flex={{ xs: "1 1 100%", md: "0 0 300px" }}
+                minWidth={{ xs: "100%", md: "300px" }}
+                maxWidth={{ xs: "100%", md: "300px" }}
               >
                 <FormControl fullWidth>
                   <InputLabel id="year-select-label">Year</InputLabel>
@@ -220,26 +281,25 @@ const AmishaDashboardTab = () => {
               </Box>
 
               {/* Summary Cards */}
-              <Box
-                display="flex"
-                flex="1 1 auto"
-                flexWrap={{ xs: "wrap", sm: "nowrap" }}
-                justifyContent="flex-end"
-                gap={2}
-                overflowX="auto"
-                minWidth={0}
-              >
+              <Box display="flex" flexWrap="wrap" gap={2}>
                 {summaryData.map((item, index) => (
                   <Box
                     key={index}
-                    flex="0 0 auto"
-                    minWidth={{ xs: "100%", sm: "200px" }}
+                    sx={{
+                      flex: {
+                        xs: "1 1 100%", // 1 per row on mobile
+                        sm: "1 1 calc(50% - 16px)", // 2 per row on small screens
+                        md: "1 1 calc(33.33% - 16px)", // 3 per row on medium
+                        lg: "1 1 calc(25% - 16px)", // 4 per row on large
+                      },
+                    }}
                   >
                     <Card
                       sx={{
                         bgcolor: "#f5f5f5",
                         boxShadow: 1,
                         color: item.color,
+                        height: "100%",
                       }}
                     >
                       <CardContent>
