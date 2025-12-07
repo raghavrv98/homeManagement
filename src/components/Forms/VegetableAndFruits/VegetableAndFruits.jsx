@@ -75,7 +75,9 @@ const VegetablesAndFruits = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    formData["costPerKg"] = JSON.stringify(
+      (formData.costWePaid / formData.grams) * 1000
+    );
     if (validate()) {
       setLoading(true);
       try {
@@ -166,12 +168,13 @@ const VegetablesAndFruits = () => {
           <TextField
             label="Cost per Kg"
             name="costPerKg"
-            value={formData.costPerKg}
-            onChange={handleChange}
+            value={(formData.costWePaid / formData.grams) * 1000}
+            // onChange={handleChange}
             variant="outlined"
-            error={Boolean(errors.costPerKg)}
-            helperText={errors.costPerKg}
+            // error={Boolean(errors.costPerKg)}
+            // helperText={errors.costPerKg}
             fullWidth
+            disabled
             margin="normal"
           />
 

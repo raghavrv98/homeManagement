@@ -379,7 +379,7 @@ const DataTables = () => {
           sx={{
             mt: 2,
             overflowX: "auto",
-            height: "75vh",
+            height: "70vh",
             width: "100%",
           }}
         >

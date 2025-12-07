@@ -122,7 +122,7 @@ const AmishaDashboardTab = () => {
     const totalGiftCost = data.reduce((sum, m) => sum + (m?.GiftCost || 0), 0);
 
     const totalCash = totalIncome - (totalInvestment + totalExpenses);
-    const totalBalanceLeft = totalIncome - (totalRepay + totalInvestment);
+    const totalBalanceLeft = totalIncome - (totalRepay + totalInvestment + totalCash);
 
     return [
       {

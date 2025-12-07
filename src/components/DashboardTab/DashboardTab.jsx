@@ -38,7 +38,11 @@ const DashboardTab = () => {
     { label: "Total Investment", value: 0, color: "#FFC107" },
     { label: "Total Profit", value: 0, color: "#2E7D32" },
     { label: "Mumbai Home Expenses", value: 0, color: "#6A1B9A" },
-    { label: "Faridabad Home Expenses", value: 0, color: "#00897B" },
+    {
+      label: "Faridabad Home Expenses",
+      value: 0,
+      color: "#00897B",
+    },
   ];
 
   const categories = [
@@ -632,6 +636,18 @@ const DashboardTab = () => {
                           </Typography>
                         </Card>
                       ))}
+                      <div>
+                        <span>
+                          <Typography color="red">Note:</Typography>
+                        </span>
+                        Faridabad Home Expenses =
+                        <br /> Advitya Flat Cost +
+                        <br /> Home Loan +
+                        <br /> Cred Loan Repay +
+                        <br /> LIC +
+                        <br /> Parents +
+                        <br /> Faridabad Misc
+                      </div>
                     </Box>
                   </Box>
                 </Box>

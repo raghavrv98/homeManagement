@@ -1,121 +1,22 @@
-import "./App.css";
-import LoginForm from "./components/LoginForm/LoginForm";
+// App.jsx
 import React from "react";
-import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
-import HomePage from "./components/Homepage/Homepage";
-import Money from "./components/Money/Money";
-import Milk from "./components/Forms/Milk/Milk";
-import KiranaStore from "./components/Forms/KiranaStore/KiranaStore";
-import FastFood from "./components/Forms/FastFood/FastFood";
-import Homeneeds from "./components/Forms/Homeneeds/Homeneeds";
-import Petrol from "./components/Forms/Petrol/Petrol";
-import Dashboard from "./components/Dashboard/Dashboard";
-import DataTables from "./components/DataTables/DataTables";
-import HouseRent from "./components/Forms/HouseRent/HouseRent";
-import WifiBill from "./components/Forms/WifiBill/WifiBill";
-import Graphs from "./components/Graphs/Graphs";
-import Outing from "./components/Forms/Outing/Outing";
-import VegetablesAndFruits from "./components/Forms/VegetableAndFruits/VegetableAndFruits";
-import DashboardTab from "./components/DashboardTab/DashboardTab";
-import ElectricityBill from "./components/Forms/ElectricityBill/ElectricityBill";
-import GasBill from "./components/Forms/GasBill/GasBill";
-import Income from "./components/Forms/Income/Income";
-import Investment from "./components/Forms/Investment/Investment";
-import LIC from "./components/Forms/LIC/LIC";
-import HomeLoan from "./components/Forms/HomeLoan/HomeLoan";
-import Parents from "./components/Forms/Parents/parents";
-import PersonalExpense from "./components/Forms/PersonalExpense/PersonalExpense";
-import AdvityaFlatCost from "./components/Forms/Advitya Flat Cost/AdvityaFlatCost";
-import MumbaiHomeSetupCost from "./components/Forms/MumbaiHomeSetupCost/MumbaiHomeSetupCost";
-import CredLoanRepay from "./components/Forms/CredLoanRepay/CredLoanRepay";
-import AmishaDashboardTab from "./components/AmishaDashboard/AmishaDashboardTab";
-import AmishaDataTables from "./components/AmishaDataTables/AmishaDataTables";
-import AmishaMoney from "./components/AmishaMoney/AmishaMoney";
-import AmishaExpense from "./components/AmishaForms/AmishaExpense/AmishaExpense";
-import AmishaInvestment from "./components/AmishaForms/Investment/AmishaInvestment";
-import AmishaIncome from "./components/AmishaForms/AmishaIncome/AmishaIncome";
-import AmishaRepay from "./components/AmishaForms/AmishaRepay/AmishaRepay";
-import AmishaGiftCost from "./components/AmishaForms/AmishaGiftCost/AmishaGiftCost";
-import MumbaiMisc from "./components/Forms/MumbaiMisc/MumbaiMisc";
-import FaridabadMisc from "./components/Forms/FaridabadMisc/FaridabadMisc";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import AllRoutes from "./AllRoutes";
+import ErrorPage from "./components/ErrorPages/errorPage";
+import LoginForm from "./components/LoginForm/LoginForm";
 
 const App = () => {
   return (
     <Router>
-      <div>
-        <Routes>
-          {/* Define the routes for each page */}
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dataTables" element={<DataTables />} />
-          <Route path="/dashboardTab" element={<DashboardTab />} />
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/home/money" element={<Money />} />
-          <Route
-            path="/home/money/vegetables-fruits"
-            element={<VegetablesAndFruits />}
-          />
-          <Route path="/home/money/milk" element={<Milk />} />
-          <Route path="/home/money/kirana-store" element={<KiranaStore />} />
-          <Route path="/home/money/fast-food" element={<FastFood />} />
-          <Route path="/home/money/homeneeds" element={<Homeneeds />} />
-          <Route path="/home/money/petrol" element={<Petrol />} />
-          <Route path="/home/money/houseRent" element={<HouseRent />} />
-          <Route path="/home/money/wifiBill" element={<WifiBill />} />
-          <Route
-            path="/home/money/electricityBill"
-            element={<ElectricityBill />}
-          />
-          <Route path="/home/money/credLoanRepay" element={<CredLoanRepay />} />
-          <Route path="/home/money/gasBill" element={<GasBill />} />
-          <Route path="/home/money/income" element={<Income />} />
-          <Route path="/home/money/investment" element={<Investment />} />
-          <Route path="/home/money/lic" element={<LIC />} />
-          <Route path="/home/money/homeLoan" element={<HomeLoan />} />
-          <Route path="/home/money/parents" element={<Parents />} />
-          <Route path="/home/money/outing" element={<Outing />} />
-          <Route
-            path="/home/money/personalExpense"
-            element={<PersonalExpense />}
-          />
-          <Route path="/home/money/mumbaiMisc" element={<MumbaiMisc />} />
-          <Route path="/home/money/faridabadMisc" element={<FaridabadMisc />} />
-          <Route
-            path="/home/money/advityaFlatCost"
-            element={<AdvityaFlatCost />}
-          />
-          <Route
-            path="/home/money/mumbaiHomeSetupCost"
-            element={<MumbaiHomeSetupCost />}
-          />
-          <Route path="/graphs" element={<Graphs />} />
+      <Routes>
+        {/* public routes */}
+        <Route path="/" element={<LoginForm />} />
+        <Route path="/error" element={<ErrorPage code={401} />} />
 
-          <Route
-            path="/home/amishaMoney/amishaIncome"
-            element={<AmishaIncome />}
-          />
-          <Route
-            path="/home/amishaMoney/amishaInvestment"
-            element={<AmishaInvestment />}
-          />
-          <Route
-            path="/home/amishaMoney/amishaExpenses"
-            element={<AmishaExpense />}
-          />
-          <Route
-            path="/home/amishaMoney/amishaRepay"
-            element={<AmishaRepay />}
-          />
-          <Route
-            path="/home/amishaMoney/amishaGiftCost"
-            element={<AmishaGiftCost />}
-          />
-
-          <Route path="/amishaDashboardTab" element={<AmishaDashboardTab />} />
-          <Route path="/amishaDataTables" element={<AmishaDataTables />} />
-          <Route path="/home/amishaMoney" element={<AmishaMoney />} />
-        </Routes>
-      </div>
+        {/* protected pages */}
+        <Route path="/*" element={<AllRoutes />} />
+      </Routes>
     </Router>
   );
 };

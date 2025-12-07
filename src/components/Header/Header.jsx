@@ -34,10 +34,10 @@ const Header = ({ backLink, isShowBack = true, title = "Home Management" }) => {
     }
   };
 
-  // const logoutHandler = () => {
-  //   localStorage.clear();
-  //   navigate("/");
-  // };
+  const logoutHandler = () => {
+    sessionStorage.clear();
+    navigate("/");
+  };
 
   return (
     <header className="header">
@@ -64,13 +64,10 @@ const Header = ({ backLink, isShowBack = true, title = "Home Management" }) => {
         <div className="time">
           <div>Date : </div>
           <DateDisplay />
-        </div>
-
-        {/* {isShowLogout && (
           <button className="back-button" onClick={logoutHandler}>
             Logout
           </button>
-        )} */}
+        </div>
       </div>
     </header>
   );
