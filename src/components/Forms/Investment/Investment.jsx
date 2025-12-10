@@ -20,7 +20,7 @@ const getCurrentDateTimeLocal = () => {
   )}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 };
 
-const investmentTypes = ["SIP", "Mutual Fund", "RD", "Stocks"];
+const investmentTypes = ["Faridabad", "Mutual Fund", "RD", "Stocks"];
 
 const Investment = () => {
   const now = getCurrentDateTimeLocal();

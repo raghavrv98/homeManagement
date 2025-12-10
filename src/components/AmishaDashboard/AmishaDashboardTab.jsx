@@ -287,10 +287,10 @@ const AmishaDashboardTab = () => {
                     key={index}
                     sx={{
                       flex: {
-                        xs: "1 1 100%", // 1 per row on mobile
-                        sm: "1 1 calc(50% - 16px)", // 2 per row on small screens
-                        md: "1 1 calc(33.33% - 16px)", // 3 per row on medium
-                        lg: "1 1 calc(25% - 16px)", // 4 per row on large
+                        xs: "1 1 100%", 
+                        sm: "1 1 calc(50% - 16px)", 
+                        md: "1 1 calc(33.33% - 16px)", 
+                        lg: "1 1 calc(25% - 16px)", 
                       },
                     }}
                   >

@@ -14,6 +14,8 @@ import {
 import Header from "../Header/Header";
 import { API_URL } from "../../constant.js";
 import PageLoader from "../PageLoader.jsx";
+import { useParentsInterest } from "./calculateParentsInterest.jsx";
+import { useFaridabadIncome } from "./useFaridabadIncome.jsx";
 
 const DashboardTab = () => {
   const currentYear = new Date().getFullYear();
@@ -71,14 +73,18 @@ const DashboardTab = () => {
   ];
 
   const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [rawData, setRawData] = useState([]);
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(null);
 
   const handleYearChange = (event) => setSelectedYear(event.target.value);
   const handleViewDetails = (index) => setSelectedMonthIndex(index);
   const handleBackToAll = () => setSelectedMonthIndex(null);
   const [apiData, setApiData] = useState([]);
-  const [apiError, setApiError] = useState("");
+  // const [apiError, setApiError] = useState("");
   const [summaryData, setSummaryData] = useState([]);
+  const { totalInterest } = useParentsInterest(apiData);
+  const { totalFaridabadIncome, totalInterestOnAmountTaken } =
+    useFaridabadIncome(rawData?.income);
 
   const [loading, setLoading] = useState(true);
 
@@ -104,6 +110,7 @@ const DashboardTab = () => {
       }
 
       const money = result.data[0]?.money || {};
+      setRawData(money);
 
       const monthMap = {}; // Temporarily hold unsorted monthly data
 
@@ -213,7 +220,7 @@ const DashboardTab = () => {
       setLoading(false);
     } catch (error) {
       alert(error.message);
-      setApiError("An error occurred: " + error.message);
+      // setApiError("An error occurred: " + error.message);
       setLoading(false);
     }
   };
@@ -221,6 +228,15 @@ const DashboardTab = () => {
   // Main function to generate summary
   const getSummaryData = (data) => {
     const totalIncome = data.reduce((sum, m) => sum + (m?.Income || 0), 0);
+
+    const totalJobAmount = rawData?.income?.reduce((sum, m) => {
+      if (m.source === "job") {
+        sum = sum + (m?.cost || 0);
+        return sum;
+      }
+      return sum;
+    }, 0);
+
     const totalInvestment = data.reduce(
       (sum, m) => sum + (m?.Investment || 0),
       0
@@ -230,29 +246,166 @@ const DashboardTab = () => {
       data.reduce((sum, month) => sum + Math.abs(month.totalExpense), 0) -
       (totalIncome + totalInvestment);
 
-    const totalProfit = totalIncome - (totalExpense + totalInvestment);
+    const totalRdAmount = rawData?.investment?.reduce((sum, m) => {
+      if (m.type === "RD") {
+        sum = sum + (m?.cost || 0);
+        return sum;
+      }
+      return sum;
+    }, 0);
+
+    const totalStocksAmount = rawData?.investment?.reduce((sum, m) => {
+      if (m.type === "Stocks") {
+        sum = sum + (m?.cost || 0);
+        return sum;
+      }
+      return sum;
+    }, 0);
+
+    const totalMutualFundAmount = rawData?.investment?.reduce((sum, m) => {
+      if (m.type === "Mutual Fund") {
+        sum = sum + (m?.cost || 0);
+        return sum;
+      }
+      return sum;
+    }, 0);
+
+    const totalFaridabadAmount = rawData?.investment?.reduce((sum, m) => {
+      if (m.type === "Faridabad") {
+        sum = sum + (m?.cost || 0);
+        return sum;
+      }
+      return sum;
+    }, 0);
+
+    // const totalCash = totalIncome - (totalExpense + totalInvestment + totalRdAmount);
+
+    const totalMumbaiExpense = apiData?.reduce((sum, month) => {
+      const mumbaiTotal =
+        (month?.["Vegetable and Fruits"] || 0) +
+        (month?.Milk || 0) +
+        (month?.["Kirana Store"] || 0) +
+        (month?.["Fast Food"] || 0) +
+        (month?.Homeneeds || 0) +
+        (month?.Petrol || 0) +
+        (month?.Outing || 0) +
+        (month?.["House Rent"] || 0) +
+        (month?.["Wifi Bill"] || 0) +
+        (month?.["Electricity Bill"] || 0) +
+        (month?.["Gas Bill"] || 0) +
+        (month?.["Personal Expense"] || 0) +
+        (month?.["Mumbai Misc"] || 0) +
+        (month?.["Mumbai Home Setup Cost"] || 0);
+      return sum + mumbaiTotal;
+    }, 0);
+
+    const totalFaridabadExpense = apiData?.reduce((sum, month) => {
+      const mumbaiTotal =
+        (month?.["Advitya Flat Cost"] || 0) +
+        (month?.["Home Loan"] || 0) +
+        (month?.["Cred Loan Repay"] || 0) +
+        (month?.LIC || 0) +
+        (month?.Parents || 0) +
+        (month?.["Faridabad Misc"] || 0);
+      return sum + mumbaiTotal;
+    }, 0);
+
+    const totalMoneyGiven = apiData?.reduce((sum, month) => {
+      return sum + (month?.Parents || 0);
+    }, 0);
+
+    const monthNumber = new Date().getMonth() + 1;
+    const parentsMonthlyIncome = 30000;
+    const amountToBePaid = monthNumber * parentsMonthlyIncome;
 
     return [
       {
         label: "Total Income",
         value: totalIncome,
         color: "#1E88E5",
+        type: "income",
+        subCat: [
+          { label: "Job", value: totalJobAmount },
+          {
+            label: "Other Income (If any)",
+            value: totalIncome - totalJobAmount,
+          },
+        ],
       },
       {
         label: "Total Expense",
         value: totalExpense,
         color: "#E53935",
+        subCat: [
+          {
+            label: "Total Mumbai Expense",
+            value: totalMumbaiExpense?.toFixed(2),
+          },
+          {
+            label: "Total Faridabad Expense",
+            value: totalFaridabadExpense?.toFixed(2),
+          },
+        ],
       },
       {
         label: "Total Investment",
         value: totalInvestment,
         color: "#FBC02D",
+        subCat: [
+          {
+            label: "Stocks",
+            value: totalStocksAmount?.toFixed(2) - 150000,
+          },
+          {
+            label: "RD",
+            value: totalRdAmount?.toFixed(2),
+          },
+          {
+            label: "Mutual Fund",
+            value: totalMutualFundAmount?.toFixed(2),
+          },
+          {
+            label: "Faridabad",
+            value: totalFaridabadAmount?.toFixed(2),
+          },
+        ],
       },
       {
-        label: "Total Cash",
-        value: totalProfit,
-        color: "#43A047",
+        label: "Faridabad history",
+        value: 0,
+        color: "#ABC02D",
+        subCat: [
+          {
+            label: "Total money given till now",
+            value: totalMoneyGiven,
+          },
+          {
+            label: "Amount to be paid till now",
+            value: amountToBePaid,
+          },
+          {
+            label: "Remaining Amount till now @ 30000 PM",
+            value: amountToBePaid - totalMoneyGiven,
+          },
+          {
+            label: "Interest till now @ 1% (remaining)",
+            value: totalInterest,
+          },
+          {
+            label: "Total Taken",
+            value: totalFaridabadIncome,
+          },
+          {
+            label: "Interest till now @ 1% (taken amount)",
+            value: totalInterestOnAmountTaken,
+          },
+        ],
       },
+      // {
+      //   label: "Total Cash",
+      //   value: totalCash,
+      //   color: "#43A047",
+      // },
     ];
   };
 
@@ -337,12 +490,25 @@ const DashboardTab = () => {
               alignItems="flex-start"
             >
               {/* Year Dropdown */}
-              <Box
-                flex={{ xs: "1 1 100%", md: "0 0 250px" }}
-                minWidth={{ xs: "100%", md: "200px" }}
+              {/* <Box
+                flex={{ xs: "1 1 100%", md: "0 0 300px" }}
+                minWidth={{ xs: "100%", md: "300px" }}
                 maxWidth={{ xs: "100%", md: "300px" }}
               >
-                <FormControl fullWidth>
+                
+              </Box> */}
+
+              {/* Summary Cards */}
+              <Box display="flex" flexWrap="wrap" width="100%" gap={2}>
+                <FormControl
+                  sx={{
+                    width: {
+                      xs: "100%",
+                      sm: "100%",
+                      md: "10%",
+                    },
+                  }}
+                >
                   <InputLabel id="year-select-label">Year</InputLabel>
                   <Select
                     labelId="year-select-label"
@@ -357,42 +523,80 @@ const DashboardTab = () => {
                     ))}
                   </Select>
                 </FormControl>
-              </Box>
-
-              {/* Summary Cards */}
-              <Box
-                display="flex"
-                flex="1 1 auto"
-                flexWrap={{ xs: "wrap", sm: "nowrap" }}
-                justifyContent="flex-end"
-                gap={2}
-                overflowX="auto"
-                minWidth={0}
-              >
-                {summaryData.map((item, index) => (
-                  <Box
-                    key={index}
-                    flex="0 0 auto"
-                    minWidth={{ xs: "100%", sm: "200px" }}
-                  >
-                    <Card
+                {summaryData.map((item, index) => {
+                  return (
+                    <Box
+                      key={index}
                       sx={{
-                        bgcolor: "#f5f5f5",
-                        boxShadow: 1,
-                        color: item.color,
+                        flex: {
+                          xs: "1 1 100%",
+                          sm: "1 1 calc(50% - 16px)",
+                          md: "1 1 calc(33.33% - 16px)",
+                          lg: "1 1 calc(10% - 16px)",
+                        },
                       }}
                     >
-                      <CardContent>
-                        <Typography variant="subtitle2" color="textSecondary">
-                          {item.label}
-                        </Typography>
-                        <Typography variant="h5">
-                          {formatINRCurrency(item?.value)}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Box>
-                ))}
+                      <Card
+                        sx={{
+                          bgcolor: "#f5f5f5",
+                          boxShadow: 1,
+                          color: item.color,
+                          height: "100%",
+                        }}
+                      >
+                        <CardContent>
+                          <Typography variant="subtitle2" color="textSecondary">
+                            {item.label}
+                          </Typography>
+                          <Typography variant="h5">
+                            {formatINRCurrency(item?.value)}
+                          </Typography>
+                        </CardContent>
+                        <CardContent>
+                          {item?.subCat &&
+                            item?.subCat?.map((item) => {
+                              return (
+                                <Box
+                                  sx={{
+                                    bgcolor: "#ffffff",
+                                    px: 1,
+                                    py: 0.5,
+                                    borderRadius: 1,
+                                  }}
+                                >
+                                  <Typography
+                                    variant="subtitle2"
+                                    color="textSecondary"
+                                  >
+                                    {item?.label}
+                                  </Typography>
+                                  <Typography variant="body2">
+                                    {formatINRCurrency(item?.value)}
+                                  </Typography>
+                                </Box>
+                              );
+                            })}
+                        </CardContent>
+                        {item.label === "Total Expense" && (
+                          <CardContent>
+                            <div>
+                              <span>
+                                <Typography color="red">Note:</Typography>
+                              </span>
+                              Faridabad Home Expenses =
+                              <br /> Advitya Flat Cost +
+                              <br /> Home Loan +
+                              <br /> Cred Loan Repay +
+                              <br /> LIC +
+                              <br /> Parents +
+                              <br /> Faridabad Misc
+                            </div>
+                          </CardContent>
+                        )}
+                      </Card>
+                    </Box>
+                  );
+                })}
               </Box>
             </Box>
           </Box>
