@@ -372,7 +372,7 @@ const DashboardTab = () => {
       },
       {
         label: "Faridabad history",
-        value: 0,
+        value: totalMoneyGiven,
         color: "#ABC02D",
         subCat: [
           {
