@@ -19,7 +19,7 @@ import { useFaridabadIncome } from "./useFaridabadIncome.jsx";
 
 const DashboardTab = () => {
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
+  const years = ["2025", "2026"];
   const months = [
     "January",
     "February",
@@ -82,9 +82,17 @@ const DashboardTab = () => {
   const [apiData, setApiData] = useState([]);
   // const [apiError, setApiError] = useState("");
   const [summaryData, setSummaryData] = useState([]);
-  const { totalInterest } = useParentsInterest(apiData);
+  const yearlyParentsTransactions = rawData?.parents?.filter(
+    (p) => new Date(p.timestamp).getFullYear() === Number(selectedYear)
+  );
+
+  const { totalInterest } = useParentsInterest(yearlyParentsTransactions);
+  const yearlyIncomeForHooks = rawData?.income?.filter(
+    (i) => new Date(i.timestamp).getFullYear() === Number(selectedYear)
+  );
+
   const { totalFaridabadIncome, totalInterestOnAmountTaken } =
-    useFaridabadIncome(rawData?.income);
+    useFaridabadIncome(yearlyIncomeForHooks);
 
   const [loading, setLoading] = useState(true);
 
@@ -150,7 +158,12 @@ const DashboardTab = () => {
 
         entries.forEach((item) => {
           const date = new Date(item.timestamp);
-          const monthIndex = date.getMonth(); // 0 = Jan, 11 = Dec
+          const year = date.getFullYear();
+
+          // 🔴 FILTER BY SELECTED YEAR
+          if (year !== Number(selectedYear)) return;
+
+          const monthIndex = date.getMonth();
           const monthName = date.toLocaleString("default", { month: "long" });
 
           if (!monthMap[monthIndex]) {
@@ -225,14 +238,24 @@ const DashboardTab = () => {
     }
   };
 
+  // 🔹 Year filter helper
+  const isSameYear = (timestamp) =>
+    new Date(timestamp).getFullYear() === Number(selectedYear);
+
+  // 🔹 Filter rawData by selected year
+  const yearlyIncome = rawData?.income?.filter((i) => isSameYear(i.timestamp));
+
+  const yearlyInvestment = rawData?.investment?.filter((i) =>
+    isSameYear(i.timestamp)
+  );
+
   // Main function to generate summary
   const getSummaryData = (data) => {
     const totalIncome = data.reduce((sum, m) => sum + (m?.Income || 0), 0);
 
-    const totalJobAmount = rawData?.income?.reduce((sum, m) => {
+    const totalJobAmount = yearlyIncome?.reduce((sum, m) => {
       if (m.source === "job") {
-        sum = sum + (m?.cost || 0);
-        return sum;
+        return sum + (m?.cost || 0);
       }
       return sum;
     }, 0);
@@ -246,34 +269,31 @@ const DashboardTab = () => {
       data.reduce((sum, month) => sum + Math.abs(month.totalExpense), 0) -
       (totalIncome + totalInvestment);
 
-    const totalRdAmount = rawData?.investment?.reduce((sum, m) => {
+    const totalRdAmount = yearlyInvestment?.reduce((sum, m) => {
       if (m.type === "RD") {
-        sum = sum + (m?.cost || 0);
-        return sum;
+        return sum + (m?.cost || 0);
       }
       return sum;
     }, 0);
 
-    const totalStocksAmount = rawData?.investment?.reduce((sum, m) => {
+    const totalStocksAmount = yearlyInvestment?.reduce((sum, m) => {
       if (m.type === "Stocks") {
-        sum = sum + (m?.cost || 0);
-        return sum;
+        return sum + (m?.cost || 0);
       }
       return sum;
     }, 0);
+    console.log("totalStocksAmount: ", totalStocksAmount);
 
-    const totalMutualFundAmount = rawData?.investment?.reduce((sum, m) => {
+    const totalMutualFundAmount = yearlyInvestment?.reduce((sum, m) => {
       if (m.type === "Mutual Fund") {
-        sum = sum + (m?.cost || 0);
-        return sum;
+        return sum + (m?.cost || 0);
       }
       return sum;
     }, 0);
 
-    const totalFaridabadAmount = rawData?.investment?.reduce((sum, m) => {
+    const totalFaridabadAmount = yearlyInvestment?.reduce((sum, m) => {
       if (m.type === "Faridabad") {
-        sum = sum + (m?.cost || 0);
-        return sum;
+        return sum + (m?.cost || 0);
       }
       return sum;
     }, 0);
@@ -354,7 +374,7 @@ const DashboardTab = () => {
         subCat: [
           {
             label: "Stocks",
-            value: totalStocksAmount?.toFixed(2) - 150000,
+            value: totalStocksAmount?.toFixed(2),
           },
           {
             label: "RD",
@@ -415,8 +435,9 @@ const DashboardTab = () => {
   }, [apiData]);
 
   useEffect(() => {
+    setLoading(true);
     fetchData();
-  }, []);
+  }, [selectedYear]);
 
   const getMonthlyValueHandler = (month, label) => {
     const income = month?.Income || 0;

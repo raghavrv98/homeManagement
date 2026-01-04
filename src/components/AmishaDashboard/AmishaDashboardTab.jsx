@@ -17,7 +17,7 @@ import dayjs from "dayjs";
 
 const AmishaDashboardTab = () => {
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
+  const years = ["2025", "2026"];
 
   // Monthly labels shown in cards
   const monthDetails = [
@@ -53,16 +53,19 @@ const AmishaDashboardTab = () => {
     if (!amount || !timestamp) return 0;
 
     const entryDate = dayjs(timestamp);
-    const now = dayjs();
 
-    // Full months difference (no partial months counted)
-    const monthsPassed = now.diff(entryDate, "month");
+    // 🔹 Interest should be calculated only till end of selected year
+    const endOfYear = dayjs(`${selectedYear}-12-31`);
 
-    const interest = Math.round((amount * monthsPassed * 1) / 100);
+    // If entry is after selected year, ignore
+    if (entryDate.year() !== Number(selectedYear)) return 0;
 
-    return interest;
+    const monthsPassed = endOfYear.diff(entryDate, "month");
+
+    if (monthsPassed <= 0) return 0;
+
+    return Math.round((amount * monthsPassed * 1) / 100);
   };
-
   const calculateInterestFromIncome = (incomeEntries = []) => {
     let totalInterest = 0;
 
@@ -110,6 +113,11 @@ const AmishaDashboardTab = () => {
         const entries = money[key] || [];
         entries.forEach((item) => {
           const date = new Date(item.timestamp);
+          const year = date.getFullYear();
+
+          // 🔴 FILTER BY SELECTED YEAR
+          if (year !== Number(selectedYear)) return;
+
           const monthIndex = date.getMonth();
           const monthName = date.toLocaleString("default", { month: "long" });
 
@@ -169,8 +177,18 @@ const AmishaDashboardTab = () => {
     const totalGiftCost = data.reduce((sum, m) => sum + (m?.GiftCost || 0), 0);
 
     // const totalCash = totalIncome - (totalInvestment + totalExpenses);
-    const totalBalanceLeft = totalIncome - (totalRepay + totalMonthlyExpenses);
-    const totalInterestTillNow = calculateInterestFromIncome(incomeEntries);
+    const totalBalanceLeft = totalIncome - totalRepay;
+
+    // 🔹 Filter Amisha income by selected year
+    const yearlyIncomeEntries = incomeEntries?.filter(
+      (entry) => dayjs(entry.timestamp).year() === Number(selectedYear)
+    );
+
+    const totalInterestTillNow =
+      calculateInterestFromIncome(yearlyIncomeEntries);
+
+    const giftMoney = 185000;
+    const profitOnInvestment = 40000;
 
     return [
       {
@@ -179,8 +197,12 @@ const AmishaDashboardTab = () => {
         color: "#F06292",
       },
       {
-        label: "Total Balance Left",
-        value: totalBalanceLeft + totalInterestTillNow?.totalInterest + 185000,
+        label: "Total balance left including investment",
+        value:
+          totalBalanceLeft +
+          totalInterestTillNow?.totalInterest +
+          giftMoney +
+          profitOnInvestment,
         color: "#F06292",
       },
       { label: "Total Repay", value: totalRepay, color: "#8E24AA" },
@@ -203,8 +225,9 @@ const AmishaDashboardTab = () => {
   }, [apiData]);
 
   useEffect(() => {
+    setLoading(true);
     fetchData();
-  }, []);
+  }, [selectedYear]);
 
   const getMonthlyValueHandler = (month, label) => {
     const Income = month?.Income || 0;
@@ -287,10 +310,10 @@ const AmishaDashboardTab = () => {
                     key={index}
                     sx={{
                       flex: {
-                        xs: "1 1 100%", 
-                        sm: "1 1 calc(50% - 16px)", 
-                        md: "1 1 calc(33.33% - 16px)", 
-                        lg: "1 1 calc(25% - 16px)", 
+                        xs: "1 1 100%",
+                        sm: "1 1 calc(50% - 16px)",
+                        md: "1 1 calc(33.33% - 16px)",
+                        lg: "1 1 calc(25% - 16px)",
                       },
                     }}
                   >
