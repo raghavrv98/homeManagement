@@ -177,32 +177,35 @@ const AmishaDashboardTab = () => {
     const totalGiftCost = data.reduce((sum, m) => sum + (m?.GiftCost || 0), 0);
 
     // const totalCash = totalIncome - (totalInvestment + totalExpenses);
-    const totalBalanceLeft = totalIncome - totalRepay;
+    // const totalBalanceLeft = totalIncome - totalRepay;
 
     // 🔹 Filter Amisha income by selected year
-    const yearlyIncomeEntries = incomeEntries?.filter(
-      (entry) => dayjs(entry.timestamp).year() === Number(selectedYear)
-    );
+    // const yearlyIncomeEntries = incomeEntries?.filter(
+    //   (entry) => dayjs(entry.timestamp).year() === Number(selectedYear)
+    // );
 
-    const totalInterestTillNow =
-      calculateInterestFromIncome(yearlyIncomeEntries);
+    // const totalInterestTillNow =
+    //   calculateInterestFromIncome(yearlyIncomeEntries);
 
-    const giftMoney = 185000;
-    const profitOnInvestment = 40000;
+    // const giftMoney = 185000;
+    // const profitOnInvestment = 216801;
+    // const totalInterestTillNowFinal = 21523;
 
     return [
       {
         label: "Total Interest till now @ 1%",
-        value: totalInterestTillNow.totalInterest,
+        value: 21523,
+        // value: totalInterestTillNow.totalInterest,
         color: "#F06292",
       },
       {
         label: "Total balance left including investment",
-        value:
-          totalBalanceLeft +
-          totalInterestTillNow?.totalInterest +
-          giftMoney +
-          profitOnInvestment,
+        // value:
+        //   totalBalanceLeft +
+        //   totalInterestTillNowFinal +
+        //   giftMoney +
+        //   profitOnInvestment,
+        value: 0,
         color: "#F06292",
       },
       { label: "Total Repay", value: totalRepay, color: "#8E24AA" },

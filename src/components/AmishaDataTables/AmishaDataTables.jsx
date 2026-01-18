@@ -212,7 +212,8 @@ const AmishaDataTables = () => {
     // 👉 Add total of interest for Income tab
     if (currentTab === "Income") {
       total["interestTillNow"] = data.reduce((sum, item) => {
-        return sum + calculateInterest(Number(item.cost), item.timestamp);
+        return 21523;
+        // return sum + calculateInterest(Number(item.cost), item.timestamp);
       }, 0);
     }
 
