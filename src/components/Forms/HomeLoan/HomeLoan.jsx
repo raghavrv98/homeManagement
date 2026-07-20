@@ -17,8 +17,8 @@ const HomeLoan = () => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     policyNumber: "HOU/FBD/0322/970416", // Pre-filled
-    bankName: "PNB", // Pre-filled
-    cost: "23966",
+    bankName: "IOB", // Pre-filled
+    cost: "21476",
     timestamp: now,
   });
 

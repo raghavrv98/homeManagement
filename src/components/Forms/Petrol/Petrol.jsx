@@ -66,10 +66,26 @@ const Petrol = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        [name]: value,
+      };
+
+      if (name === "cost" || name === "costPerLitre") {
+        const costVal = name === "cost" ? value : prev.cost;
+        const costPerLitreVal = name === "costPerLitre" ? value : prev.costPerLitre;
+
+        const costNum = parseFloat(costVal);
+        const costPerLitreNum = parseFloat(costPerLitreVal);
+
+        if (!isNaN(costNum) && !isNaN(costPerLitreNum) && costPerLitreNum !== 0) {
+          updated.litre = String(Number((costNum / costPerLitreNum).toFixed(2)));
+        }
+      }
+
+      return updated;
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -126,6 +142,7 @@ const Petrol = () => {
           <TextField
             label="Litre"
             name="litre"
+            disabled
             value={formData.litre}
             onChange={handleChange}
             variant="outlined"
