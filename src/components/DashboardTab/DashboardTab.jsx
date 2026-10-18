@@ -14,12 +14,10 @@ import {
 import Header from "../Header/Header";
 import { API_URL } from "../../constant.js";
 import PageLoader from "../PageLoader.jsx";
-import { useParentsInterest } from "./calculateParentsInterest.jsx";
-import { useFaridabadIncome } from "./useFaridabadIncome.jsx";
 
 const DashboardTab = () => {
   const currentYear = new Date().getFullYear();
-  const years = ["2025", "2026"];
+  const years = ["All", "2025", "2026"];
   const months = [
     "January",
     "February",
@@ -47,29 +45,44 @@ const DashboardTab = () => {
     },
   ];
 
-  const categories = [
-    { label: "Vegetable and Fruits", value: 0, color: "#1E88E5" },
-    { label: "Milk", value: 0, color: "#E53935" },
-    { label: "Kirana Store", value: 0, color: "#FBC02D" },
-    { label: "Fast Food", value: 0, color: "#43A047" },
-    { label: "Homeneeds", value: 0, color: "#8E24AA" },
-    { label: "Petrol", value: 0, color: "#FB8C00" },
-    { label: "Outing", value: 0, color: "#3949AB" },
-    { label: "House Rent", value: 0, color: "#D81B60" },
-    { label: "Wifi Bill", value: 0, color: "#00ACC1" },
-    { label: "Electricity Bill", value: 0, color: "#4CAF50" },
-    { label: "Gas Bill", value: 0, color: "#6D4C41" },
-    { label: "Home Loan", value: 0, color: "#C62828" },
-    { label: "Income", value: 0, color: "#2E7D32" },
-    { label: "Investment", value: 0, color: "#FFD600" },
-    { label: "LIC", value: 0, color: "#1565C0" },
-    { label: "Parents", value: 0, color: "#AD1457" },
-    { label: "Personal Expense", value: 0, color: "#6A1B9A" },
-    { label: "Advitya Flat Cost", value: 0, color: "#1E1081" },
-    { label: "Mumbai Home Setup Cost", value: 0, color: "#5E1081" },
-    { label: "Cred Loan Repay", value: 0, color: "#5A5081" },
-    { label: "Mumbai Misc", value: 0, color: "#0288D1" },
-    { label: "Faridabad Misc", value: 0, color: "#7CB342" },
+  const expenseSections = [
+    {
+      title: "Mumbai Expense",
+      categories: [
+        { label: "Vegetable and Fruits", color: "#1E88E5" },
+        { label: "Milk", color: "#E53935" },
+        { label: "Kirana Store", color: "#FBC02D" },
+        { label: "Fast Food", color: "#43A047" },
+        { label: "Homeneeds", color: "#8E24AA" },
+        { label: "Petrol", color: "#FB8C00" },
+        { label: "Outing", color: "#3949AB" },
+        { label: "House Rent", color: "#D81B60" },
+        { label: "Wifi Bill", color: "#00ACC1" },
+        { label: "Electricity Bill", color: "#4CAF50" },
+        { label: "Gas Bill", color: "#6D4C41" },
+        { label: "Personal Expense", color: "#6A1B9A" },
+        { label: "Mumbai Misc", color: "#0288D1" },
+        { label: "Mumbai Home Setup Cost", color: "#5E1081" },
+      ],
+    },
+    {
+      title: "Faridabad Expense",
+      categories: [
+        { label: "Advitya Flat Cost", color: "#1E1081" },
+        { label: "Home Loan", color: "#C62828" },
+        { label: "Cred Loan Repay", color: "#5A5081" },
+        { label: "LIC", color: "#1565C0" },
+        { label: "Parents", color: "#AD1457" },
+        { label: "Faridabad Misc", color: "#7CB342" },
+      ],
+    },
+    {
+      title: "Income & Investment",
+      categories: [
+        { label: "Income", color: "#2E7D32" },
+        { label: "Investment", color: "#FFD600" },
+      ],
+    },
   ];
 
   const [selectedYear, setSelectedYear] = useState(currentYear);
@@ -82,17 +95,6 @@ const DashboardTab = () => {
   const [apiData, setApiData] = useState([]);
   // const [apiError, setApiError] = useState("");
   const [summaryData, setSummaryData] = useState([]);
-  const yearlyParentsTransactions = rawData?.parents?.filter(
-    (p) => new Date(p.timestamp).getFullYear() === Number(selectedYear)
-  );
-
-  const { totalInterest } = useParentsInterest(yearlyParentsTransactions);
-  const yearlyIncomeForHooks = rawData?.income?.filter(
-    (i) => new Date(i.timestamp).getFullYear() === Number(selectedYear)
-  );
-
-  const { totalFaridabadIncome, totalInterestOnAmountTaken } =
-    useFaridabadIncome(yearlyIncomeForHooks);
 
   const [loading, setLoading] = useState(true);
 
@@ -161,7 +163,7 @@ const DashboardTab = () => {
           const year = date.getFullYear();
 
           // 🔴 FILTER BY SELECTED YEAR
-          if (year !== Number(selectedYear)) return;
+          if (selectedYear !== "All" && year !== Number(selectedYear)) return;
 
           const monthIndex = date.getMonth();
           const monthName = date.toLocaleString("default", { month: "long" });
@@ -240,7 +242,7 @@ const DashboardTab = () => {
 
   // 🔹 Year filter helper
   const isSameYear = (timestamp) =>
-    new Date(timestamp).getFullYear() === Number(selectedYear);
+    selectedYear === "All" || new Date(timestamp).getFullYear() === Number(selectedYear);
 
   // 🔹 Filter rawData by selected year
   const yearlyIncome = rawData?.income?.filter((i) => isSameYear(i.timestamp));
@@ -330,14 +332,6 @@ const DashboardTab = () => {
       return sum + mumbaiTotal;
     }, 0);
 
-    const totalMoneyGiven = apiData?.reduce((sum, month) => {
-      return sum + (month?.Parents || 0);
-    }, 0);
-
-    const monthNumber = new Date().getMonth() + 1;
-    const parentsMonthlyIncome = 30000;
-    const amountToBePaid = monthNumber * parentsMonthlyIncome;
-
     return [
       {
         label: "Total Income",
@@ -387,37 +381,6 @@ const DashboardTab = () => {
           {
             label: "Faridabad",
             value: totalFaridabadAmount?.toFixed(2),
-          },
-        ],
-      },
-      {
-        label: "Faridabad history",
-        value: totalMoneyGiven,
-        color: "#ABC02D",
-        subCat: [
-          {
-            label: "Total money given till now",
-            value: totalMoneyGiven,
-          },
-          {
-            label: "Amount to be paid till now",
-            value: amountToBePaid,
-          },
-          {
-            label: "Remaining Amount till now @ 30000 PM",
-            value: amountToBePaid - totalMoneyGiven,
-          },
-          {
-            label: "Interest till now @ 1% (remaining)",
-            value: totalInterest,
-          },
-          {
-            label: "Total Taken",
-            value: totalFaridabadIncome,
-          },
-          {
-            label: "Interest till now @ 1% (taken amount)",
-            value: totalInterestOnAmountTaken,
           },
         ],
       },
@@ -598,22 +561,6 @@ const DashboardTab = () => {
                               );
                             })}
                         </CardContent>
-                        {item.label === "Total Expense" && (
-                          <CardContent>
-                            <div>
-                              <span>
-                                <Typography color="red">Note:</Typography>
-                              </span>
-                              Faridabad Home Expenses =
-                              <br /> Advitya Flat Cost +
-                              <br /> Home Loan +
-                              <br /> Cred Loan Repay +
-                              <br /> LIC +
-                              <br /> Parents +
-                              <br /> Faridabad Misc
-                            </div>
-                          </CardContent>
-                        )}
                       </Card>
                     </Box>
                   );
@@ -763,63 +710,90 @@ const DashboardTab = () => {
                       alignItems: "flex-start",
                     }}
                   >
-                    {/* LEFT: Category Cards */}
+                    {/* LEFT: Category Cards Grouped by Section */}
                     <Box
                       sx={{
                         flex: { xs: "1 1 100%", md: "2 1 0%" },
                         display: "flex",
-                        flexWrap: "wrap",
-                        gap: 2,
+                        flexDirection: "column",
+                        gap: 3,
                       }}
                     >
-                      {categories.map((item, index) => {
-                        const value =
-                          apiData[selectedMonthIndex]?.[item.label] ?? 0;
-                        return (
-                          <Box
-                            key={index}
+                      {expenseSections.map((section, sIndex) => (
+                        <Box key={sIndex}>
+                          <Typography
+                            variant="h6"
                             sx={{
-                              flex: {
-                                xs: "1 1 100%", // Full width on mobile
-                                sm: "1 1 calc(50% - 16px)", // Two per row on tablets
-                                md: "1 1 calc(33.33% - 16px)", // Three per row on medium screens
-                                lg: "0 0 350px", // Fixed width on large screens
-                              },
-                              minWidth: {
-                                xs: "100%",
-                                sm: "250px",
-                              },
-                              bgcolor: "#fff",
-                              p: 2,
-                              borderRadius: 2,
-                              boxShadow: 1,
+                              fontWeight: "bold",
+                              mb: 1.5,
+                              color: "#2C3E50",
+                              borderBottom: "2px solid #E0E0E0",
+                              pb: 0.5,
                             }}
                           >
-                            <Box
-                              sx={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                bgcolor: "#F9FAFB",
-                                px: 2,
-                                py: 1.5,
-                                borderRadius: 1,
-                                border: "1px solid #E0E0E0",
-                              }}
-                            >
-                              <Typography variant="body1">
-                                {item.label}
-                              </Typography>
-                              <Typography
-                                variant="body1"
-                                sx={{ fontWeight: "bold", color: item.color }}
-                              >
-                                ₹{value.toLocaleString()}
-                              </Typography>
-                            </Box>
+                            {section.title}
+                          </Typography>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: 2,
+                            }}
+                          >
+                            {section.categories.map((item, index) => {
+                              const value =
+                                apiData[selectedMonthIndex]?.[item.label] ?? 0;
+                              return (
+                                <Box
+                                  key={index}
+                                  sx={{
+                                    flex: {
+                                      xs: "1 1 100%",
+                                      sm: "1 1 calc(50% - 16px)",
+                                      md: "1 1 calc(33.33% - 16px)",
+                                      lg: "0 0 350px",
+                                    },
+                                    minWidth: {
+                                      xs: "100%",
+                                      sm: "250px",
+                                    },
+                                    bgcolor: "#fff",
+                                    p: 2,
+                                    borderRadius: 2,
+                                    boxShadow: 1,
+                                  }}
+                                >
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      justifyContent: "space-between",
+                                      alignItems: "center",
+                                      bgcolor: "#F9FAFB",
+                                      px: 2,
+                                      py: 1.5,
+                                      borderRadius: 1,
+                                      border: "1px solid #E0E0E0",
+                                    }}
+                                  >
+                                    <Typography variant="body1">
+                                      {item.label}
+                                    </Typography>
+                                    <Typography
+                                      variant="body1"
+                                      sx={{
+                                        fontWeight: "bold",
+                                        color: item.color,
+                                      }}
+                                    >
+                                      ₹{value.toLocaleString()}
+                                    </Typography>
+                                  </Box>
+                                </Box>
+                              );
+                            })}
                           </Box>
-                        );
-                      })}
+                        </Box>
+                      ))}
                     </Box>
 
                     {/* RIGHT: Summary Cards */}
@@ -861,18 +835,6 @@ const DashboardTab = () => {
                           </Typography>
                         </Card>
                       ))}
-                      <div>
-                        <span>
-                          <Typography color="red">Note:</Typography>
-                        </span>
-                        Faridabad Home Expenses =
-                        <br /> Advitya Flat Cost +
-                        <br /> Home Loan +
-                        <br /> Cred Loan Repay +
-                        <br /> LIC +
-                        <br /> Parents +
-                        <br /> Faridabad Misc
-                      </div>
                     </Box>
                   </Box>
                 </Box>

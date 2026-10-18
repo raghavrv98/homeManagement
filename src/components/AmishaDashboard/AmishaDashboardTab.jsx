@@ -17,20 +17,17 @@ import dayjs from "dayjs";
 
 const AmishaDashboardTab = () => {
   const currentYear = new Date().getFullYear();
-  const years = ["2025", "2026"];
+  const years = ["All", "2025", "2026"];
 
   // Monthly labels shown in cards
   const monthDetails = [
     { label: "Total Income", value: 0, color: "#1976D2" },
-    { label: "Total Expenses", value: 0, color: "#D32F2F" },
-    { label: "Total Investment", value: 0, color: "#FFC107" },
-    { label: "Total Monthly Expense", value: 0, color: "#A3C107" },
     { label: "Total Repay", value: 0, color: "#8E24AA" },
     { label: "Total Gift Cost", value: 0, color: "#F06292" },
     // { label: "Total Cash", value: 0, color: "#2E7D32" },
   ];
 
-  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [selectedYear, setSelectedYear] = useState("All");
   const handleYearChange = (event) => setSelectedYear(event.target.value);
   const [incomeEntries, setIncomeEntries] = useState([]);
 
@@ -55,10 +52,10 @@ const AmishaDashboardTab = () => {
     const entryDate = dayjs(timestamp);
 
     // 🔹 Interest should be calculated only till end of selected year
-    const endOfYear = dayjs(`${selectedYear}-12-31`);
+    const endOfYear = selectedYear === "All" ? dayjs() : dayjs(`${selectedYear}-12-31`);
 
     // If entry is after selected year, ignore
-    if (entryDate.year() !== Number(selectedYear)) return 0;
+    if (selectedYear !== "All" && entryDate.year() !== Number(selectedYear)) return 0;
 
     const monthsPassed = endOfYear.diff(entryDate, "month");
 
@@ -116,7 +113,7 @@ const AmishaDashboardTab = () => {
           const year = date.getFullYear();
 
           // 🔴 FILTER BY SELECTED YEAR
-          if (year !== Number(selectedYear)) return;
+          if (selectedYear !== "All" && year !== Number(selectedYear)) return;
 
           const monthIndex = date.getMonth();
           const monthName = date.toLocaleString("default", { month: "long" });
@@ -181,7 +178,7 @@ const AmishaDashboardTab = () => {
 
     // 🔹 Filter Amisha income by selected year
     // const yearlyIncomeEntries = incomeEntries?.filter(
-    //   (entry) => dayjs(entry.timestamp).year() === Number(selectedYear)
+    //   (entry) => selectedYear === "All" || dayjs(entry.timestamp).year() === Number(selectedYear)
     // );
 
     // const totalInterestTillNow =
@@ -193,30 +190,17 @@ const AmishaDashboardTab = () => {
 
     return [
       {
-        label: "Total Interest till now @ 1%",
-        value: 21523,
-        // value: totalInterestTillNow.totalInterest,
-        color: "#F06292",
-      },
-      {
-        label: "Total balance left including investment",
+        label: "Total Loss (extra pay without income)",
         // value:
         //   totalBalanceLeft +
         //   totalInterestTillNowFinal +
         //   giftMoney +
         //   profitOnInvestment,
-        value: 0,
+        value: totalRepay - totalIncome,
         color: "#F06292",
       },
       { label: "Total Repay", value: totalRepay, color: "#8E24AA" },
       { label: "Total Income", value: totalIncome, color: "#1E88E5" },
-      { label: "Total Expenses", value: totalExpenses, color: "#E53935" },
-      {
-        label: "Total Monthly Expenses",
-        value: totalMonthlyExpenses,
-        color: "#D33393",
-      },
-      { label: "Total Investment", value: totalInvestment, color: "#FBC02D" },
       { label: "Total Gift Cost", value: totalGiftCost, color: "#F06292" },
       // { label: "Total Cash", value: totalCash, color: "#43A047" },
     ];
@@ -243,12 +227,6 @@ const AmishaDashboardTab = () => {
     switch (label) {
       case "Total Income":
         return formatINRCurrency(Income);
-      case "Total Expenses":
-        return formatINRCurrency(Expenses);
-      case "Total Investment":
-        return formatINRCurrency(Investment);
-      case "Total Monthly Expense":
-        return formatINRCurrency(MonthlyExpense);
       case "Total Repay":
         return formatINRCurrency(Repay);
       case "Total Gift Cost":

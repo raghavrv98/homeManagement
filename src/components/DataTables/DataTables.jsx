@@ -17,9 +17,15 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import { policyData } from "../Forms/LIC/LIC";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
+
+const policyMap = (policyData || []).reduce((acc, p) => {
+  acc[p.policyNumber] = p;
+  return acc;
+}, {});
 
 const tabLabels = [
   "Total",
@@ -123,9 +129,18 @@ const DataTables = () => {
       raw = apiData[currentTab] || [];
     }
 
-    if (!startDate && !endDate) return raw;
+    let processed = raw;
+    if (currentTab === "lic") {
+      processed = raw.map((item) => ({
+        ...item,
+        memberName:
+          item.memberName || policyMap[item.policyNumber]?.memberName || "-",
+      }));
+    }
 
-    return raw.filter((item) => {
+    if (!startDate && !endDate) return processed;
+
+    return processed.filter((item) => {
       const itemDate = dayjs(item.timestamp);
       if (!itemDate.isValid()) return false;
 
@@ -241,10 +256,29 @@ const DataTables = () => {
     return `${day} ${month} ${year} ${hours}:${minutes} ${ampm}`;
   };
 
+  const formatDate = (iso) => {
+    if (!iso) return "-";
+    const date = new Date(iso);
+    if (isNaN(date.getTime())) return iso;
+    const day = date.getDate();
+    const month = date.toLocaleString("en-US", { month: "long" });
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+  };
+
   const totals = useMemo(() => {
     const total = {};
     if (data.length === 0) return total;
     Object.keys(data[0]).forEach((key) => {
+      if (
+        key === "timestamp" ||
+        key === "maturityDate" ||
+        key === "policyNumber" ||
+        key === "memberName"
+      ) {
+        total[key] = "";
+        return;
+      }
       total[key] = data.reduce((sum, item) => {
         const val = item[key];
         return typeof val === "number" ? sum + val : "";
@@ -255,16 +289,53 @@ const DataTables = () => {
 
   const columns = useMemo(() => {
     if (!data.length) return [];
-    const keys = Object.keys(data[0]).filter((key) => key !== "_id");
+    let keys = Object.keys(data[0]).filter((key) => key !== "_id");
 
-    return [
+    if (currentTab === "lic") {
+      if (!keys.includes("memberName")) {
+        const pIdx = keys.indexOf("policyNumber");
+        if (pIdx !== -1) {
+          keys.splice(pIdx + 1, 0, "memberName");
+        } else {
+          keys.unshift("memberName");
+        }
+      }
+    }
+
+    const formatHeader = (key) => {
+      const headerMap = {
+        policyNumber: "Policy Number",
+        memberName: "Member Name",
+        cost: "Cost",
+        maturityDate: "Maturity Date",
+        maturityAmount: "Maturity Amount",
+        timestamp: "Date & Time",
+      };
+      return headerMap[key] || (key.charAt(0).toUpperCase() + key.slice(1));
+    };
+
+    const calculateYearsLeft = (maturityDate) => {
+      if (!maturityDate) return "-";
+      const maturity = dayjs(maturityDate);
+      if (!maturity.isValid()) return "-";
+      const now = dayjs();
+      const diffMonths = maturity.diff(now, "month", true);
+      if (diffMonths <= 0) return "0 years (Matured)";
+      const years = (diffMonths / 12).toFixed(1);
+      return `${parseFloat(years)} years`;
+    };
+
+    const colList = [
       {
         Header: "#",
         accessor: (_, i) => i + 1,
         id: "index",
       },
-      ...keys.map((key) => ({
-        Header: key.charAt(0).toUpperCase() + key.slice(1),
+    ];
+
+    keys.forEach((key) => {
+      colList.push({
+        Header: formatHeader(key),
         accessor: key,
         id: key,
         Cell: ({ row, value }) =>
@@ -275,47 +346,61 @@ const DataTables = () => {
               size="small"
               fullWidth
             />
+          ) : key === "maturityDate" ? (
+            formatDate(value)
           ) : key === "timestamp" ? (
             formatTimestamp(value)
           ) : (
-            value
+            value ?? "-"
           ),
-      })),
-      {
-        Header: "Actions",
-        id: "actions",
-        Cell: ({ row }) =>
-          editingRowIndex === row.index ? (
-            <Box display="flex" gap={1}>
-              <Button size="small" onClick={handleSave}>
-                Save
-              </Button>
-              <Button size="small" onClick={handleCancel}>
-                Cancel
-              </Button>
-            </Box>
-          ) : (
-            <Box display="flex" gap={1}>
-              <Button
-                size="small"
-                onClick={() => handleEdit(row.index)}
-                variant="outlined"
-              >
-                Edit
-              </Button>
-              <Button
-                size="small"
-                onClick={() => handleDelete(row.index)}
-                color="error"
-                variant="outlined"
-              >
-                Delete
-              </Button>
-            </Box>
-          ),
-      },
-    ];
-  }, [data, editingRowIndex]);
+      });
+
+      if (key === "maturityDate") {
+        colList.push({
+          Header: "No. of years left",
+          id: "yearsLeft",
+          accessor: (row) => calculateYearsLeft(row.maturityDate),
+          Cell: ({ value }) => value,
+        });
+      }
+    });
+
+    colList.push({
+      Header: "Actions",
+      id: "actions",
+      Cell: ({ row }) =>
+        editingRowIndex === row.index ? (
+          <Box display="flex" gap={1}>
+            <Button size="small" onClick={handleSave}>
+              Save
+            </Button>
+            <Button size="small" onClick={handleCancel}>
+              Cancel
+            </Button>
+          </Box>
+        ) : (
+          <Box display="flex" gap={1}>
+            <Button
+              size="small"
+              onClick={() => handleEdit(row.index)}
+              variant="outlined"
+            >
+              Edit
+            </Button>
+            <Button
+              size="small"
+              onClick={() => handleDelete(row.index)}
+              color="error"
+              variant="outlined"
+            >
+              Delete
+            </Button>
+          </Box>
+        ),
+    });
+
+    return colList;
+  }, [data, editingRowIndex, currentTab]);
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable(

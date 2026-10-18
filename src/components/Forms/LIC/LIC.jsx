@@ -21,7 +21,7 @@ const getCurrentDateTimeLocal = () => {
 };
 
 // Updated policy data as array of objects
-const policyData = [
+export const policyData = [
   {
     policyNumber: "562593772",
     memberName: "Anil Agrawal",
@@ -295,6 +295,7 @@ const LIC = () => {
 
           <TextField
             label="Maturity Date"
+            type="date"
             name="maturityDate"
             value={formData.maturityDate}
             disabled

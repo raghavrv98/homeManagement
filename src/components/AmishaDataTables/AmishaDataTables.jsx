@@ -24,9 +24,6 @@ dayjs.extend(isSameOrBefore);
 // ✅ Added Repay & Gift Cost
 const tabLabels = [
   "Income",
-  "Investment",
-  "Monthly Expense",
-  "Expenses",
   "Repay",
   "Gift Cost",
 ];
@@ -178,22 +175,7 @@ const AmishaDataTables = () => {
     return dayjs(date).format("DD MMM YYYY hh:mm A");
   };
 
-  /**
-   * ✅ Calculate interest
-   */
-  const calculateInterest = (amount, timestamp) => {
-    if (!amount || !timestamp) return 0;
 
-    const entryDate = dayjs(timestamp);
-    const now = dayjs();
-
-    // Full months difference (no partial months counted)
-    const monthsPassed = now.diff(entryDate, "month");
-
-    const interest = Math.round((amount * monthsPassed * 1) / 100);
-
-    return interest;
-  };
 
   /**
    * ✅ Calculate totals row
@@ -209,13 +191,7 @@ const AmishaDataTables = () => {
       }, 0);
     });
 
-    // 👉 Add total of interest for Income tab
-    if (currentTab === "Income") {
-      total["interestTillNow"] = data.reduce((sum, item) => {
-        return 21523;
-        // return sum + calculateInterest(Number(item.cost), item.timestamp);
-      }, 0);
-    }
+
 
     return total;
   }, [data, currentTab]);
@@ -247,15 +223,7 @@ const AmishaDataTables = () => {
         ),
     }));
 
-    // 👉 Add Interest column only for Income tab
-    if (currentTab === "Income") {
-      dynamicColumns.push({
-        Header: "Interest till now @ 1%",
-        id: "interestTillNow",
-        accessor: (row) => calculateInterest(Number(row.cost), row.timestamp),
-        Cell: ({ value }) => value,
-      });
-    }
+
 
     return [
       {
