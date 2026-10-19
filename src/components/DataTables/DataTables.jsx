@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSortBy, useTable } from "react-table";
+import { useLocation, useSearchParams } from "react-router-dom";
 import {
   Tabs,
   Tab,
@@ -53,19 +54,89 @@ const tabLabels = [
   "Faridabad Misc",
 ];
 
+const normalizeCategory = (str) =>
+  (str || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+const getTargetCategoryIndex = (catName) => {
+  if (!catName) return -1;
+  const target = normalizeCategory(catName);
+
+  // Exact or normalized match in tabLabels
+  const exactIndex = tabLabels.findIndex(
+    (t) => normalizeCategory(t) === target
+  );
+  if (exactIndex !== -1) return exactIndex;
+
+  // Specific alias mappings
+  const aliasMap = {
+    totalincome: "income",
+    totalexpense: "Total",
+    totalinvestment: "investment",
+    mumbaihomeexpenses: "Total",
+    faridabadhomeexpenses: "Total",
+    totalprofit: "Total",
+  };
+  if (aliasMap[target]) {
+    const aliasTarget = normalizeCategory(aliasMap[target]);
+    return tabLabels.findIndex((t) => normalizeCategory(t) === aliasTarget);
+  }
+  return -1;
+};
+
 const DataTables = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const [selectedTab, setSelectedTab] = useState(0);
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  const initialCategory =
+    location.state?.category || searchParams.get("category");
+  const initialTabIndex = getTargetCategoryIndex(initialCategory);
+
+  const [selectedTab, setSelectedTab] = useState(
+    initialTabIndex !== -1 ? initialTabIndex : 0
+  );
+
+  const getInitialDate = (key, fallback) => {
+    const raw = location.state?.[key] || searchParams.get(key);
+    if (raw && dayjs(raw).isValid()) {
+      return dayjs(raw);
+    }
+    return fallback;
+  };
+
+  const [startDate, setStartDate] = useState(() =>
+    getInitialDate("startDate", dayjs())
+  );
+  const [endDate, setEndDate] = useState(() =>
+    getInitialDate("endDate", dayjs())
+  );
+
+  useEffect(() => {
+    const cat = location.state?.category || searchParams.get("category");
+    if (cat) {
+      const idx = getTargetCategoryIndex(cat);
+      if (idx !== -1) {
+        setSelectedTab(idx);
+      }
+    }
+    const sDate = location.state?.startDate || searchParams.get("startDate");
+    if (sDate && dayjs(sDate).isValid()) {
+      setStartDate(dayjs(sDate));
+    }
+    const eDate = location.state?.endDate || searchParams.get("endDate");
+    if (eDate && dayjs(eDate).isValid()) {
+      setEndDate(dayjs(eDate));
+    }
+  }, [location.state, searchParams]);
+
   const [apiData, setApiData] = useState([]);
   const [apiError, setApiError] = useState("");
   const [loading, setLoading] = useState(true);
   const [editingRowIndex, setEditingRowIndex] = useState(null);
   const [editedData, setEditedData] = useState({});
   const currentTab = tabLabels[selectedTab];
-  const [startDate, setStartDate] = useState(dayjs());
-  const [endDate, setEndDate] = useState(dayjs());
 
   const saveData = useRef({ ...editedData });
 
@@ -416,7 +487,10 @@ const DataTables = () => {
 
   return (
     <>
-      <Header backLink={"/dashboard"} title="Data Tables" />
+      <Header
+        backLink={location.state?.from || "/dashboardTab"}
+        title="Data Tables"
+      />
       <div className="p-4 sm:p-6 max-w-[1400px] mx-auto">
         <Tabs
           value={selectedTab}

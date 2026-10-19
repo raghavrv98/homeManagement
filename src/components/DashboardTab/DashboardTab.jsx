@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
 import {
   Box,
   Card,
@@ -92,6 +94,40 @@ const DashboardTab = () => {
   const handleYearChange = (event) => setSelectedYear(event.target.value);
   const handleViewDetails = (index) => setSelectedMonthIndex(index);
   const handleBackToAll = () => setSelectedMonthIndex(null);
+
+  const navigate = useNavigate();
+
+  const handleNavigateToDataTable = (
+    categoryLabel,
+    monthIdx = selectedMonthIndex
+  ) => {
+    const year =
+      selectedYear === "All"
+        ? new Date().getFullYear()
+        : parseInt(selectedYear, 10);
+    const month = monthIdx !== null ? monthIdx : new Date().getMonth();
+
+    const start = dayjs(new Date(year, month, 1))
+      .startOf("month")
+      .format("YYYY-MM-DD");
+    const end = dayjs(new Date(year, month, 1))
+      .endOf("month")
+      .format("YYYY-MM-DD");
+
+    navigate(
+      `/dataTables?category=${encodeURIComponent(
+        categoryLabel
+      )}&startDate=${start}&endDate=${end}`,
+      {
+        state: {
+          category: categoryLabel,
+          startDate: start,
+          endDate: end,
+          from: "/dashboardTab",
+        },
+      }
+    );
+  };
   const [apiData, setApiData] = useState([]);
   // const [apiError, setApiError] = useState("");
   const [summaryData, setSummaryData] = useState([]);
@@ -468,7 +504,7 @@ const DashboardTab = () => {
   };
 
   return (
-    <>
+    <div className="h-screen max-h-screen bg-slate-50 flex flex-col overflow-hidden">
       <Header
         isShowBack={true}
         title="Dashboard"
@@ -478,202 +514,385 @@ const DashboardTab = () => {
       {loading ? (
         <PageLoader />
       ) : (
-        <div className="p-4 sm:p-6 bg-slate-50 min-h-screen">
-          {/* SECTION 1: Top Bar & 3 Balanced KPI Cards */}
-          <div className="mb-8">
-            {/* Header Control Bar */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-              <div>
-                <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                  Financial Overview
-                </h1>
-                <p className="text-sm text-slate-500 mt-1">
-                  Summary of your income, expenses, and investments for{" "}
-                  <strong className="text-slate-700">
-                    {selectedYear === "All"
-                      ? "all recorded years"
-                      : `year ${selectedYear}`}
-                  </strong>
-                </p>
-              </div>
-
-              <FormControl size="small" sx={{ minWidth: 160 }}>
-                <InputLabel id="year-select-label">Year Filter</InputLabel>
-                <Select
-                  labelId="year-select-label"
-                  value={selectedYear}
-                  label="Year Filter"
-                  onChange={handleYearChange}
-                  sx={{
-                    borderRadius: 2,
-                    bgcolor: "#FFFFFF",
-                    fontWeight: 600,
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-                  }}
-                >
-                  {years.map((year) => (
-                    <MenuItem key={year} value={year}>
-                      {year === "All" ? "All Years" : year}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </div>
-
-            {/* 3 Balanced Summary KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {summaryData.map((item, index) => (
-                <div
-                  key={index}
-                  className="rounded-2xl border border-slate-200/90 shadow-xs bg-white flex flex-col justify-between hover:shadow-lg hover:-translate-y-0.5 transition-all p-5"
-                  style={{ borderTop: `4px solid ${item.color}` }}
-                >
-                  <div className="mb-3">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
-                      {item.label}
-                    </span>
-                    <span
-                      className="text-2xl sm:text-3xl font-extrabold tracking-tight mt-1 block"
-                      style={{ color: item.color }}
-                    >
-                      {formatINRCurrency(item?.value)}
+        <div className="flex-1 min-h-0 overflow-hidden p-3 sm:p-4">
+          {selectedMonthIndex === null ? (
+            <div className="h-full flex flex-col lg:flex-row gap-4 items-stretch overflow-hidden">
+              {/* LEFT SIDEBAR: Executive Financial Summary & Controls */}
+              <aside className="w-full lg:w-[320px] xl:w-[350px] shrink-0 h-full flex flex-col justify-between gap-2.5 overflow-hidden">
+                {/* Control Box: Title & Year Select */}
+                <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs shrink-0">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <h2 className="text-sm font-extrabold text-slate-900 tracking-tight">
+                      Financial Overview
+                    </h2>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
+                      Annual
                     </span>
                   </div>
+                  <p className="text-[11px] text-slate-500 mb-2 leading-relaxed">
+                    Financial metrics for{" "}
+                    <strong className="text-slate-700">
+                      {selectedYear === "All"
+                        ? "all recorded years"
+                        : `year ${selectedYear}`}
+                    </strong>
+                  </p>
 
-                  {item?.subCat && item?.subCat.length > 0 && (
-                    <div className="grid grid-cols-2 gap-2.5 mt-3 pt-3 border-t border-slate-100">
-                      {item.subCat.map((sub, sIdx) => (
-                        <div
-                          key={sIdx}
-                          className="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80"
-                        >
-                          <span className="text-slate-500 font-semibold text-xs block truncate" title={sub.label}>
-                            {sub.label}
-                          </span>
-                          <span className="font-bold text-slate-800 text-sm mt-0.5 block">
-                            {formatINRCurrency(sub.value)}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  {/* Year Pill Selector */}
+                  <div className="flex gap-1 p-1 bg-slate-100 rounded-xl">
+                    {years.map((year) => (
+                      <button
+                        key={year}
+                        type="button"
+                        onClick={() => setSelectedYear(year)}
+                        className={`flex-1 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                          selectedYear === year
+                            ? "bg-white text-slate-900 shadow-2xs"
+                            : "text-slate-500 hover:text-slate-800"
+                        }`}
+                      >
+                        {year === "All" ? "All" : year}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          <div className="my-6 border-t border-slate-200" />
+                {/* Net Annual Savings Card */}
+                {(() => {
+                  const inc = summaryData[0]?.value || 0;
+                  const exp = summaryData[1]?.value || 0;
+                  const profit = inc - exp;
+                  const rate = inc > 0 ? ((profit / inc) * 100).toFixed(1) : 0;
 
-          {/* SECTION 2: Monthly Breakdown Header */}
-          {selectedMonthIndex === null && (
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-5">
-              <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">
-                Monthly Breakdown
-              </h2>
-              <p className="text-sm text-slate-500">
-                Click <strong className="text-slate-700">View Details</strong> on any month to inspect individual transaction categories
-              </p>
-            </div>
-          )}
-
-          {/* Monthly Cards (6 Columns in a Row on Desktop) */}
-          {selectedMonthIndex === null ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
-              {apiData?.map((month, index) => {
-                const calcs = getMonthlyCalculations(month);
-
-                return (
-                  <div
-                    key={index}
-                    className={`rounded-xl border transition-all duration-200 flex flex-col justify-between p-3.5 ${
-                      calcs.hasData
-                        ? "border-slate-200/90 bg-white shadow-xs hover:shadow-md hover:-translate-y-0.5"
-                        : "border-slate-100 bg-slate-50/70 opacity-70 hover:opacity-100"
-                    }`}
-                  >
-                    <div>
-                      {/* Month Title & Net Savings Badge */}
-                      <div className="flex justify-between items-center mb-2.5">
-                        <span className="font-extrabold text-slate-900 text-sm">
-                          {month?.month}
+                  return (
+                    <div
+                      className={`p-3.5 rounded-2xl border shadow-2xs transition-all flex-1 min-h-0 flex flex-col justify-between ${
+                        profit >= 0
+                          ? "bg-gradient-to-br from-emerald-500/10 via-white to-teal-500/5 border-emerald-200"
+                          : "bg-gradient-to-br from-rose-500/10 via-white to-amber-500/5 border-rose-200"
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                          Net Annual Savings
                         </span>
                         <span
-                          className={`px-2 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap ${
-                            !calcs.hasData
-                              ? "bg-slate-100 text-slate-500"
-                              : calcs.profit >= 0
-                              ? "bg-emerald-50 text-emerald-700"
-                              : "bg-rose-50 text-rose-700"
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            profit >= 0
+                              ? "bg-emerald-100/80 text-emerald-800"
+                              : "bg-rose-100/80 text-rose-800"
                           }`}
                         >
-                          {!calcs.hasData
-                            ? "Inactive"
-                            : `${calcs.profit >= 0 ? "+" : ""}${formatINRCurrency(calcs.profit)}`}
+                          {profit >= 0 ? `+${rate}% savings` : "Deficit"}
                         </span>
                       </div>
-
-                      {/* Primary Metrics: Income vs Expense Side-by-Side */}
-                      <div className="grid grid-cols-2 gap-2 mb-2.5 bg-slate-50 p-2 rounded-xl border border-slate-100">
-                        <div className="min-w-0">
-                          <span className="text-[11px] font-semibold text-slate-500 block">
-                            Income
-                          </span>
-                          <span
-                            className="font-bold text-blue-600 text-[13px] block truncate"
-                            title={formatINRCurrency(calcs.income)}
-                          >
-                            {formatINRCurrency(calcs.income)}
-                          </span>
-                        </div>
-                        <div className="min-w-0">
-                          <span className="text-[11px] font-semibold text-slate-500 block">
-                            Expense
-                          </span>
-                          <span
-                            className="font-bold text-rose-600 text-[13px] block truncate"
-                            title={formatINRCurrency(calcs.expense)}
-                          >
-                            {formatINRCurrency(calcs.expense)}
-                          </span>
-                        </div>
+                      <div
+                        className={`text-2xl sm:text-3xl font-black tracking-tight ${
+                          profit >= 0 ? "text-emerald-700" : "text-rose-700"
+                        }`}
+                      >
+                        {profit >= 0 ? "+" : ""}
+                        {formatINRCurrency(profit)}
                       </div>
+                      <p className="text-[10px] text-slate-500">
+                        Total net surplus after all expenditures
+                      </p>
+                    </div>
+                  );
+                })()}
 
-                      {/* Secondary Breakdown Rows */}
-                      <div className="flex flex-col gap-1.5 mb-3">
-                        <div className="flex justify-between items-center px-2 py-1 bg-slate-50 rounded-lg text-xs">
-                          <span className="font-medium text-slate-600">Mumbai</span>
-                          <span className="font-bold text-purple-700">
-                            {formatINRCurrency(calcs.mumbaiTotal)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center px-2 py-1 bg-slate-50 rounded-lg text-xs">
-                          <span className="font-medium text-slate-600">Faridabad</span>
-                          <span className="font-bold text-teal-700">
-                            {formatINRCurrency(calcs.faridabadTotal)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center px-2 py-1 bg-slate-50 rounded-lg text-xs">
-                          <span className="font-medium text-slate-600">Investment</span>
-                          <span className="font-bold text-amber-600">
-                            {formatINRCurrency(calcs.investment)}
-                          </span>
-                        </div>
+                {/* Total Income Card */}
+                {summaryData[0] && (
+                  <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 border-t-4 border-t-blue-600 shadow-2xs flex-1 min-h-0 flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-center mb-0.5">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                          {summaryData[0].label}
+                        </span>
+                        <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                      </div>
+                      <div className="text-xl sm:text-2xl font-black text-blue-600 tracking-tight">
+                        {formatINRCurrency(summaryData[0].value)}
                       </div>
                     </div>
-
-                    {/* Action Button */}
-                    <button
-                      className="w-full py-1 text-xs rounded-lg font-bold text-blue-600 bg-slate-50 hover:bg-blue-50 border border-blue-200 hover:border-blue-400 transition-all cursor-pointer mt-1"
-                      onClick={() => handleViewDetails(index)}
-                    >
-                      View Details →
-                    </button>
+                    {summaryData[0].subCat && (
+                      <div className="pt-2 border-t border-slate-100 space-y-1">
+                        {summaryData[0].subCat.map((sub, sIdx) => (
+                          <div
+                            key={sIdx}
+                            className="flex justify-between items-center text-xs py-1 px-2 rounded-lg bg-slate-50"
+                          >
+                            <span className="text-slate-600 font-medium truncate text-[11px]">
+                              {sub.label}
+                            </span>
+                            <span className="font-bold text-slate-900 ml-2 text-xs">
+                              {formatINRCurrency(sub.value)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                );
-              })}
+                )}
+
+                {/* Total Expense Card */}
+                {summaryData[1] && (
+                  <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 border-t-4 border-t-rose-600 shadow-2xs flex-1 min-h-0 flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-center mb-0.5">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                          {summaryData[1].label}
+                        </span>
+                        <span className="w-2 h-2 rounded-full bg-rose-600"></span>
+                      </div>
+                      <div className="text-xl sm:text-2xl font-black text-rose-600 tracking-tight">
+                        {formatINRCurrency(summaryData[1].value)}
+                      </div>
+                    </div>
+                    {summaryData[1].subCat && (
+                      <div className="pt-2 border-t border-slate-100 space-y-1">
+                        {summaryData[1].subCat.map((sub, sIdx) => (
+                          <div
+                            key={sIdx}
+                            className="flex justify-between items-center text-xs py-1 px-2 rounded-lg bg-slate-50"
+                          >
+                            <span className="text-slate-600 font-medium truncate text-[11px]">
+                              {sub.label}
+                            </span>
+                            <span className="font-bold text-slate-900 ml-2 text-xs">
+                              {formatINRCurrency(sub.value)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Total Investment Card */}
+                {summaryData[2] && (
+                  <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 border-t-4 border-t-amber-500 shadow-2xs flex-[1.2] min-h-0 flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-center mb-0.5">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                          {summaryData[2].label}
+                        </span>
+                        <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                      </div>
+                      <div className="text-xl sm:text-2xl font-black text-amber-600 tracking-tight">
+                        {formatINRCurrency(summaryData[2].value)}
+                      </div>
+                    </div>
+                    {summaryData[2].subCat && (
+                      <div className="grid grid-cols-2 gap-1.5 pt-2 border-t border-slate-100">
+                        {summaryData[2].subCat.map((sub, sIdx) => (
+                          <div
+                            key={sIdx}
+                            className="p-1.5 rounded-lg bg-slate-50 text-xs flex flex-col justify-between"
+                          >
+                            <span
+                              className="text-[10px] font-semibold text-slate-500 truncate"
+                              title={sub.label}
+                            >
+                              {sub.label}
+                            </span>
+                            <span className="font-bold text-slate-800 text-xs mt-0.5">
+                              {formatINRCurrency(sub.value)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </aside>
+
+              {/* RIGHT MAIN CONTENT: 4-Column x 3-Row Monthly Matrix */}
+              <main className="flex-1 min-w-0 h-full flex flex-col justify-between gap-2.5 overflow-hidden">
+                {/* Header Banner */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-white px-4 py-2.5 rounded-2xl border border-slate-200/90 shadow-2xs shrink-0">
+                  <div>
+                    <h2 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
+                      Monthly Breakdown
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      Select{" "}
+                      <strong className="text-slate-700">View Details</strong>{" "}
+                      on any month to inspect individual transaction categories
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200/60">
+                    <span>12 Months Overview</span>
+                  </div>
+                </div>
+
+                {/* Monthly Cards: 4 columns x 3 rows grid filling 100% height */}
+                <div className="flex-1 min-h-0 grid grid-cols-2 xl:grid-cols-4 grid-rows-3 gap-2.5">
+                  {apiData?.map((month, index) => {
+                    const calcs = getMonthlyCalculations(month);
+                    const expenseRatio =
+                      calcs.income > 0
+                        ? Math.min(
+                            100,
+                            Math.round((calcs.expense / calcs.income) * 100),
+                          )
+                        : 0;
+
+                    return (
+                      <div
+                        key={index}
+                        className={`rounded-2xl border transition-all duration-200 flex flex-col justify-between p-3 ${
+                          calcs.hasData
+                            ? "border-slate-200/90 bg-white shadow-2xs hover:shadow-md"
+                            : "border-slate-200/50 bg-slate-50/70 opacity-60 hover:opacity-100"
+                        }`}
+                      >
+                        <div>
+                          {/* Month Title & Net Savings Badge */}
+                          <div className="flex justify-between items-center mb-1.5">
+                            <span className="font-extrabold text-slate-900 text-sm sm:text-base">
+                              {month?.month}
+                            </span>
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap border ${
+                                !calcs.hasData
+                                  ? "bg-slate-100 text-slate-500 border-slate-200"
+                                  : calcs.profit >= 0
+                                    ? "bg-emerald-50 text-emerald-700 border-emerald-200/70"
+                                    : "bg-rose-50 text-rose-700 border-rose-200/70"
+                              }`}
+                            >
+                              {!calcs.hasData
+                                ? "Inactive"
+                                : `${calcs.profit >= 0 ? "+" : ""}${formatINRCurrency(calcs.profit)}`}
+                            </span>
+                          </div>
+
+                          {/* Primary Metrics: Income vs Expense Side-by-Side */}
+                          <div className="bg-slate-50 p-2 rounded-xl border border-slate-100 mb-1.5">
+                            <div className="grid grid-cols-2 gap-2">
+                              <div className="min-w-0">
+                                <span className="text-[10px] font-semibold text-slate-500 block">
+                                  Income
+                                </span>
+                                <span
+                                  className="font-extrabold text-blue-600 text-xs sm:text-sm block truncate"
+                                  title={formatINRCurrency(calcs.income)}
+                                >
+                                  {formatINRCurrency(calcs.income)}
+                                </span>
+                              </div>
+                              <div className="min-w-0">
+                                <span className="text-[10px] font-semibold text-slate-500 block">
+                                  Expense
+                                </span>
+                                <span
+                                  className="font-extrabold text-rose-600 text-xs sm:text-sm block truncate"
+                                  title={formatINRCurrency(calcs.expense)}
+                                >
+                                  {formatINRCurrency(calcs.expense)}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Mini Expense-to-Income Ratio Bar */}
+                            {calcs.hasData && calcs.income > 0 && (
+                              <div className="mt-1.5 pt-1 border-t border-slate-200/60">
+                                <div className="flex justify-between text-[9px] text-slate-400 font-semibold mb-0.5">
+                                  <span>Spend ratio</span>
+                                  <span>{expenseRatio}%</span>
+                                </div>
+                                <div className="h-1 w-full bg-slate-200/70 rounded-full overflow-hidden">
+                                  <div
+                                    className={`h-full rounded-full transition-all ${
+                                      expenseRatio > 90
+                                        ? "bg-rose-500"
+                                        : expenseRatio > 60
+                                          ? "bg-amber-500"
+                                          : "bg-emerald-500"
+                                    }`}
+                                    style={{ width: `${expenseRatio}%` }}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Secondary Breakdown Rows */}
+                          <div className="space-y-1 text-xs">
+                            <div
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleNavigateToDataTable("Total", index);
+                              }}
+                              title={`Click to view Mumbai expenses for ${month?.month} in Data Table`}
+                              className="flex justify-between items-center px-1.5 py-0.5 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors"
+                            >
+                              <div className="flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                                <span className="font-medium text-slate-600 text-[11px]">
+                                  Mumbai
+                                </span>
+                              </div>
+                              <span className="font-bold text-slate-800 text-[11px]">
+                                {formatINRCurrency(calcs.mumbaiTotal)}
+                              </span>
+                            </div>
+                            <div
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleNavigateToDataTable("Total", index);
+                              }}
+                              title={`Click to view Faridabad expenses for ${month?.month} in Data Table`}
+                              className="flex justify-between items-center px-1.5 py-0.5 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors"
+                            >
+                              <div className="flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
+                                <span className="font-medium text-slate-600 text-[11px]">
+                                  Faridabad
+                                </span>
+                              </div>
+                              <span className="font-bold text-slate-800 text-[11px]">
+                                {formatINRCurrency(calcs.faridabadTotal)}
+                              </span>
+                            </div>
+                            <div
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleNavigateToDataTable("investment", index);
+                              }}
+                              title={`Click to view Investment for ${month?.month} in Data Table`}
+                              className="flex justify-between items-center px-1.5 py-0.5 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors"
+                            >
+                              <div className="flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                <span className="font-medium text-slate-600 text-[11px]">
+                                  Investment
+                                </span>
+                              </div>
+                              <span className="font-bold text-slate-800 text-[11px]">
+                                {formatINRCurrency(calcs.investment)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Action Button */}
+                        <button
+                          type="button"
+                          className="w-full py-1.5 text-xs rounded-xl font-bold text-blue-600 bg-blue-50/70 hover:bg-blue-600 hover:text-white border border-blue-200/80 hover:border-transparent transition-all cursor-pointer flex items-center justify-center gap-1 mt-1"
+                          onClick={() => handleViewDetails(index)}
+                        >
+                          View Details →
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </main>
             </div>
           ) : (
-            <div className="flex flex-col gap-5">
+            <div className="h-full flex flex-col gap-3 overflow-hidden">
               {/* Top Navigation & Month Header */}
               {(() => {
                 const monthCalcs = getMonthlyCalculations(
@@ -683,166 +902,228 @@ const DashboardTab = () => {
 
                 return (
                   <>
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs">
-                      <div className="flex items-center gap-3 flex-wrap">
+                    <div className="flex justify-between items-center bg-white px-4 py-2.5 rounded-2xl border border-slate-200/90 shadow-2xs shrink-0">
+                      <div className="flex items-center gap-3">
                         <button
+                          type="button"
                           onClick={handleBackToAll}
-                          className="px-3 py-1.5 rounded-xl font-bold text-sm text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all cursor-pointer shadow-xs"
+                          className="px-3.5 py-1.5 rounded-xl font-bold text-xs sm:text-sm text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200/80 transition-all cursor-pointer shadow-2xs"
                         >
                           ← Back to All Months
                         </button>
-                        <div className="hidden sm:block w-px h-6 bg-slate-200" />
+                        <div className="w-px h-5 bg-slate-200 hidden sm:block" />
                         <div>
-                          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                            {monthName} {selectedYear !== "All" ? selectedYear : ""} Breakdown
+                          <h2 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
+                            {monthName}{" "}
+                            {selectedYear !== "All" ? selectedYear : ""}{" "}
+                            Breakdown
                           </h2>
-                          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                            Detailed breakdown of all income, expenditures, and investments
+                          <p className="text-[11px] text-slate-500 hidden sm:block">
+                            Detailed breakdown of all income, expenditures, and
+                            investments
                           </p>
                         </div>
                       </div>
 
                       {/* Net Status Badge */}
                       <div
-                        className={`px-3 py-1.5 rounded-xl border flex items-center gap-2 ${
+                        className={`px-3.5 py-1.5 rounded-xl border flex items-center gap-2 ${
                           monthCalcs.profit >= 0
                             ? "bg-emerald-50 border-emerald-200 text-emerald-800"
                             : "bg-rose-50 border-rose-200 text-rose-800"
                         }`}
                       >
-                        <span className="text-[11px] font-bold uppercase tracking-wider">
+                        <span className="text-[10px] font-bold uppercase tracking-wider">
                           Net Result:
                         </span>
-                        <span className="text-sm font-extrabold">
+                        <span className="text-xs sm:text-sm font-extrabold">
                           {monthCalcs.profit >= 0 ? "+" : ""}
                           {formatINRCurrency(monthCalcs.profit)}
                         </span>
                       </div>
                     </div>
 
-                    {/* Month KPI Summary Cards (6 in a clean horizontal grid) */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
-                      {monthDetails.map((item, index) => {
-                        const val = getMonthlyValueHandler(
-                          apiData[selectedMonthIndex],
-                          item.label,
-                        );
-                        return (
-                          <div
-                            key={index}
-                            className="rounded-xl border border-slate-200 shadow-xs bg-white p-3.5 flex flex-col justify-between hover:shadow-md hover:-translate-y-0.5 transition-all"
-                            style={{ borderTop: `4px solid ${item.color}` }}
-                          >
-                            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block truncate" title={item.label}>
-                              {item.label}
-                            </span>
-                            <span
-                              className="text-lg sm:text-xl font-extrabold tracking-tight mt-1 block"
-                              style={{ color: item.color }}
+                    {/* TWO-COLUMN SPLIT: TOTAL HEADING ON LEFT, EXPENSES ON RIGHT */}
+                    <div className="flex-1 min-h-0 flex flex-col lg:flex-row gap-3.5 items-stretch overflow-hidden">
+                      {/* LEFT: TOTAL HEADING CARDS (6 Cards Stretched to 100% Height) */}
+                      <aside className="w-full lg:w-[280px] xl:w-[320px] shrink-0 h-full flex flex-col justify-between gap-2 overflow-hidden">
+                        {monthDetails.map((item, index) => {
+                          const val = getMonthlyValueHandler(
+                            apiData[selectedMonthIndex],
+                            item.label,
+                          );
+                          return (
+                            <div
+                              key={index}
+                              onClick={() => handleNavigateToDataTable(item.label)}
+                              title={`Click to view ${item.label} in Data Table for ${monthName}`}
+                              className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-2xs px-4 py-2 flex flex-col justify-center border-l-6 transition-all hover:shadow-md hover:scale-[1.01] active:scale-[0.99] cursor-pointer group"
+                              style={{ borderLeftColor: item.color }}
                             >
-                              {val}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Expense, Income & Investment Sections */}
-                    <div className="flex flex-col gap-5">
-                      {expenseSections.map((section, sIndex) => {
-                        let sectionTotal = null;
-                        if (section.title === "Mumbai Expense") {
-                          sectionTotal = monthCalcs.mumbaiTotal;
-                        } else if (section.title === "Faridabad Expense") {
-                          sectionTotal = monthCalcs.faridabadTotal;
-                        }
-
-                        return (
-                          <div
-                            key={sIndex}
-                            className="rounded-2xl border border-slate-200 bg-white shadow-xs p-4 sm:p-5"
-                          >
-                            {/* Section Header */}
-                            <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
-                              <div className="flex items-center gap-2">
+                              <div className="flex justify-between items-center">
                                 <span
-                                  className="w-2.5 h-2.5 rounded-full"
-                                  style={{
-                                    backgroundColor:
-                                      section.title === "Mumbai Expense"
-                                        ? "#6A1B9A"
-                                        : section.title === "Faridabad Expense"
-                                        ? "#00897B"
-                                        : "#2E7D32",
-                                  }}
-                                />
-                                <h3 className="font-extrabold text-slate-800 text-base">
-                                  {section.title}
-                                </h3>
+                                  className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block truncate group-hover:text-slate-800 transition-colors"
+                                  title={item.label}
+                                >
+                                  {item.label}
+                                </span>
+                                <span className="text-xs text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  ↗
+                                </span>
                               </div>
+                              <span
+                                className="text-lg sm:text-xl xl:text-2xl font-black tracking-tight mt-0.5 block"
+                                style={{ color: item.color }}
+                              >
+                                {val}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </aside>
 
-                              {sectionTotal !== null && (
-                                <div className="px-3 py-1 rounded-lg bg-slate-50 border border-slate-200/80 flex items-center gap-1.5">
-                                  <span className="text-slate-500 font-semibold text-xs">
-                                    Total:
-                                  </span>
+                      {/* RIGHT: EXPENSES (3 Sections Stretched to 100% Height) */}
+                      <main className="flex-1 min-w-0 h-full flex flex-col justify-between gap-3 overflow-hidden">
+                        {expenseSections.map((section, sIndex) => {
+                          let sectionTotal = null;
+                          let flexClass = "flex-1";
+                          let gridClass =
+                            "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 grid-rows-1";
+
+                          if (section.title === "Mumbai Expense") {
+                            sectionTotal = monthCalcs.mumbaiTotal;
+                            flexClass = "flex-[1.8]";
+                            gridClass =
+                              "grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 grid-rows-2";
+                          } else if (section.title === "Faridabad Expense") {
+                            sectionTotal = monthCalcs.faridabadTotal;
+                            flexClass = "flex-1";
+                            gridClass =
+                              "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 grid-rows-1";
+                          } else {
+                            flexClass = "flex-1";
+                            gridClass = "grid-cols-2 grid-rows-1";
+                          }
+
+                          return (
+                            <div
+                              key={sIndex}
+                              className={`${flexClass} min-h-0 rounded-2xl border border-slate-200/90 bg-white shadow-2xs p-3 sm:p-3.5 flex flex-col justify-between overflow-hidden`}
+                            >
+                              {/* Section Header */}
+                              <div className="flex justify-between items-center pb-1.5 border-b border-slate-100 shrink-0">
+                                <div className="flex items-center gap-2">
                                   <span
-                                    className="font-extrabold text-sm"
+                                    className="w-2.5 h-2.5 rounded-full"
                                     style={{
-                                      color:
+                                      backgroundColor:
                                         section.title === "Mumbai Expense"
                                           ? "#6A1B9A"
-                                          : "#00897B",
+                                          : section.title ===
+                                              "Faridabad Expense"
+                                            ? "#00897B"
+                                            : "#2E7D32",
                                     }}
-                                  >
-                                    {formatINRCurrency(sectionTotal)}
-                                  </span>
+                                  />
+                                  <h3 className="font-extrabold text-slate-800 text-sm sm:text-base">
+                                    {section.title}
+                                  </h3>
                                 </div>
-                              )}
-                            </div>
 
-                            {/* Section Items Grid */}
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-3">
-                              {section.categories.map((item, index) => {
-                                const value =
-                                  apiData[selectedMonthIndex]?.[item.label] ??
-                                  0;
-                                const isZero = value === 0;
-
-                                return (
+                                {sectionTotal !== null && (
                                   <div
-                                    key={index}
-                                    className={`p-3 rounded-xl border flex flex-col justify-between transition-all duration-150 ${
-                                      isZero
-                                        ? "bg-slate-50/70 border-slate-100"
-                                        : "bg-white border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5"
-                                    }`}
-                                    style={{
-                                      borderLeftWidth: "4px",
-                                      borderLeftColor: isZero ? "#CBD5E1" : item.color,
-                                    }}
+                                    onClick={() =>
+                                      handleNavigateToDataTable(
+                                        section.title === "Mumbai Expense"
+                                          ? "Mumbai Misc"
+                                          : "Faridabad Misc",
+                                      )
+                                    }
+                                    title={`Click to view ${section.title} in Data Table`}
+                                    className="px-2.5 py-0.5 rounded-md bg-slate-50 border border-slate-200/80 flex items-center gap-1.5 cursor-pointer hover:bg-slate-100 transition-colors"
                                   >
-                                    <span
-                                      className={`text-xs font-semibold block truncate mb-1.5 ${
-                                        isZero ? "text-slate-400" : "text-slate-600"
-                                      }`}
-                                      title={item.label}
-                                    >
-                                      {item.label}
+                                    <span className="text-slate-500 font-semibold text-xs">
+                                      Total:
                                     </span>
                                     <span
-                                      className="font-extrabold text-sm"
-                                      style={{ color: isZero ? "#94A3B8" : item.color }}
+                                      className="font-extrabold text-xs sm:text-sm"
+                                      style={{
+                                        color:
+                                          section.title === "Mumbai Expense"
+                                            ? "#6A1B9A"
+                                            : "#00897B",
+                                      }}
                                     >
-                                      {formatINRCurrency(value)}
+                                      {formatINRCurrency(sectionTotal)}
+                                    </span>
+                                    <span className="text-[10px] text-slate-400">
+                                      ↗
                                     </span>
                                   </div>
-                                );
-                              })}
+                                )}
+                              </div>
+
+                              {/* Section Items Grid */}
+                              <div
+                                className={`flex-1 min-h-0 grid ${gridClass} gap-2 sm:gap-2.5 items-stretch mt-2`}
+                              >
+                                {section.categories.map((item, index) => {
+                                  const value =
+                                    apiData[selectedMonthIndex]?.[item.label] ??
+                                    0;
+                                  const isZero = value === 0;
+
+                                  return (
+                                    <div
+                                      key={index}
+                                      onClick={() =>
+                                        handleNavigateToDataTable(item.label)
+                                      }
+                                      title={`Click to view ${item.label} in Data Table for ${monthName} ${selectedYear !== "All" ? selectedYear : ""}`}
+                                      className={`h-full flex flex-col justify-center px-3 py-2 rounded-xl border border-l-4 transition-all cursor-pointer hover:shadow-md hover:scale-[1.01] active:scale-[0.99] group ${
+                                        isZero
+                                          ? "bg-slate-50/70 border-slate-100 hover:bg-slate-100/80"
+                                          : "bg-white border-slate-200 shadow-2xs hover:border-slate-300"
+                                      }`}
+                                      style={{
+                                        borderLeftColor: isZero
+                                          ? "#CBD5E1"
+                                          : item.color,
+                                      }}
+                                    >
+                                      <div className="flex justify-between items-center mb-1 leading-tight">
+                                        <span
+                                          className={`text-base font-semibold block truncate ${
+                                            isZero
+                                              ? "text-slate-400"
+                                              : "text-slate-600 group-hover:text-slate-900"
+                                          }`}
+                                          title={item.label}
+                                        >
+                                          {item.label}
+                                        </span>
+                                        <span className="text-xs text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1">
+                                          ↗
+                                        </span>
+                                      </div>
+                                      <span
+                                        className="font-extrabold text-xs sm:text-sm xl:text-xl"
+                                        style={{
+                                          color: isZero
+                                            ? "#94A3B8"
+                                            : item.color,
+                                        }}
+                                      >
+                                        {formatINRCurrency(value)}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </main>
                     </div>
                   </>
                 );
@@ -851,7 +1132,7 @@ const DashboardTab = () => {
           )}
         </div>
       )}
-    </>
+    </div>
   );
 };
 
