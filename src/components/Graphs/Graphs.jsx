@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Tabs, Tab, Box, Typography, Paper } from "@mui/material";
 import Header from "../Header/Header";
 
 const tabLabels = [
@@ -9,11 +8,7 @@ const tabLabels = [
   "FastFood",
   "Homeneeds",
   "Petrol",
-  // "sex",
-  // "hugs",
-  // "kisses",
-  "outing",
-  // "coupleGames",
+  "Outing",
   "HouseRent",
   "WifiBill",
 ];
@@ -22,37 +17,40 @@ const Graphs = () => {
   const [selectedTab, setSelectedTab] = useState(0);
 
   return (
-    <>
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       <Header backLink={"/dashboard"} title="Graphs" />
-      <Box p={3}>
-        <Typography variant="h4" gutterBottom>
+      <div className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6">
+        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-4">
           Graphs
-        </Typography>
+        </h1>
 
-        <Tabs
-          value={selectedTab}
-          onChange={(_, newValue) => setSelectedTab(newValue)}
-          indicatorColor="primary"
-          textColor="primary"
-          variant="scrollable"
-          scrollButtons="auto"
-          sx={{ mb: 2 }}
-        >
+        <div className="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-thin">
           {tabLabels.map((label, index) => (
-            <Tab key={index} label={label} />
+            <button
+              key={index}
+              onClick={() => setSelectedTab(index)}
+              className={`px-4 py-2 rounded-xl font-bold text-sm whitespace-nowrap transition-all cursor-pointer ${
+                selectedTab === index
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+              }`}
+            >
+              {label}
+            </button>
           ))}
-        </Tabs>
+        </div>
 
-        <Paper elevation={3} sx={{ p: 2 }}>
-          <Typography variant="h6">{tabLabels[selectedTab]} Content</Typography>
-          <Typography variant="body1" sx={{ mt: 1 }}>
-            {/* Replace below with actual content per tab */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6">
+          <h2 className="text-lg font-bold text-slate-800">
+            {tabLabels[selectedTab]} Content
+          </h2>
+          <p className="text-slate-500 text-sm mt-2">
             This is the content area for{" "}
-            <strong>{tabLabels[selectedTab]}</strong>.
-          </Typography>
-        </Paper>
-      </Box>
-    </>
+            <strong className="text-slate-700">{tabLabels[selectedTab]}</strong>.
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
 

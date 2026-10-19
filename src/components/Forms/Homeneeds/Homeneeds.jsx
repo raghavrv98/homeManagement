@@ -109,8 +109,8 @@ const Homeneeds = () => {
   return (
     <>
       <Header backLink={"/home/money"} title="Homeneeds" />
-      <div className="container">
-        <form className="form" onSubmit={handleSubmit}>
+      <div className="flex justify-center items-center min-h-[calc(100vh-80px)] p-4 sm:p-6">
+        <form className="p-6 sm:p-8 bg-white rounded-3xl flex flex-col w-[420px] max-w-full justify-center items-center h-fit shadow-xl border border-slate-200/80 gap-3" onSubmit={handleSubmit}>
           <Typography variant="h5" align="center" gutterBottom>
             Homeneeds Entry
           </Typography>

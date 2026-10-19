@@ -1,7 +1,5 @@
 import React from "react";
-import "./AmishaMoney.css";
 import Header from "../Header/Header.jsx";
-import { Button, Box } from "@mui/material";
 import { Link } from "react-router-dom";
 import {
   AttachMoney,
@@ -11,99 +9,65 @@ import {
   Replay,
 } from "@mui/icons-material";
 
-// ✅ Include Income, Investment, Expenses, Repay, Gift Cost
 const categories = [
   {
     label: "Income",
     path: "amishaIncome",
-    icon: <AttachMoney />,
-    color: "#81C784", // Green
+    icon: <AttachMoney sx={{ fontSize: 28 }} />,
+    color: "#81C784",
   },
   {
     label: "Investment",
     path: "amishaInvestment",
-    icon: <TrendingUp />,
-    color: "#64B5F6", // Blue
+    icon: <TrendingUp sx={{ fontSize: 28 }} />,
+    color: "#64B5F6",
   },
   {
     label: "Monthly Expense",
     path: "amishaMonthlyExpense",
-    icon: <Wallet />,
-    color: "#FFD54F", // 🌟 New Yellow
+    icon: <Wallet sx={{ fontSize: 28 }} />,
+    color: "#FFD54F",
   },
   {
     label: "Expenses",
     path: "amishaExpenses",
-    icon: <Wallet />,
-    color: "#BA68C8", // Purple
+    icon: <Wallet sx={{ fontSize: 28 }} />,
+    color: "#BA68C8",
   },
   {
     label: "Repay",
     path: "amishaRepay",
-    icon: <Replay />,
-    color: "#FFB74D", // Orange
+    icon: <Replay sx={{ fontSize: 28 }} />,
+    color: "#FFB74D",
   },
   {
     label: "Gift Cost",
     path: "amishaGiftCost",
-    icon: <Redeem />,
-    color: "#E57373", // Red
+    icon: <Redeem sx={{ fontSize: 28 }} />,
+    color: "#E57373",
   },
 ];
 
 const AmishaMoney = () => {
   return (
-    <>
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       <Header backLink="/dashboard" />
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 2,
-          padding: 2,
-          justifyContent: "center",
-        }}
-      >
-        {categories.map((item, index) => (
-          <Box
-            key={index}
-            sx={{
-              width: "calc(100% / 3 - 16px)", // Responsive grid (3 items across)
-              minWidth: "150px",
-            }}
-          >
-            <Button
-              component={Link}
+      <div className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {categories.map((item, index) => (
+            <Link
+              key={index}
               to={`./${item.path}`}
-              sx={{
-                width: "100%",
-                height: "120px",
-                borderRadius: 3,
-                boxShadow: 3,
-                textTransform: "none",
-                whiteSpace: "normal",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: item.color,
-                color: "#333",
-                fontWeight: "bold",
-                fontSize: "0.95rem",
-                "&:hover": {
-                  transform: "scale(1.05)",
-                  boxShadow: 5,
-                  backgroundColor: item.color,
-                },
-              }}
+              className="h-28 rounded-2xl shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col items-center justify-center p-4 text-slate-800 font-bold text-sm sm:text-base text-center hover:scale-105 border border-black/5"
+              style={{ backgroundColor: item.color }}
             >
-              <Box sx={{ fontSize: 32, mb: 1 }}>{item.icon}</Box>
-              {item.label}
-            </Button>
-          </Box>
-        ))}
-      </Box>
-    </>
+              <div className="mb-1.5 opacity-90">{item.icon}</div>
+              <span className="leading-tight">{item.label}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 };
 

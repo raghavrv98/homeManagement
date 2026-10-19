@@ -251,29 +251,33 @@ const AmishaDashboardTab = () => {
       {loading ? (
         <PageLoader />
       ) : (
-        <Box p={3}>
+        <div className="p-4 sm:p-6 bg-slate-50 min-h-screen">
           {/* SECTION 1: Year Dropdown and Totals */}
-          <Box mb={4}>
-            <Box
-              display="flex"
-              flexWrap={{ xs: "wrap", md: "nowrap" }}
-              gap={2}
-              justifyContent="space-between"
-              alignItems="flex-start"
-            >
+          <div className="mb-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+              <div>
+                <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                  Amisha Financial Overview
+                </h1>
+                <p className="text-sm text-slate-500 mt-0.5">
+                  Summary of repayments, gifts, and income records
+                </p>
+              </div>
+
               {/* Year Dropdown */}
-              <Box
-                flex={{ xs: "1 1 100%", md: "0 0 300px" }}
-                minWidth={{ xs: "100%", md: "300px" }}
-                maxWidth={{ xs: "100%", md: "300px" }}
-              >
-                <FormControl fullWidth>
+              <div className="w-full sm:w-48">
+                <FormControl size="small" fullWidth>
                   <InputLabel id="year-select-label">Year</InputLabel>
                   <Select
                     labelId="year-select-label"
                     value={selectedYear}
                     label="Year"
                     onChange={handleYearChange}
+                    sx={{
+                      borderRadius: 2,
+                      bgcolor: "#FFFFFF",
+                      fontWeight: 600,
+                    }}
                   >
                     {years.map((year) => (
                       <MenuItem key={year} value={year}>
@@ -282,113 +286,73 @@ const AmishaDashboardTab = () => {
                     ))}
                   </Select>
                 </FormControl>
-              </Box>
+              </div>
+            </div>
 
-              {/* Summary Cards */}
-              <Box display="flex" flexWrap="wrap" gap={2}>
-                {summaryData.map((item, index) => (
-                  <Box
-                    key={index}
-                    sx={{
-                      flex: {
-                        xs: "1 1 100%",
-                        sm: "1 1 calc(50% - 16px)",
-                        md: "1 1 calc(33.33% - 16px)",
-                        lg: "1 1 calc(25% - 16px)",
-                      },
-                    }}
-                  >
-                    <Card
-                      sx={{
-                        bgcolor: "#f5f5f5",
-                        boxShadow: 1,
-                        color: item.color,
-                        height: "100%",
-                      }}
-                    >
-                      <CardContent>
-                        <Typography variant="subtitle2" color="textSecondary">
-                          {item.label}
-                        </Typography>
-                        <Typography variant="h5">
-                          {formatINRCurrency(item?.value)}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Box>
-                ))}
-              </Box>
-            </Box>
-          </Box>
-
-          <Divider sx={{ my: 4 }} />
-
-          {/* SECTION 2: Monthly Cards */}
-          <Box
-            display="flex"
-            flexWrap="wrap"
-            justifyContent="flex-start"
-            gap={2}
-          >
-            {apiData?.map((month, index) => (
-              <Box
-                key={index}
-                flex={{
-                  xs: "1 1 100%",
-                  sm: "1 1 calc(50% - 16px)",
-                  md: "1 1 calc(33.33% - 16px)",
-                  lg: "1 1 calc(16.66% - 16px)",
-                }}
-                minWidth="150px"
-                display="flex"
-              >
-                <Card
-                  sx={{
-                    bgcolor: "#F5F7FA",
-                    boxShadow: 2,
-                    border: "1px solid #E0E0E0",
-                    width: "100%",
-                  }}
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              {summaryData.map((item, index) => (
+                <div
+                  key={index}
+                  className="rounded-2xl border border-slate-200 shadow-xs bg-white p-4 flex flex-col justify-between hover:shadow-md transition-all"
+                  style={{ borderTop: `4px solid ${item.color}` }}
                 >
-                  <CardContent>
-                    <Typography
-                      variant="h6"
-                      sx={{ color: "#1976D2", fontWeight: "bold", mb: 2 }}
-                    >
-                      {month?.month}
-                    </Typography>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block">
+                    {item.label}
+                  </span>
+                  <span
+                    className="text-2xl font-extrabold tracking-tight mt-1 block"
+                    style={{ color: item.color }}
+                  >
+                    {formatINRCurrency(item?.value)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
 
-                    {monthDetails.map((item, i) => (
-                      <Box
-                        key={i}
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          mb: 1,
-                          bgcolor: "#ffffff",
-                          px: 1,
-                          py: 0.5,
-                          borderRadius: 1,
-                        }}
-                      >
-                        <Typography variant="body2" color="text.secondary">
-                          {item.label}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{ fontWeight: "bold", color: item.color }}
+          <div className="my-6 border-t border-slate-200" />
+
+          {/* SECTION 2: Monthly Cards (6 in a row) */}
+          <div className="mb-3">
+            <h2 className="text-base font-extrabold text-slate-900 tracking-tight mb-4">
+              Monthly Breakdown
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+              {apiData?.map((month, index) => (
+                <div
+                  key={index}
+                  className="rounded-xl border border-slate-200/90 bg-white shadow-xs p-3.5 flex flex-col justify-between hover:shadow-md hover:-translate-y-0.5 transition-all"
+                >
+                  <div>
+                    <h3 className="font-extrabold text-slate-900 text-sm mb-2.5">
+                      {month?.month}
+                    </h3>
+
+                    <div className="flex flex-col gap-1.5">
+                      {monthDetails.map((item, i) => (
+                        <div
+                          key={i}
+                          className="flex justify-between items-center px-2 py-1 bg-slate-50 rounded-lg text-xs"
                         >
-                          {getMonthlyValueHandler(month, item.label)}
-                        </Typography>
-                      </Box>
-                    ))}
-                  </CardContent>
-                </Card>
-              </Box>
-            ))}
-          </Box>
-        </Box>
+                          <span className="text-slate-500 font-medium truncate mr-1">
+                            {item.label}
+                          </span>
+                          <span
+                            className="font-bold whitespace-nowrap"
+                            style={{ color: item.color }}
+                          >
+                            {getMonthlyValueHandler(month, item.label)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

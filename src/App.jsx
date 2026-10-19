@@ -5,7 +5,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AllRoutes from "./AllRoutes";
 import ErrorPage from "./components/ErrorPages/errorPage";
 import LoginForm from "./components/LoginForm/LoginForm";
-import "./App.css";
 
 const App = () => {
   return (

@@ -1,7 +1,5 @@
 import React from "react";
-import "./Money.css";
 import Header from "../Header/Header.jsx";
-import { Button, Box } from "@mui/material";
 import { Link } from "react-router-dom";
 import {
   ShoppingCart,
@@ -30,145 +28,112 @@ const categories = [
   {
     label: "Vegetables & Fruits",
     path: "vegetables-fruits",
-    icon: <ShoppingCart />,
+    icon: <ShoppingCart sx={{ fontSize: 28 }} />,
     color: "#A8E6CF",
   },
-  { label: "Milk", path: "milk", icon: <LocalDrink />, color: "#FFD3B6" },
+  { label: "Milk", path: "milk", icon: <LocalDrink sx={{ fontSize: 28 }} />, color: "#FFD3B6" },
   {
     label: "Kirana Store",
     path: "kirana-store",
-    icon: <Storefront />,
+    icon: <Storefront sx={{ fontSize: 28 }} />,
     color: "#FFAAA5",
   },
   {
     label: "Fast Food",
     path: "fast-food",
-    icon: <Fastfood />,
+    icon: <Fastfood sx={{ fontSize: 28 }} />,
     color: "#FF8C94",
   },
-  { label: "HomeNeeds", path: "homeNeeds", icon: <Home />, color: "#DCE775" },
+  { label: "HomeNeeds", path: "homeNeeds", icon: <Home sx={{ fontSize: 28 }} />, color: "#DCE775" },
   {
     label: "Petrol",
     path: "petrol",
-    icon: <LocalGasStation />,
+    icon: <LocalGasStation sx={{ fontSize: 28 }} />,
     color: "#FFF176",
   },
-  { label: "House Rent", path: "houseRent", icon: <House />, color: "#AED581" },
-  { label: "Wifi Bill", path: "wifiBill", icon: <Wifi />, color: "#4FC3F7" },
+  { label: "House Rent", path: "houseRent", icon: <House sx={{ fontSize: 28 }} />, color: "#AED581" },
+  { label: "Wifi Bill", path: "wifiBill", icon: <Wifi sx={{ fontSize: 28 }} />, color: "#4FC3F7" },
   {
     label: "Electricity Bill",
     path: "electricityBill",
-    icon: <FlashOn />,
+    icon: <FlashOn sx={{ fontSize: 28 }} />,
     color: "#FFB74D",
   },
-  { label: "Gas Bill", path: "gasBill", icon: <Whatshot />, color: "#E57373" },
-  { label: "Income", path: "income", icon: <AttachMoney />, color: "#81C784" },
+  { label: "Gas Bill", path: "gasBill", icon: <Whatshot sx={{ fontSize: 28 }} />, color: "#E57373" },
+  { label: "Income", path: "income", icon: <AttachMoney sx={{ fontSize: 28 }} />, color: "#81C784" },
   {
     label: "Investment",
     path: "investment",
-    icon: <TrendingUp />,
+    icon: <TrendingUp sx={{ fontSize: 28 }} />,
     color: "#64B5F6",
   },
-  { label: "LIC", path: "lic", icon: <Security />, color: "#9575CD" },
+  { label: "LIC", path: "lic", icon: <Security sx={{ fontSize: 28 }} />, color: "#9575CD" },
   {
     label: "HomeLoan",
     path: "homeLoan",
-    icon: <AccountBalance />,
+    icon: <AccountBalance sx={{ fontSize: 28 }} />,
     color: "#7986CB",
   },
-  { label: "Parents", path: "parents", icon: <Elderly />, color: "#F48FB1" },
-  { label: "Outing", path: "outing", icon: <Hiking />, color: "#4DB6AC" },
+  { label: "Parents", path: "parents", icon: <Elderly sx={{ fontSize: 28 }} />, color: "#F48FB1" },
+  { label: "Outing", path: "outing", icon: <Hiking sx={{ fontSize: 28 }} />, color: "#4DB6AC" },
   {
     label: "Personal Expense",
     path: "personalExpense",
-    icon: <Wallet />,
+    icon: <Wallet sx={{ fontSize: 28 }} />,
     color: "#BA68C8",
   },
   {
     label: "Advitya Flat Cost",
     path: "advityaFlatCost",
-    icon: <Apartment />,
+    icon: <Apartment sx={{ fontSize: 28 }} />,
     color: "#90A4AE",
   },
   {
     label: "Mumbai Home Setup Cost",
     path: "mumbaiHomeSetupCost",
-    icon: <Build />,
+    icon: <Build sx={{ fontSize: 28 }} />,
     color: "#A1887F",
   },
   {
     label: "Cred Loan Repay",
     path: "credLoanRepay",
-    icon: <CreditCard />,
+    icon: <CreditCard sx={{ fontSize: 28 }} />,
     color: "#FFD74D",
   },
   {
     label: "Mumbai Misc",
     path: "mumbaiMisc",
-    icon: <Wallet />,
+    icon: <Wallet sx={{ fontSize: 28 }} />,
     color: "#FFCC80",
   },
   {
     label: "Faridabad Misc",
     path: "faridabadMisc",
-    icon: <Wallet />,
+    icon: <Wallet sx={{ fontSize: 28 }} />,
     color: "#80DEEA",
   },
 ];
 
 const Money = () => {
   return (
-    <>
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       <Header backLink="/dashboard" />
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 2,
-          padding: 2,
-          justifyContent: "center",
-        }}
-      >
-        {categories.map((item, index) => (
-          <Box
-            key={index}
-            sx={{
-              width: "calc(100% / 6 - 16px)",
-              minWidth: "150px",
-            }}
-          >
-            <Button
-              component={Link}
+      <div className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5 sm:gap-4">
+          {categories.map((item, index) => (
+            <Link
+              key={index}
               to={`./${item.path}`}
-              sx={{
-                width: "100%",
-                height: "120px",
-                borderRadius: 3,
-                boxShadow: 3,
-                textTransform: "none",
-                whiteSpace: "normal",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: item.color,
-                color: "#333",
-                fontWeight: "bold",
-                fontSize: "0.85rem",
-                "&:hover": {
-                  transform: "scale(1.05)",
-                  boxShadow: 5,
-                  backgroundColor: item.color,
-                },
-              }}
+              className="h-28 rounded-2xl shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col items-center justify-center p-3 text-slate-800 font-bold text-xs sm:text-sm text-center hover:scale-105 border border-black/5"
+              style={{ backgroundColor: item.color }}
             >
-              <Box sx={{ fontSize: 32, mb: 1 }}>{item.icon}</Box>
-              {item.label}
-            </Button>
-          </Box>
-        ))}
-      </Box>
-    </>
+              <div className="mb-1.5 opacity-90">{item.icon}</div>
+              <span className="leading-tight">{item.label}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 };
 

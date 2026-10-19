@@ -1,8 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import "./Header.css";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
-import { Box } from "@mui/material";
 
 const DateDisplay = () => {
   const today = new Date();
@@ -17,9 +15,9 @@ const DateDisplay = () => {
     hour12: true,
   });
   return (
-    <div>
+    <span>
       {formattedDate} - {formattedTime}
-    </div>
+    </span>
   );
 };
 
@@ -30,7 +28,7 @@ const Header = ({ backLink, isShowBack = true, title = "Home Management" }) => {
     if (backLink) {
       navigate(backLink);
     } else {
-      navigate(-1); // default behavior
+      navigate(-1);
     }
   };
 
@@ -40,31 +38,33 @@ const Header = ({ backLink, isShowBack = true, title = "Home Management" }) => {
   };
 
   return (
-    <header className="header">
-      <div className="headerBackline">
-        {isShowBack && (
-          <button className="back-button" onClick={handleBack}>
-            <div className="arrowIcon">
-              <KeyboardBackspaceIcon />
-            </div>
+    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+      <div className="flex items-center justify-between px-4 sm:px-6 py-2.5 flex-wrap gap-2.5">
+        {isShowBack ? (
+          <button
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100/80 hover:bg-slate-200/80 text-slate-700 text-sm font-semibold transition-all hover:scale-105 cursor-pointer border border-slate-200/60 shadow-xs"
+            onClick={handleBack}
+          >
+            <KeyboardBackspaceIcon sx={{ fontSize: 18 }} />
             Back
           </button>
+        ) : (
+          <div className="w-16" />
         )}
-        <Box
-          className="title"
-          sx={{
-            display: {
-              xs: "none", // hide on mobile
-              sm: "block", // show on small and up
-            },
-          }}
-        >
-          <h1>{title}</h1>
-        </Box>
-        <div className="time">
-          <div>Date : </div>
+
+        <div className="hidden sm:block">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-800 tracking-tight text-center m-0">
+            {title}
+          </h1>
+        </div>
+
+        <div className="text-sm font-medium flex items-center gap-2 text-slate-600 bg-slate-100/70 px-3 py-1.5 rounded-xl border border-slate-200/50 backdrop-blur-xs">
+          <span className="text-slate-500 font-semibold">Date :</span>
           <DateDisplay />
-          <button className="back-button" onClick={logoutHandler}>
+          <button
+            className="ml-2 px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold transition-all hover:scale-105 cursor-pointer border border-red-200/60"
+            onClick={logoutHandler}
+          >
             Logout
           </button>
         </div>

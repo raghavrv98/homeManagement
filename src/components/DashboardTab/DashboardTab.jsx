@@ -242,13 +242,14 @@ const DashboardTab = () => {
 
   // 🔹 Year filter helper
   const isSameYear = (timestamp) =>
-    selectedYear === "All" || new Date(timestamp).getFullYear() === Number(selectedYear);
+    selectedYear === "All" ||
+    new Date(timestamp).getFullYear() === Number(selectedYear);
 
   // 🔹 Filter rawData by selected year
   const yearlyIncome = rawData?.income?.filter((i) => isSameYear(i.timestamp));
 
   const yearlyInvestment = rawData?.investment?.filter((i) =>
-    isSameYear(i.timestamp)
+    isSameYear(i.timestamp),
   );
 
   // Main function to generate summary
@@ -264,7 +265,7 @@ const DashboardTab = () => {
 
     const totalInvestment = data.reduce(
       (sum, m) => sum + (m?.Investment || 0),
-      0
+      0,
     );
 
     const totalExpense =
@@ -402,7 +403,7 @@ const DashboardTab = () => {
     fetchData();
   }, [selectedYear]);
 
-  const getMonthlyValueHandler = (month, label) => {
+  const getMonthlyCalculations = (month) => {
     const income = month?.Income || 0;
     const investment = month?.Investment || 0;
 
@@ -430,23 +431,37 @@ const DashboardTab = () => {
       (month?.Parents || 0) +
       (month?.["Faridabad Misc"] || 0);
 
-    // Calculate expenses only (exclude income + investment)
     const expense = mumbaiTotal + faridabadTotal;
     const profit = income - expense;
+    const hasData = income !== 0 || expense !== 0 || investment !== 0;
+
+    return {
+      income,
+      investment,
+      mumbaiTotal,
+      faridabadTotal,
+      expense,
+      profit,
+      hasData,
+    };
+  };
+
+  const getMonthlyValueHandler = (month, label) => {
+    const calcs = getMonthlyCalculations(month);
 
     switch (label) {
       case "Total Income":
-        return formatINRCurrency(income);
+        return formatINRCurrency(calcs.income);
       case "Total Expense":
-        return formatINRCurrency(expense);
+        return formatINRCurrency(calcs.expense);
       case "Total Investment":
-        return formatINRCurrency(investment);
+        return formatINRCurrency(calcs.investment);
       case "Total Profit":
-        return formatINRCurrency(profit);
+        return formatINRCurrency(calcs.profit);
       case "Mumbai Home Expenses":
-        return formatINRCurrency(mumbaiTotal);
+        return formatINRCurrency(calcs.mumbaiTotal);
       case "Faridabad Home Expenses":
-        return formatINRCurrency(faridabadTotal);
+        return formatINRCurrency(calcs.faridabadTotal);
       default:
         return null;
     }
@@ -463,385 +478,378 @@ const DashboardTab = () => {
       {loading ? (
         <PageLoader />
       ) : (
-        <Box p={3}>
-          {/* SECTION 1: Year Dropdown and Totals */}
-          <Box mb={4}>
-            <Box
-              display="flex"
-              flexWrap={{ xs: "wrap", md: "nowrap" }}
-              gap={2}
-              justifyContent="space-between"
-              alignItems="flex-start"
-            >
-              {/* Year Dropdown */}
-              {/* <Box
-                flex={{ xs: "1 1 100%", md: "0 0 300px" }}
-                minWidth={{ xs: "100%", md: "300px" }}
-                maxWidth={{ xs: "100%", md: "300px" }}
-              >
-                
-              </Box> */}
+        <div className="p-4 sm:p-6 bg-slate-50 min-h-screen">
+          {/* SECTION 1: Top Bar & 3 Balanced KPI Cards */}
+          <div className="mb-8">
+            {/* Header Control Bar */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+              <div>
+                <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                  Financial Overview
+                </h1>
+                <p className="text-sm text-slate-500 mt-1">
+                  Summary of your income, expenses, and investments for{" "}
+                  <strong className="text-slate-700">
+                    {selectedYear === "All"
+                      ? "all recorded years"
+                      : `year ${selectedYear}`}
+                  </strong>
+                </p>
+              </div>
 
-              {/* Summary Cards */}
-              <Box display="flex" flexWrap="wrap" width="100%" gap={2}>
-                <FormControl
+              <FormControl size="small" sx={{ minWidth: 160 }}>
+                <InputLabel id="year-select-label">Year Filter</InputLabel>
+                <Select
+                  labelId="year-select-label"
+                  value={selectedYear}
+                  label="Year Filter"
+                  onChange={handleYearChange}
                   sx={{
-                    width: {
-                      xs: "100%",
-                      sm: "100%",
-                      md: "10%",
-                    },
+                    borderRadius: 2,
+                    bgcolor: "#FFFFFF",
+                    fontWeight: 600,
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
                   }}
                 >
-                  <InputLabel id="year-select-label">Year</InputLabel>
-                  <Select
-                    labelId="year-select-label"
-                    value={selectedYear}
-                    label="Year"
-                    onChange={handleYearChange}
-                  >
-                    {years.map((year) => (
-                      <MenuItem key={year} value={year}>
-                        {year}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                {summaryData.map((item, index) => {
-                  return (
-                    <Box
-                      key={index}
-                      sx={{
-                        flex: {
-                          xs: "1 1 100%",
-                          sm: "1 1 calc(50% - 16px)",
-                          md: "1 1 calc(33.33% - 16px)",
-                          lg: "1 1 calc(10% - 16px)",
-                        },
-                      }}
-                    >
-                      <Card
-                        sx={{
-                          bgcolor: "#f5f5f5",
-                          boxShadow: 1,
-                          color: item.color,
-                          height: "100%",
-                        }}
-                      >
-                        <CardContent>
-                          <Typography variant="subtitle2" color="textSecondary">
-                            {item.label}
-                          </Typography>
-                          <Typography variant="h5">
-                            {formatINRCurrency(item?.value)}
-                          </Typography>
-                        </CardContent>
-                        <CardContent>
-                          {item?.subCat &&
-                            item?.subCat?.map((item) => {
-                              return (
-                                <Box
-                                  sx={{
-                                    bgcolor: "#ffffff",
-                                    px: 1,
-                                    py: 0.5,
-                                    borderRadius: 1,
-                                  }}
-                                >
-                                  <Typography
-                                    variant="subtitle2"
-                                    color="textSecondary"
-                                  >
-                                    {item?.label}
-                                  </Typography>
-                                  <Typography variant="body2">
-                                    {formatINRCurrency(item?.value)}
-                                  </Typography>
-                                </Box>
-                              );
-                            })}
-                        </CardContent>
-                      </Card>
-                    </Box>
-                  );
-                })}
-              </Box>
-            </Box>
-          </Box>
+                  {years.map((year) => (
+                    <MenuItem key={year} value={year}>
+                      {year === "All" ? "All Years" : year}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
 
-          <Divider sx={{ my: 4 }} />
-
-          {/* SECTION 2: Monthly Cards or Detailed View */}
-          {selectedMonthIndex === null ? (
-            <Box
-              display="flex"
-              flexWrap="wrap"
-              justifyContent="flex-start"
-              gap={2}
-            >
-              {apiData?.map((month, index) => (
-                <Box
+            {/* 3 Balanced Summary KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {summaryData.map((item, index) => (
+                <div
                   key={index}
-                  flex={{
-                    xs: "1 1 100%",
-                    sm: "1 1 calc(50% - 16px)",
-                    md: "1 1 calc(33.33% - 16px)",
-                    lg: "1 1 calc(16.66% - 16px)",
-                  }}
-                  minWidth="150px"
-                  display="flex"
+                  className="rounded-2xl border border-slate-200/90 shadow-xs bg-white flex flex-col justify-between hover:shadow-lg hover:-translate-y-0.5 transition-all p-5"
+                  style={{ borderTop: `4px solid ${item.color}` }}
                 >
-                  <Card
-                    sx={{
-                      bgcolor: "#F5F7FA",
-                      boxShadow: 2,
-                      border: "1px solid #E0E0E0",
-                      width: "100%",
-                    }}
-                  >
-                    <CardContent>
-                      <Typography
-                        variant="h6"
-                        sx={{ color: "#1976D2", fontWeight: "bold", mb: 2 }}
-                      >
-                        {month?.month}
-                      </Typography>
-
-                      {monthDetails.map((item, i) => (
-                        <Box
-                          key={i}
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            mb: 1,
-                            bgcolor: "#ffffff",
-                            px: 1,
-                            py: 0.5,
-                            borderRadius: 1,
-                          }}
-                        >
-                          <Typography variant="body2" color="text.secondary">
-                            {item.label}
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            sx={{ fontWeight: "bold", color: item.color }}
-                          >
-                            {getMonthlyValueHandler(month, item.label)}
-                          </Typography>
-                        </Box>
-                      ))}
-
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                          mt: 2,
-                        }}
-                      >
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          sx={{
-                            color: "#1976D2",
-                            borderColor: "#1976D2",
-                            fontWeight: 500,
-                            textTransform: "none",
-                            "&:hover": {
-                              backgroundColor: "#E3F2FD",
-                              borderColor: "#0D47A1",
-                              color: "#0D47A1",
-                            },
-                          }}
-                          onClick={() => handleViewDetails(index)}
-                        >
-                          View Details
-                        </Button>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Box>
-              ))}
-            </Box>
-          ) : (
-            <Box display="flex" flexDirection="column" gap={2}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleBackToAll}
-                sx={{ width: "fit-content" }}
-              >
-                ← Back to All Months
-              </Button>
-
-              <Card
-                sx={{
-                  bgcolor: "#F5F7FA",
-                  boxShadow: 2,
-                  border: "1px solid #E0E0E0",
-                  width: "100%",
-                  p: 3,
-                }}
-              >
-                {/* Month Title */}
-                <Typography
-                  variant="h5"
-                  sx={{ color: "#1976D2", fontWeight: "bold", mb: 3 }}
-                >
-                  {months[selectedMonthIndex]}
-                </Typography>
-
-                {/* FLEXBOX version of details section */}
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: { xs: "column", md: "row" },
-                    gap: 3,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  {/* LEFT: Label + Value Boxes */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: 4,
-                      alignItems: "flex-start",
-                    }}
-                  >
-                    {/* LEFT: Category Cards Grouped by Section */}
-                    <Box
-                      sx={{
-                        flex: { xs: "1 1 100%", md: "2 1 0%" },
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 3,
-                      }}
+                  <div className="mb-3">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+                      {item.label}
+                    </span>
+                    <span
+                      className="text-2xl sm:text-3xl font-extrabold tracking-tight mt-1 block"
+                      style={{ color: item.color }}
                     >
-                      {expenseSections.map((section, sIndex) => (
-                        <Box key={sIndex}>
-                          <Typography
-                            variant="h6"
-                            sx={{
-                              fontWeight: "bold",
-                              mb: 1.5,
-                              color: "#2C3E50",
-                              borderBottom: "2px solid #E0E0E0",
-                              pb: 0.5,
-                            }}
+                      {formatINRCurrency(item?.value)}
+                    </span>
+                  </div>
+
+                  {item?.subCat && item?.subCat.length > 0 && (
+                    <div className="grid grid-cols-2 gap-2.5 mt-3 pt-3 border-t border-slate-100">
+                      {item.subCat.map((sub, sIdx) => (
+                        <div
+                          key={sIdx}
+                          className="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80"
+                        >
+                          <span className="text-slate-500 font-semibold text-xs block truncate" title={sub.label}>
+                            {sub.label}
+                          </span>
+                          <span className="font-bold text-slate-800 text-sm mt-0.5 block">
+                            {formatINRCurrency(sub.value)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="my-6 border-t border-slate-200" />
+
+          {/* SECTION 2: Monthly Breakdown Header */}
+          {selectedMonthIndex === null && (
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-5">
+              <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">
+                Monthly Breakdown
+              </h2>
+              <p className="text-sm text-slate-500">
+                Click <strong className="text-slate-700">View Details</strong> on any month to inspect individual transaction categories
+              </p>
+            </div>
+          )}
+
+          {/* Monthly Cards (6 Columns in a Row on Desktop) */}
+          {selectedMonthIndex === null ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+              {apiData?.map((month, index) => {
+                const calcs = getMonthlyCalculations(month);
+
+                return (
+                  <div
+                    key={index}
+                    className={`rounded-xl border transition-all duration-200 flex flex-col justify-between p-3.5 ${
+                      calcs.hasData
+                        ? "border-slate-200/90 bg-white shadow-xs hover:shadow-md hover:-translate-y-0.5"
+                        : "border-slate-100 bg-slate-50/70 opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <div>
+                      {/* Month Title & Net Savings Badge */}
+                      <div className="flex justify-between items-center mb-2.5">
+                        <span className="font-extrabold text-slate-900 text-sm">
+                          {month?.month}
+                        </span>
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap ${
+                            !calcs.hasData
+                              ? "bg-slate-100 text-slate-500"
+                              : calcs.profit >= 0
+                              ? "bg-emerald-50 text-emerald-700"
+                              : "bg-rose-50 text-rose-700"
+                          }`}
+                        >
+                          {!calcs.hasData
+                            ? "Inactive"
+                            : `${calcs.profit >= 0 ? "+" : ""}${formatINRCurrency(calcs.profit)}`}
+                        </span>
+                      </div>
+
+                      {/* Primary Metrics: Income vs Expense Side-by-Side */}
+                      <div className="grid grid-cols-2 gap-2 mb-2.5 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                        <div className="min-w-0">
+                          <span className="text-[11px] font-semibold text-slate-500 block">
+                            Income
+                          </span>
+                          <span
+                            className="font-bold text-blue-600 text-[13px] block truncate"
+                            title={formatINRCurrency(calcs.income)}
                           >
-                            {section.title}
-                          </Typography>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              flexWrap: "wrap",
-                              gap: 2,
-                            }}
+                            {formatINRCurrency(calcs.income)}
+                          </span>
+                        </div>
+                        <div className="min-w-0">
+                          <span className="text-[11px] font-semibold text-slate-500 block">
+                            Expense
+                          </span>
+                          <span
+                            className="font-bold text-rose-600 text-[13px] block truncate"
+                            title={formatINRCurrency(calcs.expense)}
                           >
-                            {section.categories.map((item, index) => {
-                              const value =
-                                apiData[selectedMonthIndex]?.[item.label] ?? 0;
-                              return (
-                                <Box
-                                  key={index}
-                                  sx={{
-                                    flex: {
-                                      xs: "1 1 100%",
-                                      sm: "1 1 calc(50% - 16px)",
-                                      md: "1 1 calc(33.33% - 16px)",
-                                      lg: "0 0 350px",
-                                    },
-                                    minWidth: {
-                                      xs: "100%",
-                                      sm: "250px",
-                                    },
-                                    bgcolor: "#fff",
-                                    p: 2,
-                                    borderRadius: 2,
-                                    boxShadow: 1,
+                            {formatINRCurrency(calcs.expense)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Secondary Breakdown Rows */}
+                      <div className="flex flex-col gap-1.5 mb-3">
+                        <div className="flex justify-between items-center px-2 py-1 bg-slate-50 rounded-lg text-xs">
+                          <span className="font-medium text-slate-600">Mumbai</span>
+                          <span className="font-bold text-purple-700">
+                            {formatINRCurrency(calcs.mumbaiTotal)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center px-2 py-1 bg-slate-50 rounded-lg text-xs">
+                          <span className="font-medium text-slate-600">Faridabad</span>
+                          <span className="font-bold text-teal-700">
+                            {formatINRCurrency(calcs.faridabadTotal)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center px-2 py-1 bg-slate-50 rounded-lg text-xs">
+                          <span className="font-medium text-slate-600">Investment</span>
+                          <span className="font-bold text-amber-600">
+                            {formatINRCurrency(calcs.investment)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Button */}
+                    <button
+                      className="w-full py-1 text-xs rounded-lg font-bold text-blue-600 bg-slate-50 hover:bg-blue-50 border border-blue-200 hover:border-blue-400 transition-all cursor-pointer mt-1"
+                      onClick={() => handleViewDetails(index)}
+                    >
+                      View Details →
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-5">
+              {/* Top Navigation & Month Header */}
+              {(() => {
+                const monthCalcs = getMonthlyCalculations(
+                  apiData[selectedMonthIndex],
+                );
+                const monthName = months[selectedMonthIndex];
+
+                return (
+                  <>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <button
+                          onClick={handleBackToAll}
+                          className="px-3 py-1.5 rounded-xl font-bold text-sm text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all cursor-pointer shadow-xs"
+                        >
+                          ← Back to All Months
+                        </button>
+                        <div className="hidden sm:block w-px h-6 bg-slate-200" />
+                        <div>
+                          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+                            {monthName} {selectedYear !== "All" ? selectedYear : ""} Breakdown
+                          </h2>
+                          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                            Detailed breakdown of all income, expenditures, and investments
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Net Status Badge */}
+                      <div
+                        className={`px-3 py-1.5 rounded-xl border flex items-center gap-2 ${
+                          monthCalcs.profit >= 0
+                            ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+                            : "bg-rose-50 border-rose-200 text-rose-800"
+                        }`}
+                      >
+                        <span className="text-[11px] font-bold uppercase tracking-wider">
+                          Net Result:
+                        </span>
+                        <span className="text-sm font-extrabold">
+                          {monthCalcs.profit >= 0 ? "+" : ""}
+                          {formatINRCurrency(monthCalcs.profit)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Month KPI Summary Cards (6 in a clean horizontal grid) */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+                      {monthDetails.map((item, index) => {
+                        const val = getMonthlyValueHandler(
+                          apiData[selectedMonthIndex],
+                          item.label,
+                        );
+                        return (
+                          <div
+                            key={index}
+                            className="rounded-xl border border-slate-200 shadow-xs bg-white p-3.5 flex flex-col justify-between hover:shadow-md hover:-translate-y-0.5 transition-all"
+                            style={{ borderTop: `4px solid ${item.color}` }}
+                          >
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block truncate" title={item.label}>
+                              {item.label}
+                            </span>
+                            <span
+                              className="text-lg sm:text-xl font-extrabold tracking-tight mt-1 block"
+                              style={{ color: item.color }}
+                            >
+                              {val}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Expense, Income & Investment Sections */}
+                    <div className="flex flex-col gap-5">
+                      {expenseSections.map((section, sIndex) => {
+                        let sectionTotal = null;
+                        if (section.title === "Mumbai Expense") {
+                          sectionTotal = monthCalcs.mumbaiTotal;
+                        } else if (section.title === "Faridabad Expense") {
+                          sectionTotal = monthCalcs.faridabadTotal;
+                        }
+
+                        return (
+                          <div
+                            key={sIndex}
+                            className="rounded-2xl border border-slate-200 bg-white shadow-xs p-4 sm:p-5"
+                          >
+                            {/* Section Header */}
+                            <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className="w-2.5 h-2.5 rounded-full"
+                                  style={{
+                                    backgroundColor:
+                                      section.title === "Mumbai Expense"
+                                        ? "#6A1B9A"
+                                        : section.title === "Faridabad Expense"
+                                        ? "#00897B"
+                                        : "#2E7D32",
                                   }}
-                                >
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      justifyContent: "space-between",
-                                      alignItems: "center",
-                                      bgcolor: "#F9FAFB",
-                                      px: 2,
-                                      py: 1.5,
-                                      borderRadius: 1,
-                                      border: "1px solid #E0E0E0",
+                                />
+                                <h3 className="font-extrabold text-slate-800 text-base">
+                                  {section.title}
+                                </h3>
+                              </div>
+
+                              {sectionTotal !== null && (
+                                <div className="px-3 py-1 rounded-lg bg-slate-50 border border-slate-200/80 flex items-center gap-1.5">
+                                  <span className="text-slate-500 font-semibold text-xs">
+                                    Total:
+                                  </span>
+                                  <span
+                                    className="font-extrabold text-sm"
+                                    style={{
+                                      color:
+                                        section.title === "Mumbai Expense"
+                                          ? "#6A1B9A"
+                                          : "#00897B",
                                     }}
                                   >
-                                    <Typography variant="body1">
-                                      {item.label}
-                                    </Typography>
-                                    <Typography
-                                      variant="body1"
-                                      sx={{
-                                        fontWeight: "bold",
-                                        color: item.color,
-                                      }}
-                                    >
-                                      ₹{value.toLocaleString()}
-                                    </Typography>
-                                  </Box>
-                                </Box>
-                              );
-                            })}
-                          </Box>
-                        </Box>
-                      ))}
-                    </Box>
+                                    {formatINRCurrency(sectionTotal)}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
 
-                    {/* RIGHT: Summary Cards */}
-                    <Box
-                      sx={{
-                        flex: { xs: "1 1 100%", md: "1 1 300px" },
-                        display: "flex",
-                        flexDirection: "column",
-                        width: "100%",
-                        maxWidth: { xs: "100%", sm: "250px" },
-                        gap: 2,
-                      }}
-                    >
-                      {monthDetails.map((item, index) => (
-                        <Card
-                          key={index}
-                          sx={{
-                            bgcolor: "#fff",
-                            boxShadow: 1,
-                            borderLeft: `6px solid ${item.color}`,
-                            px: 2,
-                            py: 2,
-                          }}
-                        >
-                          <Typography
-                            variant="subtitle2"
-                            color="text.secondary"
-                          >
-                            {item.label}
-                          </Typography>
-                          <Typography
-                            variant="h6"
-                            sx={{ fontWeight: "bold", color: item.color }}
-                          >
-                            {getMonthlyValueHandler(
-                              apiData[selectedMonthIndex],
-                              item.label
-                            )}
-                          </Typography>
-                        </Card>
-                      ))}
-                    </Box>
-                  </Box>
-                </Box>
-              </Card>
-            </Box>
+                            {/* Section Items Grid */}
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-3">
+                              {section.categories.map((item, index) => {
+                                const value =
+                                  apiData[selectedMonthIndex]?.[item.label] ??
+                                  0;
+                                const isZero = value === 0;
+
+                                return (
+                                  <div
+                                    key={index}
+                                    className={`p-3 rounded-xl border flex flex-col justify-between transition-all duration-150 ${
+                                      isZero
+                                        ? "bg-slate-50/70 border-slate-100"
+                                        : "bg-white border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5"
+                                    }`}
+                                    style={{
+                                      borderLeftWidth: "4px",
+                                      borderLeftColor: isZero ? "#CBD5E1" : item.color,
+                                    }}
+                                  >
+                                    <span
+                                      className={`text-xs font-semibold block truncate mb-1.5 ${
+                                        isZero ? "text-slate-400" : "text-slate-600"
+                                      }`}
+                                      title={item.label}
+                                    >
+                                      {item.label}
+                                    </span>
+                                    <span
+                                      className="font-extrabold text-sm"
+                                      style={{ color: isZero ? "#94A3B8" : item.color }}
+                                    >
+                                      {formatINRCurrency(value)}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
           )}
-        </Box>
+        </div>
       )}
     </>
   );

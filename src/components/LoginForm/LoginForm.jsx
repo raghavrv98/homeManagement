@@ -1,11 +1,6 @@
 import { useState } from "react";
 import {
-  Button,
   TextField,
-  Card,
-  CardContent,
-  Typography,
-  Box,
   Alert,
   CircularProgress,
 } from "@mui/material";
@@ -42,7 +37,7 @@ export default function LoginForm() {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // IMPORTANT: handles enter key submission
+    e.preventDefault();
 
     if (!validate()) return;
 
@@ -79,89 +74,56 @@ export default function LoginForm() {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: "80vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#f3f4f6",
-        p: 4,
-      }}
-    >
-      <Card
-        sx={{
-          width: "100%",
-          maxWidth: 420,
-          p: 3,
-          borderRadius: 4,
-          boxShadow: 6,
-        }}
-      >
-        <CardContent>
-          <form onSubmit={handleLogin}>
-            <Typography
-              variant="h5"
-              textAlign="center"
-              fontWeight="600"
-              gutterBottom
-            >
-              Login
-            </Typography>
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+      <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-xl border border-slate-200/80">
+        <form onSubmit={handleLogin} className="flex flex-col">
+          <h1 className="text-2xl font-extrabold text-slate-900 text-center tracking-tight">
+            Login
+          </h1>
+          <p className="text-sm text-slate-500 text-center mt-1 mb-6">
+            Enter your credentials to access your account
+          </p>
 
-            <Typography
-              variant="body2"
-              textAlign="center"
-              color="text.secondary"
-              mb={2}
-            >
-              Enter your credentials to access your account
-            </Typography>
+          <TextField
+            label="User ID"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            error={Boolean(errors.username)}
+            helperText={errors.username}
+          />
 
-            <TextField
-              label="User ID"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              error={Boolean(errors.username)}
-              helperText={errors.username}
-            />
+          <TextField
+            label="Password"
+            type="password"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            error={Boolean(errors.password)}
+            helperText={errors.password}
+          />
 
-            <TextField
-              label="Password"
-              type="password"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              error={Boolean(errors.password)}
-              helperText={errors.password}
-            />
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full mt-6 py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-150 cursor-pointer flex items-center justify-center"
+          >
+            {loading ? <CircularProgress size={24} sx={{ color: "#fff" }} /> : "LOGIN"}
+          </button>
 
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              sx={{ mt: 3, py: 1.4, borderRadius: 2 }}
-              disabled={loading}
-            >
-              {loading ? <CircularProgress size={24} /> : "LOGIN"}
-            </Button>
-
-            {status && (
-              <Alert
-                severity={status}
-                sx={{ mt: 3, whiteSpace: "pre-wrap", wordBreak: "break-word" }}
-              >
+          {status && (
+            <div className="mt-5">
+              <Alert severity={status} sx={{ borderRadius: 2 }}>
                 {message}
               </Alert>
-            )}
-          </form>
-        </CardContent>
-      </Card>
-    </Box>
+            </div>
+          )}
+        </form>
+      </div>
+    </div>
   );
 }

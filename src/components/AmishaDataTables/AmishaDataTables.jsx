@@ -283,7 +283,7 @@ const AmishaDataTables = () => {
   return (
     <>
       <Header backLink={"/dashboard"} title="Data Tables" />
-      <Box p={2}>
+      <div className="p-4 sm:p-6 max-w-[1400px] mx-auto">
         {/* ✅ Tabs now include Repay + Gift Cost */}
         <Tabs
           value={selectedTab}
@@ -292,28 +292,23 @@ const AmishaDataTables = () => {
           textColor="primary"
           variant="scrollable"
           scrollButtons="auto"
-          sx={{ mb: 2 }}
+          className="mb-4 bg-white rounded-2xl p-1 border border-slate-200/80 shadow-xs"
         >
           {tabLabels.map((label, idx) => (
-            <Tab key={idx} label={label} />
+            <Tab key={idx} label={label} className="!text-xs !font-semibold !capitalize" />
           ))}
         </Tabs>
 
         {/* ✅ Date filters */}
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <Box
-            display="flex"
-            flexWrap="wrap"
-            gap={2}
-            alignItems="center"
-            mb={2}
-          >
+          <div className="flex flex-wrap gap-3 items-center mb-4 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
             <DatePicker
               label="Start Date"
               value={startDate}
               onChange={setStartDate}
               format="DD/MM/YYYY"
               sx={{ width: isMobile ? "100%" : "auto" }}
+              slotProps={{ textField: { size: "small" } }}
             />
             <DatePicker
               label="End Date"
@@ -321,18 +316,23 @@ const AmishaDataTables = () => {
               onChange={setEndDate}
               format="DD/MM/YYYY"
               sx={{ width: isMobile ? "100%" : "auto" }}
+              slotProps={{ textField: { size: "small" } }}
             />
-            <Button onClick={() => [setStartDate(null), setEndDate(null)]}>
+            <button
+              type="button"
+              onClick={() => [setStartDate(null), setEndDate(null)]}
+              className="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+            >
               Clear Filter
-            </Button>
-          </Box>
+            </button>
+          </div>
         </LocalizationProvider>
 
         {/* ✅ Table */}
-        <Paper sx={{ mt: 2, overflowX: "auto", height: "75vh", width: "100%" }}>
+        <div className="overflow-x-auto max-h-[75vh] w-full bg-white rounded-2xl border border-slate-200/80 shadow-xs">
           <table
             {...getTableProps()}
-            style={{ width: "100%", borderCollapse: "collapse" }}
+            className="w-full border-collapse text-left text-sm text-slate-700"
           >
             <thead>
               {/* ✅ Totals row */}
@@ -340,15 +340,7 @@ const AmishaDataTables = () => {
                 {columns.map((column) => (
                   <th
                     key={column.id}
-                    style={{
-                      border: "1px solid #ccc",
-                      padding: "8px",
-                      background: "#e8f5e9",
-                      fontWeight: "bold",
-                      position: "sticky",
-                      top: 0,
-                      zIndex: 1,
-                    }}
+                    className="border-b border-emerald-200 px-4 py-3 bg-emerald-50 text-emerald-900 font-bold sticky top-0 z-10 text-xs uppercase tracking-wider"
                   >
                     {column.id === "index"
                       ? "Total"
@@ -365,12 +357,7 @@ const AmishaDataTables = () => {
                     <th
                       {...column.getHeaderProps(column.getSortByToggleProps())}
                       key={column.id}
-                      style={{
-                        border: "1px solid #ccc",
-                        padding: "8px",
-                        background: "#f5f5f5",
-                        cursor: "pointer",
-                      }}
+                      className="border-b border-slate-200 px-4 py-3 bg-slate-100 text-slate-700 font-semibold cursor-pointer hover:bg-slate-200/80 transition-colors select-none text-xs tracking-wider"
                     >
                       {column.render("Header")}
                       {column.isSorted
@@ -386,19 +373,13 @@ const AmishaDataTables = () => {
             <tbody {...getTableBodyProps()}>
               {loading ? (
                 <tr>
-                  <td
-                    colSpan={columns.length}
-                    style={{ textAlign: "center", padding: "50px" }}
-                  >
+                  <td colSpan={columns.length} className="text-center py-16 text-slate-400 font-medium text-base">
                     Loading...
                   </td>
                 </tr>
               ) : rows.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={columns.length}
-                    style={{ textAlign: "center", padding: "50px" }}
-                  >
+                  <td colSpan={columns.length} className="text-center py-16 text-slate-400 font-medium text-base">
                     No data
                   </td>
                 </tr>
@@ -406,15 +387,12 @@ const AmishaDataTables = () => {
                 rows.map((row) => {
                   prepareRow(row);
                   return (
-                    <tr {...row.getRowProps()} key={row.id}>
+                    <tr {...row.getRowProps()} key={row.id} className="border-b border-slate-100 hover:bg-indigo-50/40 transition-colors even:bg-slate-50/50">
                       {row.cells.map((cell) => (
                         <td
                           {...cell.getCellProps()}
                           key={cell.column.id}
-                          style={{
-                            border: "1px solid #ddd",
-                            padding: "8px",
-                          }}
+                          className="px-4 py-2.5 border-r border-slate-100 last:border-r-0 whitespace-nowrap text-xs text-slate-700"
                         >
                           {cell.render("Cell")}
                         </td>
@@ -425,8 +403,8 @@ const AmishaDataTables = () => {
               )}
             </tbody>
           </table>
-        </Paper>
-      </Box>
+        </div>
+      </div>
     </>
   );
 };
