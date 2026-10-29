@@ -18,8 +18,8 @@ import { API_URL } from "../../constant.js";
 import PageLoader from "../PageLoader.jsx";
 
 const DashboardTab = () => {
-  const currentYear = new Date().getFullYear();
-  const years = ["All", "2025", "2026"];
+  const currentYear = String(new Date().getFullYear());
+  const years = Array.from(new Set(["All", "2025", "2026", currentYear]));
   const months = [
     "January",
     "February",
@@ -90,6 +90,7 @@ const DashboardTab = () => {
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [rawData, setRawData] = useState([]);
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(null);
+  const [showAmishaData, setShowAmishaData] = useState(false);
 
   const handleYearChange = (event) => setSelectedYear(event.target.value);
   const handleViewDetails = (index) => setSelectedMonthIndex(index);
@@ -99,7 +100,7 @@ const DashboardTab = () => {
 
   const handleNavigateToDataTable = (
     categoryLabel,
-    monthIdx = selectedMonthIndex
+    monthIdx = selectedMonthIndex,
   ) => {
     const year =
       selectedYear === "All"
@@ -116,7 +117,7 @@ const DashboardTab = () => {
 
     navigate(
       `/dataTables?category=${encodeURIComponent(
-        categoryLabel
+        categoryLabel,
       )}&startDate=${start}&endDate=${end}`,
       {
         state: {
@@ -125,9 +126,37 @@ const DashboardTab = () => {
           endDate: end,
           from: "/dashboardTab",
         },
-      }
+      },
     );
   };
+
+  const handleNavigateToAmishaDataTable = (tab, monthIdx) => {
+    const year =
+      selectedYear === "All"
+        ? new Date().getFullYear()
+        : parseInt(selectedYear, 10);
+    const month =
+      monthIdx !== null && monthIdx !== undefined
+        ? monthIdx
+        : new Date().getMonth();
+
+    const start = dayjs(new Date(year, month, 1))
+      .startOf("month")
+      .format("YYYY-MM-DD");
+    const end = dayjs(new Date(year, month, 1))
+      .endOf("month")
+      .format("YYYY-MM-DD");
+
+    navigate("/amishaDataTables", {
+      state: {
+        tab,
+        startDate: start,
+        endDate: end,
+        from: "/dashboardTab",
+      },
+    });
+  };
+
   const [apiData, setApiData] = useState([]);
   // const [apiError, setApiError] = useState("");
   const [summaryData, setSummaryData] = useState([]);
@@ -287,6 +316,49 @@ const DashboardTab = () => {
   const yearlyInvestment = rawData?.investment?.filter((i) =>
     isSameYear(i.timestamp),
   );
+
+  // 🔹 Filter Amisha data by selected year
+  const yearlyAmishaIncome = rawData?.amishaIncome?.filter((i) =>
+    isSameYear(i.timestamp),
+  );
+
+  const yearlyAmishaRepay = rawData?.amishaRepay?.filter((i) =>
+    isSameYear(i.timestamp),
+  );
+
+  const yearlyAmishaGiftCost = rawData?.amishaGiftCost?.filter((i) =>
+    isSameYear(i.timestamp),
+  );
+
+  const totalAmishaIncome =
+    yearlyAmishaIncome?.reduce(
+      (sum, item) => sum + (parseFloat(item.cost) || 0),
+      0,
+    ) || 0;
+
+  const totalAmishaRepay =
+    yearlyAmishaRepay?.reduce(
+      (sum, item) => sum + (parseFloat(item.cost) || 0),
+      0,
+    ) || 0;
+
+  const getMonthAmishaCalculations = (monthIdx) => {
+    if (monthIdx === null || monthIdx === undefined)
+      return { income: 0, repay: 0, giftCost: 0 };
+    const income =
+      (yearlyAmishaIncome || [])
+        .filter((item) => new Date(item.timestamp).getMonth() === monthIdx)
+        .reduce((sum, item) => sum + (parseFloat(item.cost) || 0), 0) || 0;
+    const repay =
+      (yearlyAmishaRepay || [])
+        .filter((item) => new Date(item.timestamp).getMonth() === monthIdx)
+        .reduce((sum, item) => sum + (parseFloat(item.cost) || 0), 0) || 0;
+    const giftCost =
+      (yearlyAmishaGiftCost || [])
+        .filter((item) => new Date(item.timestamp).getMonth() === monthIdx)
+        .reduce((sum, item) => sum + (parseFloat(item.cost) || 0), 0) || 0;
+    return { income, repay, giftCost };
+  };
 
   // Main function to generate summary
   const getSummaryData = (data) => {
@@ -503,6 +575,17 @@ const DashboardTab = () => {
     }
   };
 
+  const raghavTotalIncome = summaryData[0]?.value || 0;
+  const raghavTotalExpense = summaryData[1]?.value || 0;
+
+  const allMoneyIncome = raghavTotalIncome + totalAmishaIncome;
+  const allMoneyExpense = raghavTotalExpense + totalAmishaRepay;
+  const allMoneyProfit = allMoneyIncome - allMoneyExpense;
+  const allMoneySavingsRate =
+    allMoneyIncome > 0
+      ? ((allMoneyProfit / allMoneyIncome) * 100).toFixed(1)
+      : 0;
+
   return (
     <div className="h-screen max-h-screen bg-slate-50 flex flex-col overflow-hidden">
       <Header
@@ -518,7 +601,13 @@ const DashboardTab = () => {
           {selectedMonthIndex === null ? (
             <div className="h-full flex flex-col lg:flex-row gap-4 items-stretch overflow-hidden">
               {/* LEFT SIDEBAR: Executive Financial Summary & Controls */}
-              <aside className="w-full lg:w-[320px] xl:w-[350px] shrink-0 h-full flex flex-col justify-between gap-2.5 overflow-hidden">
+              <aside
+                className={`w-full lg:w-[320px] xl:w-[350px] shrink-0 h-full flex flex-col gap-2.5 pr-1 ${
+                  showAmishaData
+                    ? "overflow-y-auto"
+                    : "justify-between overflow-hidden"
+                }`}
+              >
                 {/* Control Box: Title & Year Select */}
                 <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs shrink-0">
                   <div className="flex items-center justify-between mb-1.5">
@@ -546,7 +635,7 @@ const DashboardTab = () => {
                         type="button"
                         onClick={() => setSelectedYear(year)}
                         className={`flex-1 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                          selectedYear === year
+                          String(selectedYear) === String(year)
                             ? "bg-white text-slate-900 shadow-2xs"
                             : "text-slate-500 hover:text-slate-800"
                         }`}
@@ -555,7 +644,151 @@ const DashboardTab = () => {
                       </button>
                     ))}
                   </div>
+
+                  {/* Amisha Data Toggle Switch */}
+                  <div className="flex items-center justify-between pt-2.5 mt-2.5 border-t border-slate-100">
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold text-slate-800">
+                          Amisha Data
+                        </span>
+                        <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-purple-50 text-purple-700 border border-purple-200/70">
+                          Suite
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-slate-400">
+                        Include Income & Repay
+                      </span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={showAmishaData}
+                        onChange={(e) => setShowAmishaData(e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-8 h-4.5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-purple-600"></div>
+                    </label>
+                  </div>
                 </div>
+
+                {/* When Amisha toggle is ON: show Combined Summary Card & Amisha Cards */}
+                {showAmishaData && (
+                  <>
+                    {/* Total All Money (Combined) Summary Card */}
+                    <div className="bg-gradient-to-br from-indigo-900 via-slate-900 to-purple-950 text-white p-3.5 rounded-2xl border border-indigo-800/60 shadow-xs shrink-0">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-indigo-300">
+                          Total All Money
+                        </span>
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            allMoneyProfit >= 0
+                              ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                              : "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                          }`}
+                        >
+                          {allMoneyProfit >= 0
+                            ? `+${allMoneySavingsRate}%`
+                            : "Deficit"}
+                        </span>
+                      </div>
+                      <div
+                        className={`text-xl sm:text-2xl font-black tracking-tight ${
+                          allMoneyProfit >= 0
+                            ? "text-emerald-400"
+                            : "text-rose-400"
+                        }`}
+                      >
+                        {allMoneyProfit >= 0 ? "+" : ""}
+                        {formatINRCurrency(allMoneyProfit)}
+                      </div>
+                      <p className="text-[10px] text-slate-300 mt-0.5">
+                        Net surplus across Raghav & Amisha
+                      </p>
+                      <div className="pt-2 mt-2 border-t border-white/10 space-y-1">
+                        <div className="flex justify-between items-center text-xs py-1 px-2 rounded-lg bg-white/5">
+                          <span className="text-slate-300 font-medium text-[11px]">
+                            Total All Income
+                          </span>
+                          <span className="font-extrabold text-emerald-400 text-xs">
+                            {formatINRCurrency(allMoneyIncome)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center text-xs py-1 px-2 rounded-lg bg-white/5">
+                          <span className="text-slate-300 font-medium text-[11px]">
+                            Total All Expense
+                          </span>
+                          <span className="font-extrabold text-rose-400 text-xs">
+                            {formatINRCurrency(allMoneyExpense)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Section Header: Amisha Financials */}
+                    <div className="flex items-center justify-between px-1 shrink-0">
+                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-purple-900">
+                        Amisha Financials
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200/60">
+                        Amisha
+                      </span>
+                    </div>
+
+                    {/* Amisha Total Income Card */}
+                    <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 border-t-4 border-t-purple-600 shadow-2xs shrink-0 flex flex-col justify-between">
+                      <div>
+                        <div className="flex justify-between items-center mb-0.5">
+                          <span className="text-[11px] font-bold uppercase tracking-wider text-purple-700">
+                            Amisha Total Income
+                          </span>
+                          <span className="w-2 h-2 rounded-full bg-purple-600"></span>
+                        </div>
+                        <div className="text-xl sm:text-2xl font-black text-purple-700 tracking-tight">
+                          {formatINRCurrency(totalAmishaIncome)}
+                        </div>
+                      </div>
+                      <div className="pt-2 border-t border-slate-100 flex justify-between items-center text-[11px] text-slate-500">
+                        <span>Amisha Income entries</span>
+                        <span className="font-bold text-slate-700">
+                          {yearlyAmishaIncome?.length || 0} entries
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Amisha Total Repay Card */}
+                    <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 border-t-4 border-t-fuchsia-600 shadow-2xs shrink-0 flex flex-col justify-between">
+                      <div>
+                        <div className="flex justify-between items-center mb-0.5">
+                          <span className="text-[11px] font-bold uppercase tracking-wider text-fuchsia-700">
+                            Amisha Total Repay
+                          </span>
+                          <span className="w-2 h-2 rounded-full bg-fuchsia-600"></span>
+                        </div>
+                        <div className="text-xl sm:text-2xl font-black text-fuchsia-600 tracking-tight">
+                          {formatINRCurrency(totalAmishaRepay)}
+                        </div>
+                      </div>
+                      <div className="pt-2 border-t border-slate-100 flex justify-between items-center text-[11px] text-slate-500">
+                        <span>Amisha Repay entries</span>
+                        <span className="font-bold text-slate-700">
+                          {yearlyAmishaRepay?.length || 0} entries
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Section Header: Raghav Financials */}
+                    <div className="flex items-center justify-between px-1 shrink-0">
+                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-700">
+                        Raghav Financials
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/60">
+                        Raghav
+                      </span>
+                    </div>
+                  </>
+                )}
 
                 {/* Net Annual Savings Card */}
                 {(() => {
@@ -566,7 +799,9 @@ const DashboardTab = () => {
 
                   return (
                     <div
-                      className={`p-3.5 rounded-2xl border shadow-2xs transition-all flex-1 min-h-0 flex flex-col justify-between ${
+                      className={`p-3.5 rounded-2xl border shadow-2xs transition-all flex flex-col justify-between ${
+                        showAmishaData ? "shrink-0" : "flex-1"
+                      } ${
                         profit >= 0
                           ? "bg-gradient-to-br from-emerald-500/10 via-white to-teal-500/5 border-emerald-200"
                           : "bg-gradient-to-br from-rose-500/10 via-white to-amber-500/5 border-rose-200"
@@ -574,7 +809,7 @@ const DashboardTab = () => {
                     >
                       <div className="flex justify-between items-center">
                         <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                          Net Annual Savings
+                          Net Annual Savings (Raghav)
                         </span>
                         <span
                           className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
@@ -603,7 +838,11 @@ const DashboardTab = () => {
 
                 {/* Total Income Card */}
                 {summaryData[0] && (
-                  <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 border-t-4 border-t-blue-600 shadow-2xs flex-1 min-h-0 flex flex-col justify-between">
+                  <div
+                    className={`bg-white p-3.5 rounded-2xl border border-slate-200/90 border-t-4 border-t-blue-600 shadow-2xs flex flex-col justify-between ${
+                      showAmishaData ? "shrink-0" : "flex-1"
+                    }`}
+                  >
                     <div>
                       <div className="flex justify-between items-center mb-0.5">
                         <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
@@ -637,7 +876,11 @@ const DashboardTab = () => {
 
                 {/* Total Expense Card */}
                 {summaryData[1] && (
-                  <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 border-t-4 border-t-rose-600 shadow-2xs flex-1 min-h-0 flex flex-col justify-between">
+                  <div
+                    className={`bg-white p-3.5 rounded-2xl border border-slate-200/90 border-t-4 border-t-rose-600 shadow-2xs flex flex-col justify-between ${
+                      showAmishaData ? "shrink-0" : "flex-1"
+                    }`}
+                  >
                     <div>
                       <div className="flex justify-between items-center mb-0.5">
                         <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
@@ -671,7 +914,11 @@ const DashboardTab = () => {
 
                 {/* Total Investment Card */}
                 {summaryData[2] && (
-                  <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 border-t-4 border-t-amber-500 shadow-2xs flex-[1.2] min-h-0 flex flex-col justify-between">
+                  <div
+                    className={`bg-white p-3.5 rounded-2xl border border-slate-200/90 border-t-4 border-t-amber-500 shadow-2xs flex flex-col justify-between ${
+                      showAmishaData ? "shrink-0" : "flex-[1.2]"
+                    }`}
+                  >
                     <div>
                       <div className="flex justify-between items-center mb-0.5">
                         <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
@@ -708,7 +955,115 @@ const DashboardTab = () => {
               </aside>
 
               {/* RIGHT MAIN CONTENT: 4-Column x 3-Row Monthly Matrix */}
-              <main className="flex-1 min-w-0 h-full flex flex-col justify-between gap-2.5 overflow-hidden">
+              <main
+                className={`flex-1 min-w-0 h-full flex flex-col gap-2.5 ${
+                  showAmishaData
+                    ? "overflow-y-auto pr-1"
+                    : "justify-between overflow-hidden"
+                }`}
+              >
+                {/* SEPARATE SECTION: Total All Money (Combined Income & Expense in Year) */}
+                {showAmishaData && (
+                  <section className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-3.5 sm:p-4 rounded-2xl border border-indigo-900/60 shadow-md shrink-0">
+                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-[11px] font-black uppercase tracking-wider text-indigo-300">
+                            Total All Money Section
+                          </span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-200 border border-purple-400/30">
+                            Raghav + Amisha (
+                            {selectedYear === "All"
+                              ? "All Recorded Years"
+                              : `Year ${selectedYear}`}
+                            )
+                          </span>
+                        </div>
+                        <h3 className="text-sm sm:text-base font-extrabold text-white tracking-tight">
+                          Combined Annual Financial Summary
+                        </h3>
+                        <p className="text-[11px] text-slate-300">
+                          Total aggregated income and total expenditures across
+                          Raghav & Amisha
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full lg:w-auto shrink-0">
+                        {/* Total All Income */}
+                        <div className="bg-white/10 backdrop-blur-md px-3.5 py-2 rounded-xl border border-white/10 min-w-[170px]">
+                          <span className="text-[10px] uppercase font-bold text-emerald-300 tracking-wider block">
+                            Total All Income
+                          </span>
+                          <div className="text-base sm:text-lg font-black text-emerald-400 mt-0.5">
+                            {formatINRCurrency(allMoneyIncome)}
+                          </div>
+                          <div className="text-[10px] text-slate-300 mt-0.5 flex items-center gap-1">
+                            <span>
+                              Raghav: {formatINRCurrency(raghavTotalIncome)}
+                            </span>
+                            <span>+</span>
+                            <span>
+                              Amisha: {formatINRCurrency(totalAmishaIncome)}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Total All Expense */}
+                        <div className="bg-white/10 backdrop-blur-md px-3.5 py-2 rounded-xl border border-white/10 min-w-[170px]">
+                          <span className="text-[10px] uppercase font-bold text-rose-300 tracking-wider block">
+                            Total All Expense
+                          </span>
+                          <div className="text-base sm:text-lg font-black text-rose-400 mt-0.5">
+                            {formatINRCurrency(allMoneyExpense)}
+                          </div>
+                          <div className="text-[10px] text-slate-300 mt-0.5 flex items-center gap-1">
+                            <span>
+                              Raghav: {formatINRCurrency(raghavTotalExpense)}
+                            </span>
+                            <span>+</span>
+                            <span>
+                              Amisha: {formatINRCurrency(totalAmishaRepay)}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Combined Net Surplus */}
+                        <div className="bg-white/10 backdrop-blur-md px-3.5 py-2 rounded-xl border border-white/10 min-w-[170px]">
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="text-[10px] uppercase font-bold text-indigo-200 tracking-wider block">
+                              Combined Net
+                            </span>
+                            <span
+                              className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full ${
+                                allMoneyProfit >= 0
+                                  ? "bg-emerald-500/20 text-emerald-300"
+                                  : "bg-rose-500/20 text-rose-300"
+                              }`}
+                            >
+                              {allMoneyProfit >= 0
+                                ? `+${allMoneySavingsRate}%`
+                                : "Deficit"}
+                            </span>
+                          </div>
+                          <div
+                            className={`text-base sm:text-lg font-black mt-0.5 ${
+                              allMoneyProfit >= 0
+                                ? "text-emerald-400"
+                                : "text-rose-400"
+                            }`}
+                          >
+                            {allMoneyProfit >= 0 ? "+" : ""}
+                            {formatINRCurrency(allMoneyProfit)}
+                          </div>
+                          <div className="text-[10px] text-slate-300 mt-0.5">
+                            All Funds Surplus / Savings
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                )}
+
                 {/* Header Banner */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-white px-4 py-2.5 rounded-2xl border border-slate-200/90 shadow-2xs shrink-0">
                   <div>
@@ -727,7 +1082,7 @@ const DashboardTab = () => {
                 </div>
 
                 {/* Monthly Cards: 4 columns x 3 rows grid filling 100% height */}
-                <div className="flex-1 min-h-0 grid grid-cols-2 xl:grid-cols-4 grid-rows-3 gap-2.5">
+                <div className="flex-1 min-h-0 overflow-y-auto grid grid-cols-2 xl:grid-cols-4 auto-rows-auto gap-2.5 content-start pb-1 pr-0.5">
                   {apiData?.map((month, index) => {
                     const calcs = getMonthlyCalculations(month);
                     const expenseRatio =
@@ -741,20 +1096,20 @@ const DashboardTab = () => {
                     return (
                       <div
                         key={index}
-                        className={`rounded-2xl border transition-all duration-200 flex flex-col justify-between p-3 ${
+                        className={`rounded-2xl border transition-all duration-200 flex flex-col justify-between p-3.5 ${
                           calcs.hasData
                             ? "border-slate-200/90 bg-white shadow-2xs hover:shadow-md"
                             : "border-slate-200/50 bg-slate-50/70 opacity-60 hover:opacity-100"
                         }`}
                       >
-                        <div>
+                        <div className="flex flex-col gap-1.5">
                           {/* Month Title & Net Savings Badge */}
-                          <div className="flex justify-between items-center mb-1.5">
-                            <span className="font-extrabold text-slate-900 text-sm sm:text-base">
+                          <div className="flex justify-between items-center gap-1">
+                            <span className="font-extrabold text-slate-900 text-sm sm:text-base truncate shrink">
                               {month?.month}
                             </span>
                             <span
-                              className={`px-2 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap border ${
+                              className={`px-2 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap border shrink-0 ${
                                 !calcs.hasData
                                   ? "bg-slate-100 text-slate-500 border-slate-200"
                                   : calcs.profit >= 0
@@ -769,7 +1124,7 @@ const DashboardTab = () => {
                           </div>
 
                           {/* Primary Metrics: Income vs Expense Side-by-Side */}
-                          <div className="bg-slate-50 p-2 rounded-xl border border-slate-100 mb-1.5">
+                          <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
                             <div className="grid grid-cols-2 gap-2">
                               <div className="min-w-0">
                                 <span className="text-[10px] font-semibold text-slate-500 block">
@@ -826,7 +1181,7 @@ const DashboardTab = () => {
                                 handleNavigateToDataTable("Total", index);
                               }}
                               title={`Click to view Mumbai expenses for ${month?.month} in Data Table`}
-                              className="flex justify-between items-center px-1.5 py-0.5 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors"
+                              className="flex justify-between items-center px-1.5 py-1 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors"
                             >
                               <div className="flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
@@ -844,7 +1199,7 @@ const DashboardTab = () => {
                                 handleNavigateToDataTable("Total", index);
                               }}
                               title={`Click to view Faridabad expenses for ${month?.month} in Data Table`}
-                              className="flex justify-between items-center px-1.5 py-0.5 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors"
+                              className="flex justify-between items-center px-1.5 py-1 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors"
                             >
                               <div className="flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
@@ -862,7 +1217,7 @@ const DashboardTab = () => {
                                 handleNavigateToDataTable("investment", index);
                               }}
                               title={`Click to view Investment for ${month?.month} in Data Table`}
-                              className="flex justify-between items-center px-1.5 py-0.5 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors"
+                              className="flex justify-between items-center px-1.5 py-1 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors"
                             >
                               <div className="flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
@@ -874,13 +1229,64 @@ const DashboardTab = () => {
                                 {formatINRCurrency(calcs.investment)}
                               </span>
                             </div>
+
+                            {/* Amisha Gift Cost Row – always visible, clickable */}
+                            {showAmishaData &&
+                              (() => {
+                                const gift =
+                                  getMonthAmishaCalculations(index).giftCost;
+                                return gift > 0 ? (
+                                  <div
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleNavigateToAmishaDataTable(
+                                        "Gift Cost",
+                                        index,
+                                      );
+                                    }}
+                                    title={`Click to view Amisha Gift Cost for ${month?.month} in Amisha Data Table`}
+                                    className="flex justify-between items-center px-1.5 py-1 rounded-lg bg-pink-50/80 border border-pink-100/80 cursor-pointer hover:bg-pink-100 transition-colors"
+                                  >
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-pink-500" />
+                                      <span className="font-medium text-pink-700 text-[11px]">
+                                        Gift (Amisha)
+                                      </span>
+                                    </div>
+                                    <span className="font-bold text-pink-800 text-[11px]">
+                                      {formatINRCurrency(gift)}
+                                    </span>
+                                  </div>
+                                ) : null;
+                              })()}
+
+                            {showAmishaData && (
+                              <div className="flex justify-between items-center px-1.5 py-0.5 rounded-lg bg-purple-50/70 border border-purple-100/70 text-[10px]">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-600" />
+                                  <span className="font-semibold text-purple-800 text-[11px]">
+                                    Amisha
+                                  </span>
+                                </div>
+                                <span className="font-bold text-purple-900 text-[10px]">
+                                  +
+                                  {formatINRCurrency(
+                                    getMonthAmishaCalculations(index).income,
+                                  )}{" "}
+                                  / -
+                                  {formatINRCurrency(
+                                    getMonthAmishaCalculations(index).repay,
+                                  )}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
 
                         {/* Action Button */}
                         <button
                           type="button"
-                          className="w-full py-1.5 text-xs rounded-xl font-bold text-blue-600 bg-blue-50/70 hover:bg-blue-600 hover:text-white border border-blue-200/80 hover:border-transparent transition-all cursor-pointer flex items-center justify-center gap-1 mt-1"
+                          className="w-full py-1.5 text-xs rounded-xl font-bold text-blue-600 bg-blue-50/70 hover:bg-blue-600 hover:text-white border border-blue-200/80 hover:border-transparent transition-all cursor-pointer flex items-center justify-center gap-1 mt-1 shrink-0"
                           onClick={() => handleViewDetails(index)}
                         >
                           View Details →
@@ -926,27 +1332,57 @@ const DashboardTab = () => {
                       </div>
 
                       {/* Net Status Badge */}
-                      <div
-                        className={`px-3.5 py-1.5 rounded-xl border flex items-center gap-2 ${
-                          monthCalcs.profit >= 0
-                            ? "bg-emerald-50 border-emerald-200 text-emerald-800"
-                            : "bg-rose-50 border-rose-200 text-rose-800"
-                        }`}
-                      >
-                        <span className="text-[10px] font-bold uppercase tracking-wider">
-                          Net Result:
-                        </span>
-                        <span className="text-xs sm:text-sm font-extrabold">
-                          {monthCalcs.profit >= 0 ? "+" : ""}
-                          {formatINRCurrency(monthCalcs.profit)}
-                        </span>
+                      <div className="flex items-center gap-2">
+                        {showAmishaData && (
+                          <div className="px-3 py-1.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-900 flex items-center gap-2 hidden sm:flex">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700">
+                              Combined Month Net:
+                            </span>
+                            <span className="text-xs sm:text-sm font-extrabold text-purple-900">
+                              {(() => {
+                                const aInc =
+                                  getMonthAmishaCalculations(
+                                    selectedMonthIndex,
+                                  ).income;
+                                const aRep =
+                                  getMonthAmishaCalculations(
+                                    selectedMonthIndex,
+                                  ).repay;
+                                const combNet =
+                                  (monthCalcs.profit || 0) + (aInc - aRep);
+                                return `${combNet >= 0 ? "+" : ""}${formatINRCurrency(combNet)}`;
+                              })()}
+                            </span>
+                          </div>
+                        )}
+                        <div
+                          className={`px-3.5 py-1.5 rounded-xl border flex items-center gap-2 ${
+                            monthCalcs.profit >= 0
+                              ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+                              : "bg-rose-50 border-rose-200 text-rose-800"
+                          }`}
+                        >
+                          <span className="text-[10px] font-bold uppercase tracking-wider">
+                            Raghav Net:
+                          </span>
+                          <span className="text-xs sm:text-sm font-extrabold">
+                            {monthCalcs.profit >= 0 ? "+" : ""}
+                            {formatINRCurrency(monthCalcs.profit)}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
                     {/* TWO-COLUMN SPLIT: TOTAL HEADING ON LEFT, EXPENSES ON RIGHT */}
                     <div className="flex-1 min-h-0 flex flex-col lg:flex-row gap-3.5 items-stretch overflow-hidden">
                       {/* LEFT: TOTAL HEADING CARDS (6 Cards Stretched to 100% Height) */}
-                      <aside className="w-full lg:w-[280px] xl:w-[320px] shrink-0 h-full flex flex-col justify-between gap-2 overflow-hidden">
+                      <aside
+                        className={`w-full lg:w-[280px] xl:w-[320px] shrink-0 h-full flex flex-col gap-2 pr-1 ${
+                          showAmishaData
+                            ? "overflow-y-auto"
+                            : "justify-between overflow-hidden"
+                        }`}
+                      >
                         {monthDetails.map((item, index) => {
                           const val = getMonthlyValueHandler(
                             apiData[selectedMonthIndex],
@@ -955,7 +1391,9 @@ const DashboardTab = () => {
                           return (
                             <div
                               key={index}
-                              onClick={() => handleNavigateToDataTable(item.label)}
+                              onClick={() =>
+                                handleNavigateToDataTable(item.label)
+                              }
                               title={`Click to view ${item.label} in Data Table for ${monthName}`}
                               className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-2xs px-4 py-2 flex flex-col justify-center border-l-6 transition-all hover:shadow-md hover:scale-[1.01] active:scale-[0.99] cursor-pointer group"
                               style={{ borderLeftColor: item.color }}
@@ -980,6 +1418,44 @@ const DashboardTab = () => {
                             </div>
                           );
                         })}
+
+                        {showAmishaData && (
+                          <>
+                            <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-2xs px-4 py-2 flex flex-col justify-center border-l-6 border-l-purple-600 transition-all hover:shadow-md">
+                              <div className="flex justify-between items-center">
+                                <span className="text-[11px] font-bold uppercase tracking-wider text-purple-700 block truncate">
+                                  Amisha Income ({monthName})
+                                </span>
+                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-purple-50 text-purple-700 border border-purple-100">
+                                  Amisha
+                                </span>
+                              </div>
+                              <span className="text-lg sm:text-xl xl:text-2xl font-black tracking-tight mt-0.5 block text-purple-700">
+                                {formatINRCurrency(
+                                  getMonthAmishaCalculations(selectedMonthIndex)
+                                    .income,
+                                )}
+                              </span>
+                            </div>
+
+                            <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-2xs px-4 py-2 flex flex-col justify-center border-l-6 border-l-fuchsia-600 transition-all hover:shadow-md">
+                              <div className="flex justify-between items-center">
+                                <span className="text-[11px] font-bold uppercase tracking-wider text-fuchsia-700 block truncate">
+                                  Amisha Repay ({monthName})
+                                </span>
+                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-fuchsia-50 text-fuchsia-700 border border-fuchsia-100">
+                                  Amisha
+                                </span>
+                              </div>
+                              <span className="text-lg sm:text-xl xl:text-2xl font-black tracking-tight mt-0.5 block text-fuchsia-700">
+                                {formatINRCurrency(
+                                  getMonthAmishaCalculations(selectedMonthIndex)
+                                    .repay,
+                                )}
+                              </span>
+                            </div>
+                          </>
+                        )}
                       </aside>
 
                       {/* RIGHT: EXPENSES (3 Sections Stretched to 100% Height) */}

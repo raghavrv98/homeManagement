@@ -123,13 +123,13 @@ const Dashboard = () => {
   );
 
   return (
-    <div className="h-screen max-h-screen bg-slate-50 flex flex-col overflow-hidden">
+    <div className="bg-slate-50 flex flex-col overflow-hidden">
       <Header isShowBack={false} isShowLogout={true} backLink="/home" />
 
       {/* Main Single-View Container */}
       <div className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col justify-between gap-3 sm:gap-4 min-h-0">
         {/* Compact Hero Banner */}
-        <div className="py-2.5 px-4 sm:px-5 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800 text-white flex items-center justify-between gap-4 shadow-sm shrink-0">
+        <div className="h-30 py-2.5 px-4 sm:px-5 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800 text-white flex items-center justify-between gap-4 shadow-sm shrink-0">
           <div>
             <h1 className="font-extrabold text-base sm:text-lg tracking-tight">
               Financial Management Hub

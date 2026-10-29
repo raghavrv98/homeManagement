@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useSortBy, useTable } from "react-table";
 import {
   Tabs,
@@ -22,15 +23,12 @@ dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 
 // ✅ Added Repay & Gift Cost
-const tabLabels = [
-  "Income",
-  "Repay",
-  "Gift Cost",
-];
+const tabLabels = ["Income", "Repay", "Gift Cost"];
 
 const AmishaDataTables = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const location = useLocation();
 
   const [selectedTab, setSelectedTab] = useState(0);
   const [apiData, setApiData] = useState({});
@@ -39,6 +37,18 @@ const AmishaDataTables = () => {
   const [editedData, setEditedData] = useState({});
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
+
+  // Pre-select tab + date range when navigated from another page
+  useEffect(() => {
+    const state = location.state;
+    if (!state) return;
+    if (state.tab !== undefined) {
+      const tabIdx = tabLabels.indexOf(state.tab);
+      if (tabIdx !== -1) setSelectedTab(tabIdx);
+    }
+    if (state.startDate) setStartDate(dayjs(state.startDate));
+    if (state.endDate) setEndDate(dayjs(state.endDate));
+  }, [location.state]);
 
   const currentTab = tabLabels[selectedTab]; // Active tab
   const saveData = useRef({ ...editedData });
@@ -128,7 +138,7 @@ const AmishaDataTables = () => {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(saveData?.current),
-        }
+        },
       );
       const result = await response.json();
       if (!response.ok) throw new Error(result.msg);
@@ -153,9 +163,9 @@ const AmishaDataTables = () => {
       const response = await fetch(
         `${API_URL}/user/raghav/amisha${currentTab.replace(
           " ",
-          ""
+          "",
         )}/${entryId}`,
-        { method: "DELETE" }
+        { method: "DELETE" },
       );
       const result = await response.json();
       if (!response.ok) throw new Error(result.msg);
@@ -175,8 +185,6 @@ const AmishaDataTables = () => {
     return dayjs(date).format("DD MMM YYYY hh:mm A");
   };
 
-
-
   /**
    * ✅ Calculate totals row
    */
@@ -190,8 +198,6 @@ const AmishaDataTables = () => {
         return typeof val === "number" ? sum + val : "";
       }, 0);
     });
-
-
 
     return total;
   }, [data, currentTab]);
@@ -222,8 +228,6 @@ const AmishaDataTables = () => {
           value
         ),
     }));
-
-
 
     return [
       {
@@ -277,13 +281,13 @@ const AmishaDataTables = () => {
           sortBy: [{ id: "timestamp", desc: true }],
         },
       },
-      useSortBy
+      useSortBy,
     );
 
   return (
     <>
       <Header backLink={"/dashboard"} title="Data Tables" />
-      <div className="p-4 sm:p-6 max-w-[1400px] mx-auto">
+      <div className="p-4 sm:p-6 w-full">
         {/* ✅ Tabs now include Repay + Gift Cost */}
         <Tabs
           value={selectedTab}
@@ -295,7 +299,11 @@ const AmishaDataTables = () => {
           className="mb-4 bg-white rounded-2xl p-1 border border-slate-200/80 shadow-xs"
         >
           {tabLabels.map((label, idx) => (
-            <Tab key={idx} label={label} className="!text-xs !font-semibold !capitalize" />
+            <Tab
+              key={idx}
+              label={label}
+              className="!text-xs !font-semibold !capitalize"
+            />
           ))}
         </Tabs>
 
@@ -345,8 +353,8 @@ const AmishaDataTables = () => {
                     {column.id === "index"
                       ? "Total"
                       : typeof totals[column.id] === "number"
-                      ? totals[column.id]
-                      : ""}
+                        ? totals[column.id]
+                        : ""}
                   </th>
                 ))}
               </tr>
@@ -373,13 +381,19 @@ const AmishaDataTables = () => {
             <tbody {...getTableBodyProps()}>
               {loading ? (
                 <tr>
-                  <td colSpan={columns.length} className="text-center py-16 text-slate-400 font-medium text-base">
+                  <td
+                    colSpan={columns.length}
+                    className="text-center py-16 text-slate-400 font-medium text-base"
+                  >
                     Loading...
                   </td>
                 </tr>
               ) : rows.length === 0 ? (
                 <tr>
-                  <td colSpan={columns.length} className="text-center py-16 text-slate-400 font-medium text-base">
+                  <td
+                    colSpan={columns.length}
+                    className="text-center py-16 text-slate-400 font-medium text-base"
+                  >
                     No data
                   </td>
                 </tr>
@@ -387,7 +401,11 @@ const AmishaDataTables = () => {
                 rows.map((row) => {
                   prepareRow(row);
                   return (
-                    <tr {...row.getRowProps()} key={row.id} className="border-b border-slate-100 hover:bg-indigo-50/40 transition-colors even:bg-slate-50/50">
+                    <tr
+                      {...row.getRowProps()}
+                      key={row.id}
+                      className="border-b border-slate-100 hover:bg-indigo-50/40 transition-colors even:bg-slate-50/50"
+                    >
                       {row.cells.map((cell) => (
                         <td
                           {...cell.getCellProps()}

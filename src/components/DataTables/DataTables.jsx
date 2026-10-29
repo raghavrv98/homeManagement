@@ -491,7 +491,7 @@ const DataTables = () => {
         backLink={location.state?.from || "/dashboardTab"}
         title="Data Tables"
       />
-      <div className="p-4 sm:p-6 max-w-[1400px] mx-auto">
+      <div className="p-4 sm:p-6 w-full">
         <Tabs
           value={selectedTab}
           onChange={(_, newValue) => setSelectedTab(newValue)}
